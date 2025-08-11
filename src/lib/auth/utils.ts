@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { createSupabaseBrowserClient } from './supabase'
 // import { prisma } from '../db/client' // Remove prisma client import
 import type { 
   LoginCredentials, 
@@ -48,6 +48,7 @@ export function mapAuthError(error: AuthError | Error | null): AuthErrorDetail |
  * Sign in with email and password
  */
 export async function signInWithCredentials(credentials: LoginCredentials): Promise<{ error: string | null; user?: any }> {
+  const supabase = createSupabaseBrowserClient();
   try {
     // Check for admin user via API route
     if (credentials.email.endsWith('@example.com')) {
@@ -90,6 +91,7 @@ export async function signInWithCredentials(credentials: LoginCredentials): Prom
  * Sign up with email and password
  */
 export async function signUpWithCredentials(credentials: RegisterCredentials): Promise<{ error: string | null }> {
+  const supabase = createSupabaseBrowserClient();
   try {
     const { error } = await supabase.auth.signUp({
       email: credentials.email,
@@ -118,6 +120,7 @@ export async function signUpWithCredentials(credentials: RegisterCredentials): P
  * Sign out the current user
  */
 export async function signOut(): Promise<void> {
+  const supabase = createSupabaseBrowserClient();
   await supabase.auth.signOut()
 }
 
@@ -125,6 +128,7 @@ export async function signOut(): Promise<void> {
  * Reset password for the given email
  */
 export async function resetPassword(email: string): Promise<{ error: string | null }> {
+  const supabase = createSupabaseBrowserClient();
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
@@ -146,6 +150,7 @@ export async function resetPassword(email: string): Promise<{ error: string | nu
  * Get the current session
  */
 export async function getCurrentSession(): Promise<SessionCheckResult> {
+  const supabase = createSupabaseBrowserClient();
   try {
     const { data: { session }, error } = await supabase.auth.getSession()
     
@@ -177,6 +182,7 @@ export async function getCurrentSession(): Promise<SessionCheckResult> {
  * Get the current user
  */
 export async function getCurrentUser() {
+  const supabase = createSupabaseBrowserClient();
   const { data: { user }, error } = await supabase.auth.getUser()
   
   if (error) {
@@ -198,6 +204,7 @@ export function isAuthenticated(session: any): boolean {
  * Subscribe to auth state changes
  */
 export function onAuthStateChange(callback: (event: string, session: any) => void) {
+  const supabase = createSupabaseBrowserClient();
   return supabase.auth.onAuthStateChange(callback)
 }
 

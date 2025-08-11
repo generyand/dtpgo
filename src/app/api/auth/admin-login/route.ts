@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/client';
 import { z } from 'zod';
+import * as bcrypt from 'bcryptjs';
 
 const adminLoginSchema = z.object({
   email: z.string().email(),
@@ -22,7 +23,13 @@ export async function POST(req: NextRequest) {
       where: { email },
     });
 
-    if (!adminUser || adminUser.password !== password) {
+    if (!adminUser) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, adminUser.password);
+
+    if (!passwordMatch) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 

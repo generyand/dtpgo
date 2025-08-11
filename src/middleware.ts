@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { checkIPWhitelist, getIPWhitelistConfig } from '@/lib/security/ip-whitelist'
 
@@ -38,14 +38,14 @@ function isAdminRoute(pathname: string): boolean {
  * - IP_WHITELIST_ALLOW_LOCALHOST: Allow localhost access (default: true)
  * - IP_WHITELIST_ALLOW_PRIVATE: Allow private network access (default: true)
  */
-export async function middleware(req: NextRequest) {
+export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
     request: {
-      headers: req.headers,
+      headers: request.headers,
     },
   })
 
-  const { pathname } = req.nextUrl
+  const { pathname } = request.nextUrl
   
   // Skip middleware for public routes and API routes that don't need protection
   if (!isAdminRoute(pathname)) {
@@ -55,7 +55,7 @@ export async function middleware(req: NextRequest) {
   // Check IP whitelist for admin routes when enabled
   const ipWhitelistConfig = getIPWhitelistConfig()
   if (ipWhitelistConfig.enabled) {
-    const ipCheck = checkIPWhitelist(req, ipWhitelistConfig)
+    const ipCheck = checkIPWhitelist(request, ipWhitelistConfig)
     
     if (!ipCheck.allowed) {
       console.warn(`IP whitelist violation: ${ipCheck.reason}`)
@@ -88,17 +88,17 @@ export async function middleware(req: NextRequest) {
       {
         cookies: {
           get(name: string) {
-            return req.cookies.get(name)?.value
+            return request.cookies.get(name)?.value
           },
-          set(name: string, value: string, options: any) {
-            req.cookies.set({
+          set(name: string, value: string, options: CookieOptions) {
+            request.cookies.set({
               name,
               value,
               ...options,
             })
             response = NextResponse.next({
               request: {
-                headers: req.headers,
+                headers: request.headers,
               },
             })
             response.cookies.set({
@@ -107,15 +107,15 @@ export async function middleware(req: NextRequest) {
               ...options,
             })
           },
-          remove(name: string, options: any) {
-            req.cookies.set({
+          remove(name: string, options: CookieOptions) {
+            request.cookies.set({
               name,
               value: '',
               ...options,
             })
             response = NextResponse.next({
               request: {
-                headers: req.headers,
+                headers: request.headers,
               },
             })
             response.cookies.set({
@@ -134,14 +134,14 @@ export async function middleware(req: NextRequest) {
     if (error) {
       console.error('Middleware auth error:', error)
       // Redirect to login on session error
-      const redirectUrl = new URL('/auth/login', req.url)
+      const redirectUrl = new URL('/auth/login', request.url)
       redirectUrl.searchParams.set('redirectTo', pathname)
       return NextResponse.redirect(redirectUrl)
     }
 
     // If no session exists, redirect to login
     if (!session || !session.user) {
-      const redirectUrl = new URL('/auth/login', req.url)
+      const redirectUrl = new URL('/auth/login', request.url)
       redirectUrl.searchParams.set('redirectTo', pathname)
       return NextResponse.redirect(redirectUrl)
     }
@@ -160,7 +160,7 @@ export async function middleware(req: NextRequest) {
     const ipWhitelistConfig = getIPWhitelistConfig()
     if (ipWhitelistConfig.enabled) {
       try {
-        const ipCheck = checkIPWhitelist(req, ipWhitelistConfig)
+        const ipCheck = checkIPWhitelist(request, ipWhitelistConfig)
         if (!ipCheck.allowed) {
           // If IP whitelist is the issue, return 403 instead of redirect
           return new NextResponse(
@@ -184,7 +184,7 @@ export async function middleware(req: NextRequest) {
     }
     
     // On any non-IP-related error, redirect to login for security
-    const redirectUrl = new URL('/auth/login', req.url)
+    const redirectUrl = new URL('/auth/login', request.url)
     redirectUrl.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(redirectUrl)
   }
