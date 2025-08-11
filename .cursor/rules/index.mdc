@@ -1,0 +1,58 @@
+---
+description: Central index for all active Cursor rules within the DTP Attendance project, organized by category and defining development processes, structures, and guidelines
+globs: 
+alwaysApply: true
+---
+# DTP Attendance Rule Index
+
+This document serves as the central index for all active Cursor rules within this repository, organized by category. These rules define processes, structures, and guidelines for development of the DTP Attendance system.
+
+## Core & General
+
+Fundamental project structure, setup, and general development guidelines.
+
+| Rule File                  | Description                                                                          |
+| :------------------------- | :----------------------------------------------------------------------------------- |
+| @cursor-rules.mdc          | How to add or edit Cursor rules in our project.                                      |
+| @project-structure.mdc     | Complete project structure guidelines including directory organization, file naming conventions, and architectural patterns. |
+| @tech-stack.mdc            | Complete tech stack specification including Next.js 15, TypeScript 5, Tailwind CSS 4, Prisma ORM, and development patterns. |
+
+## Feature Management
+
+Rules for defining features and managing development tasks using a three-tier approach.
+
+| Rule File                | Description                                                                              |
+| :----------------------- | :--------------------------------------------------------------------------------------- |
+| @create-prd.mdc          | Guides the AI in creating a detailed Product Requirements Document (PRD) in Markdown format for attendance system features. |
+| @generate-tasks.mdc      | Guides the AI in creating a detailed, three-tier task list (Epic → Story → Atomic) for features from a PRD with explicit PRD traceability and tech-stack alignment. |
+| @process-task-list.mdc   | Guidelines for managing task lists in markdown files using the three-tier approach to track progress on completing PRD features. |
+
+## Development Workflow
+
+The DTP Attendance project follows a structured development workflow:
+
+1. **Requirements Definition**: Use `@create-prd.mdc` to document feature requirements
+2. **Task Planning**: Use `@generate-tasks.mdc` to break down PRDs into actionable tasks
+3. **Implementation**: Follow `@project-structure.mdc` and `@tech-stack.mdc` guidelines
+4. **Progress Tracking**: Use `@process-task-list.mdc` for atomic task completion
+5. **Rule Management**: Follow `@cursor-rules.mdc` for adding new development guidelines
+
+## Project Context
+
+**DTP Attendance** is a Next.js 15 application with TypeScript, focusing on attendance tracking functionality. The project uses:
+
+- **Framework**: Next.js 15.4.6 with App Router
+- **Language**: TypeScript 5 with strict typing
+- **Styling**: Tailwind CSS 4 with shadcn/ui components
+- **Database**: Prisma ORM for database management
+- **Architecture**: Feature-based organization with three-tier task management
+
+## Rule Categories Explanation
+
+### **Core & General**
+Essential rules that apply to all aspects of development, including project organization, technology choices, and basic development practices.
+
+### **Feature Management** 
+Specialized rules for the PRD-to-implementation workflow, ensuring systematic feature development with proper documentation, task breakdown, and progress tracking.
+
+All rules are designed to work together to create a cohesive development experience for the attendance tracking system, with particular emphasis on junior developer accessibility and clear task accountability.

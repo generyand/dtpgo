@@ -7,26 +7,41 @@ alwaysApply: false
 
 Guidelines for managing task lists in markdown files to track progress on completing a PRD
 
-## Task Implementation
-- **One sub-task at a time:** Do **NOT** start the next sub‑task until you ask the user for permission and they say "yes" or "y"
-- **Completion protocol:**  
-  1. When you finish a **sub‑task**, immediately mark it as completed by changing `[ ]` to `[x]`.
-  2. If **all** subtasks underneath a parent task are now `[x]`, follow this sequence:
-    - **First**: Run the full test suite (`pytest`, `npm test`, `bin/rails test`, etc.)
-    - **Only if all tests pass**: Stage changes (`git add .`)
-    - **Clean up**: Remove any temporary files and temporary code before committing
-    - **Commit**: Use a descriptive commit message that:
-      - Uses conventional commit format (`feat:`, `fix:`, `refactor:`, etc.)
-      - Summarizes what was accomplished in the parent task
-      - Lists key changes and additions
-      - References the task number and PRD context
-      - **Formats the message as a single-line command using `-m` flags**, e.g.:
+## Three-Tier Task Implementation
 
-        ```
-        git commit -m "feat: add payment validation logic" -m "- Validates card type and expiry" -m "- Adds unit tests for edge cases" -m "Related to T123 in PRD"
-        ```
-  3. Once all the subtasks are marked completed and changes have been committed, mark the **parent task** as completed.
-- Stop after each sub‑task and wait for the user's go‑ahead.
+### Atomic Task Implementation (Lowest Level)
+- **One atomic task at a time:** Do **NOT** start the next atomic task until you ask the user for permission and they say "yes" or "y"
+- **Atomic Task Completion Protocol:**
+  1. When you finish an **atomic task**, immediately mark it as completed by changing `[ ]` to `[x]`
+  2. Verify all acceptance criteria are met before marking complete
+  3. Stop and wait for user approval before starting next atomic task
+
+### Story Task Completion (Middle Level)  
+- **Story Completion Protocol:** When **all** atomic tasks under a story are `[x]`:
+  1. **Test Story Integration:** Run relevant tests for the story scope
+  2. **Stage Changes:** `git add .` for all story-related files
+  3. **Clean Up:** Remove temporary files and temporary code
+  4. **Commit Story:** Use conventional commit format with story context:
+     ```
+     git commit -m "feat(auth): implement registration form components" -m "- Created RegisterForm.tsx with validation" -m "- Added registration page with routing" -m "- Includes comprehensive form validation" -m "Story 1.1 - FR-01 User Registration"
+     ```
+  5. **Mark Story Complete:** Change story `[ ]` to `[x]`
+
+### Epic Task Completion (Highest Level)
+- **Epic Completion Protocol:** When **all** stories under an epic are `[x]`:
+  1. **Run Full Test Suite:** Execute complete project test suite
+  2. **Integration Verification:** Verify epic works end-to-end
+  3. **Epic Commit:** Create final epic completion commit:
+     ```
+     git commit -m "feat: complete user registration system epic" -m "- All registration functionality implemented" -m "- Frontend and backend integration complete" -m "- Comprehensive test coverage" -m "Epic 1.0 - FR-01 Complete"
+     ```
+  4. **Mark Epic Complete:** Change epic `[ ]` to `[x]`
+
+### Implementation Flow
+1. Work through atomic tasks sequentially within a story
+2. Complete entire story before moving to next story  
+3. Complete entire epic before moving to next epic
+4. Always stop after each atomic task for user approval
 
 ## Task List Maintenance
 
@@ -38,16 +53,41 @@ Guidelines for managing task lists in markdown files to track progress on comple
    - List every file created or modified.
    - Give each file a one‑line description of its purpose.
 
-## AI Instructions
+## AI Instructions for Three-Tier Task Management
 
-When working with task lists, the AI must:
+When working with three-tier task lists, the AI must:
 
-1. Regularly update the task list file after finishing any significant work.
-2. Follow the completion protocol:
-   - Mark each finished **sub‑task** `[x]`.
-   - Mark the **parent task** `[x]` once **all** its subtasks are `[x]`.
-3. Add newly discovered tasks.
-4. Keep "Relevant Files" accurate and up to date.
-5. Before starting work, check which sub‑task is next.
+1. **Task Navigation:**
+   - Always check current position in the three-tier hierarchy
+   - Work on atomic tasks sequentially within stories
+   - Complete stories before moving to next story within an epic
+   - Complete epics before moving to next epic
 
-6. After implementing a sub‑task, update the file and then pause for user approval.
+2. **Progress Tracking:**
+   - Update task list file after each atomic task completion
+   - Mark atomic tasks `[x]` immediately upon completion
+   - Mark stories `[x]` only when ALL atomic tasks under it are complete
+   - Mark epics `[x]` only when ALL stories under it are complete
+
+3. **Quality Assurance:**
+   - Verify acceptance criteria before marking atomic tasks complete
+   - Run story-level tests before marking stories complete
+   - Run full test suite before marking epics complete
+   - Ensure all dependencies are met before starting any task
+
+4. **File Management:**
+   - Keep "Relevant Files" section updated with any new files created
+   - Update file descriptions if functionality changes
+   - Add newly discovered files during implementation
+
+5. **Communication Protocol:**
+   - Stop after EVERY atomic task completion
+   - Wait for explicit user approval ("yes", "y", "go") before proceeding
+   - Report what was accomplished and what's next
+   - Ask for permission before starting the next atomic task
+
+6. **Commit Strategy:**
+   - Commit after completing each story (when all atomic tasks in story are done)
+   - Commit after completing each epic (when all stories in epic are done)
+   - Use conventional commit format with proper scope and context
+   - Reference PRD functional requirements in commit messages

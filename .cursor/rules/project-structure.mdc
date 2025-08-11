@@ -1,0 +1,288 @@
+---
+description: Complete project structure guidelines for DTP Attendance including directory organization, file naming conventions, and architectural patterns
+globs: 
+alwaysApply: true
+---
+# DTP Attendance Project Structure
+
+## Root Directory Organization
+
+```
+dtp-attendance/
+├── .cursor/                 # Cursor IDE configuration
+│   └── rules/              # Cursor rules and documentation
+├── .next/                  # Next.js build output (auto-generated)
+├── docs/                   # Project documentation
+│   ├── prds/              # Product Requirements Documents
+│   └── tasks/             # Task lists generated from PRDs
+├── node_modules/          # Dependencies (auto-generated)
+├── public/                # Static assets served at root
+├── src/                   # Source code
+│   ├── app/              # Next.js App Router (pages, layouts, API routes)
+│   ├── components/       # React components
+│   ├── lib/              # Utilities, configurations, and shared logic
+│   └── hooks/            # Custom React hooks
+├── prisma/               # Database schema and migrations
+├── package.json          # Dependencies and scripts
+├── tsconfig.json         # TypeScript configuration
+├── next.config.ts        # Next.js configuration
+├── components.json       # shadcn/ui configuration
+├── eslint.config.mjs     # ESLint configuration
+├── postcss.config.mjs    # PostCSS configuration
+├── .gitignore           # Git ignore patterns
+└── README.md            # Project documentation
+```
+
+## Source Code Organization (`src/`)
+
+### App Router Structure (`src/app/`)
+Following Next.js 15 App Router conventions:
+
+```
+src/app/
+├── globals.css           # Global styles and Tailwind imports
+├── layout.tsx           # Root layout component
+├── page.tsx             # Home page component
+├── loading.tsx          # Global loading UI (optional)
+├── error.tsx            # Global error UI (optional)
+├── not-found.tsx        # 404 page (optional)
+├── (auth)/              # Route groups for organization
+│   ├── login/
+│   │   └── page.tsx     # Login page
+│   ├── register/
+│   │   └── page.tsx     # Registration page
+│   └── layout.tsx       # Auth-specific layout
+├── dashboard/           # Dashboard routes
+│   ├── page.tsx         # Dashboard home
+│   ├── layout.tsx       # Dashboard layout
+│   ├── settings/
+│   │   └── page.tsx     # Settings page
+│   └── attendance/
+│       ├── page.tsx     # Attendance overview
+│       └── [id]/
+│           └── page.tsx # Individual attendance record
+└── api/                 # API routes
+    ├── auth/
+    │   ├── login/
+    │   │   └── route.ts # POST /api/auth/login
+    │   ├── register/
+    │   │   └── route.ts # POST /api/auth/register
+    │   └── logout/
+    │       └── route.ts # POST /api/auth/logout
+    ├── users/
+    │   ├── route.ts     # GET/POST /api/users
+    │   └── [id]/
+    │       └── route.ts # GET/PUT/DELETE /api/users/[id]
+    └── attendance/
+        ├── route.ts     # GET/POST /api/attendance
+        └── [id]/
+            └── route.ts # GET/PUT/DELETE /api/attendance/[id]
+```
+
+### Components Structure (`src/components/`)
+
+```
+src/components/
+├── ui/                  # Reusable UI components (shadcn/ui style)
+│   ├── button.tsx       # Base button component
+│   ├── input.tsx        # Base input component
+│   ├── form.tsx         # Form components
+│   ├── card.tsx         # Card components
+│   ├── dialog.tsx       # Modal/dialog components
+│   ├── table.tsx        # Table components
+│   └── index.ts         # Re-exports for easy importing
+├── features/            # Feature-specific components
+│   ├── auth/
+│   │   ├── login-form.tsx
+│   │   ├── register-form.tsx
+│   │   └── auth-guard.tsx
+│   ├── attendance/
+│   │   ├── attendance-table.tsx
+│   │   ├── attendance-form.tsx
+│   │   ├── attendance-calendar.tsx
+│   │   └── attendance-stats.tsx
+│   └── dashboard/
+│       ├── dashboard-nav.tsx
+│       ├── stats-cards.tsx
+│       └── recent-activity.tsx
+├── layout/              # Layout-related components
+│   ├── header.tsx       # Site header
+│   ├── sidebar.tsx      # Navigation sidebar
+│   ├── footer.tsx       # Site footer
+│   └── navigation.tsx   # Main navigation
+└── providers/           # Context providers and wrappers
+    ├── auth-provider.tsx
+    ├── theme-provider.tsx
+    └── query-provider.tsx
+```
+
+### Library Structure (`src/lib/`)
+
+```
+src/lib/
+├── auth/                # Authentication utilities
+│   ├── config.ts        # Auth configuration
+│   ├── middleware.ts    # Auth middleware
+│   ├── providers.ts     # Auth providers (JWT, OAuth, etc.)
+│   └── validation.ts    # Auth validation schemas
+├── db/                  # Database utilities
+│   ├── client.ts        # Prisma client instance
+│   ├── seed.ts          # Database seeding
+│   └── queries/         # Reusable database queries
+│       ├── users.ts
+│       └── attendance.ts
+├── types/               # TypeScript type definitions
+│   ├── auth.ts          # Authentication types
+│   ├── user.ts          # User-related types
+│   ├── attendance.ts    # Attendance-related types
+│   └── api.ts           # API response types
+├── validations/         # Zod/validation schemas
+│   ├── auth.ts          # Auth validation schemas
+│   ├── user.ts          # User validation schemas
+│   └── attendance.ts    # Attendance validation schemas
+├── hooks/               # Custom React hooks
+│   ├── use-auth.ts      # Authentication hook
+│   ├── use-attendance.ts # Attendance data hook
+│   └── use-local-storage.ts # Local storage hook
+├── utils/               # Utility functions
+│   ├── cn.ts            # Tailwind class merger (clsx + twMerge)
+│   ├── format.ts        # Date/string formatting utilities
+│   ├── constants.ts     # Application constants
+│   └── helpers.ts       # General helper functions
+└── config/              # Configuration files
+    ├── env.ts           # Environment variables validation
+    ├── database.ts      # Database configuration
+    └── app.ts           # Application configuration
+```
+
+### Custom Hooks (`src/hooks/`)
+
+```
+src/hooks/
+├── use-auth.ts          # Authentication state and actions
+├── use-attendance.ts    # Attendance data management
+├── use-local-storage.ts # Local storage persistence
+├── use-debounce.ts      # Debounced values
+└── use-modal.ts         # Modal state management
+```
+
+## Database Structure (`prisma/`)
+
+```
+prisma/
+├── schema.prisma        # Database schema definition
+├── migrations/          # Database migration files (auto-generated)
+│   └── [timestamp]_[name]/
+│       └── migration.sql
+└── seed.ts             # Database seeding script
+```
+
+## Documentation Structure (`docs/`)
+
+```
+docs/
+├── prds/               # Product Requirements Documents
+│   ├── prd-auth-system.md
+│   ├── prd-attendance-tracking.md
+│   └── prd-user-management.md
+├── tasks/              # Generated task lists
+│   ├── tasks-prd-auth-system.md
+│   ├── tasks-prd-attendance-tracking.md
+│   └── tasks-prd-user-management.md
+├── api/                # API documentation
+│   ├── auth.md
+│   ├── users.md
+│   └── attendance.md
+└── deployment/         # Deployment guides
+    ├── development.md
+    ├── staging.md
+    └── production.md
+```
+
+## File Naming Conventions
+
+### General Rules
+- **Directories**: Use kebab-case (`attendance-tracking`, `user-management`)
+- **React Components**: Use PascalCase for files (`LoginForm.tsx`, `AttendanceTable.tsx`)
+- **Utilities/Functions**: Use kebab-case (`format-date.ts`, `validate-email.ts`)
+- **Types**: Use kebab-case (`user-types.ts`, `api-responses.ts`)
+- **Constants**: Use kebab-case files with UPPER_SNAKE_CASE exports
+
+### Specific Patterns
+```typescript
+// Good: Component files
+AttendanceForm.tsx
+UserCard.tsx
+DashboardLayout.tsx
+
+// Good: Utility files
+date-utils.ts
+validation-helpers.ts
+api-client.ts
+
+// Good: Type definition files
+user-types.ts
+attendance-types.ts
+api-response-types.ts
+
+// Good: Hook files
+use-auth.ts
+use-attendance.ts
+use-local-storage.ts
+```
+
+## Import Path Aliases
+
+Configure in `tsconfig.json` and `components.json`:
+
+```typescript
+// Available aliases
+import { Button } from "@/components/ui/button"
+import { formatDate } from "@/lib/utils/format"
+import { useAuth } from "@/hooks/use-auth"
+import { User } from "@/lib/types/user"
+import { prisma } from "@/lib/db/client"
+```
+
+## Best Practices
+
+### Directory Organization
+1. **Feature-Based Grouping**: Group related files by feature, not by file type
+2. **Shallow Nesting**: Avoid deeply nested directories (max 3-4 levels)
+3. **Clear Separation**: Keep UI components separate from business logic
+4. **Consistent Naming**: Use consistent naming patterns across the project
+
+### File Organization
+1. **Single Responsibility**: One main export per file
+2. **Index Files**: Use `index.ts` for clean re-exports
+3. **Co-location**: Keep related files close together
+4. **Test Files**: Place test files adjacent to source files (`component.tsx` + `component.test.tsx`)
+
+### Import Organization
+```typescript
+// Good: Import order
+// 1. External libraries
+import React from 'react'
+import { NextRequest } from 'next/server'
+
+// 2. Internal utilities and types
+import { cn } from '@/lib/utils'
+import { User } from '@/lib/types/user'
+
+// 3. Internal components
+import { Button } from '@/components/ui/button'
+import { LoginForm } from '@/components/features/auth/login-form'
+
+// 4. Relative imports
+import './styles.css'
+```
+
+## Migration Guidelines
+
+When adding new features:
+1. **Create PRD**: Document in `docs/prds/`
+2. **Generate Tasks**: Use task generation rules
+3. **Follow Structure**: Adhere to established patterns
+4. **Update Types**: Add TypeScript types in `src/lib/types/`
+5. **Add Tests**: Include test files for components and utilities
+6. **Document APIs**: Update API documentation in `docs/api/`

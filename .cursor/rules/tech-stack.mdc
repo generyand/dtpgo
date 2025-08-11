@@ -1,0 +1,242 @@
+---
+description: Complete tech stack specification for DTP Attendance project including frameworks, libraries, and development patterns
+globs: 
+alwaysApply: true
+---
+# DTP Attendance Tech Stack
+
+## Framework & Runtime
+
+### Next.js 15.4.6 (App Router)
+- **App Router Pattern**: Use `src/app/` directory structure
+- **Route Handlers**: Create API endpoints in `src/app/api/*/route.ts`
+- **Page Components**: Place pages in `src/app/*/page.tsx`
+- **Layout Components**: Use `layout.tsx` for nested layouts
+- **Loading & Error**: Implement `loading.tsx` and `error.tsx` where needed
+
+```typescript
+// Good: Next.js App Router API route
+// src/app/api/users/route.ts
+export async function GET() {
+  return Response.json({ users: [] })
+}
+
+// Good: Next.js page component
+// src/app/dashboard/page.tsx
+export default function DashboardPage() {
+  return <div>Dashboard</div>
+}
+```
+
+### TypeScript 5
+- **Strict Mode**: Always use strict TypeScript configuration
+- **Type Definitions**: Create custom types in `src/lib/types/`
+- **Interface Over Type**: Prefer interfaces for object shapes
+- **Utility Types**: Leverage TypeScript utility types
+
+```typescript
+// Good: Interface definition
+interface User {
+  id: string
+  email: string
+  createdAt: Date
+}
+
+// Good: Utility types
+type CreateUserInput = Omit<User, 'id' | 'createdAt'>
+```
+
+## Styling & UI
+
+### Tailwind CSS 4
+- **Utility-First**: Use Tailwind utility classes
+- **Custom Components**: Create reusable components in `src/components/ui/`
+- **Responsive Design**: Mobile-first approach with responsive breakpoints
+- **Dark Mode**: Support dark mode with `dark:` prefixes
+
+```typescript
+// Good: Tailwind with responsive design
+<div className="p-4 md:p-6 lg:p-8 bg-white dark:bg-gray-900">
+  <h1 className="text-xl md:text-2xl font-semibold">Title</h1>
+</div>
+```
+
+### Class Variance Authority (CVA)
+- **Component Variants**: Use CVA for component styling variants
+- **Type Safety**: Leverage TypeScript integration
+
+```typescript
+// Good: CVA component variants
+import { cva } from "class-variance-authority"
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center rounded-md font-medium",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground",
+        destructive: "bg-destructive text-destructive-foreground",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+```
+
+### Utility Libraries
+- **clsx**: For conditional className merging
+- **tailwind-merge**: For Tailwind class deduplication
+- **lucide-react**: For consistent iconography
+
+```typescript
+// Good: Conditional styling with clsx and tailwind-merge
+import { clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+const cn = (...inputs: any[]) => twMerge(clsx(inputs))
+
+// Usage
+<button className={cn(
+  "base-styles",
+  isActive && "active-styles",
+  className
+)}>
+```
+
+## Database & ORM
+
+### Prisma ORM
+- **Schema Definition**: Define models in `prisma/schema.prisma`
+- **Type Generation**: Use generated Prisma types
+- **Client Usage**: Import from `@prisma/client`
+- **Migrations**: Use Prisma migrate for schema changes
+
+```typescript
+// Good: Prisma schema example
+// prisma/schema.prisma
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("users")
+}
+
+// Good: Prisma client usage
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
+async function getUsers() {
+  return await prisma.user.findMany({
+    select: {
+      id: true,
+      email: true,
+      name: true,
+    }
+  })
+}
+```
+
+## Development Tools
+
+### ESLint 9 with Next.js Config
+- **Next.js Rules**: Use `eslint-config-next` for Next.js best practices
+- **TypeScript Integration**: Proper TypeScript linting rules
+
+### Animation
+- **tw-animate-css**: For CSS animations with Tailwind integration
+
+```typescript
+// Good: Using animation utilities
+<div className="animate-fade-in animate-duration-300">
+  Animated content
+</div>
+```
+
+## Project Structure Patterns
+
+### File Organization
+```
+src/
+├── app/                 # Next.js App Router
+│   ├── api/            # API routes
+│   ├── (auth)/         # Route groups
+│   └── globals.css     # Global styles
+├── components/         # React components
+│   ├── ui/            # Reusable UI components
+│   └── features/      # Feature-specific components
+├── lib/               # Utility functions and configurations
+│   ├── db.ts         # Prisma client instance
+│   ├── utils.ts      # General utilities
+│   └── types/        # TypeScript type definitions
+└── prisma/
+    └── schema.prisma  # Database schema
+```
+
+### Naming Conventions
+- **Files**: kebab-case for files (`user-profile.tsx`)
+- **Components**: PascalCase for React components (`UserProfile`)
+- **Functions**: camelCase for functions (`getUserProfile`)
+- **Constants**: UPPER_SNAKE_CASE for constants (`MAX_FILE_SIZE`)
+
+## Best Practices
+
+### Component Patterns
+```typescript
+// Good: Component with proper typing
+interface UserCardProps {
+  user: User
+  onEdit?: (user: User) => void
+}
+
+export function UserCard({ user, onEdit }: UserCardProps) {
+  return (
+    <div className="p-4 border rounded-lg">
+      <h3 className="font-semibold">{user.name}</h3>
+      <p className="text-sm text-muted-foreground">{user.email}</p>
+      {onEdit && (
+        <button onClick={() => onEdit(user)}>
+          Edit
+        </button>
+      )}
+    </div>
+  )
+}
+```
+
+### API Route Patterns
+```typescript
+// Good: API route with proper error handling
+import { NextRequest } from 'next/server'
+import { prisma } from '@/lib/db'
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    
+    // Validation logic here
+    
+    const user = await prisma.user.create({
+      data: body,
+    })
+    
+    return Response.json(user, { status: 201 })
+  } catch (error) {
+    console.error('Error creating user:', error)
+    return Response.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+```

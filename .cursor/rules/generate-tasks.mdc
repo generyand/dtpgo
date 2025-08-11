@@ -1,64 +1,162 @@
 ---
-description: Guides the AI in creating a detailed, step-by-step task list for a VANTAGE feature from a PRD.
+description: Guides the AI in creating a detailed, three-tier task list for a feature from a PRD with explicit PRD traceability and tech-stack alignment.
 globs: ["docs/prds/prd-*.md"]
 alwaysApply: false
 ---
-# Rule: Generating a VANTAGE Feature Task List from a PRD
+# Rule: Generating a Three-Tier Feature Task List from a PRD
 
 ## Goal
 
-To guide an AI assistant in creating a detailed, step-by-step task list in Markdown format based on an existing Product Requirements Document (PRD) for the VANTAGE project. The task list should guide a developer through implementation, with testing instructions specific to our monorepo tech stack.
+To guide an AI assistant in creating a detailed, three-tier task list in Markdown format based on an existing Product Requirements Document (PRD). The task list uses Epic → Story → Atomic task hierarchy to ensure complete PRD traceability and tech-stack specificity for junior developers.
+
+## Tech Stack Context
+
+- **Framework:** Next.js 15.4.6 with App Router
+- **Language:** TypeScript 5
+- **Styling:** Tailwind CSS 4
+- **Components:** Lucide React icons, CVA for variants
+- **Project Structure:** `src/app/`, `src/lib/`, `src/components/`
+- **Testing:** Built-in Next.js testing capabilities
 
 ## Output
 
 - **Format:** Markdown (`.md`)
 - **Location:** `/tasks/`
-- **Filename:** `tasks-[prd-file-name].md` (e.g., `tasks-prd-core-user-authentication-and-management.md`)
+- **Filename:** `tasks-[prd-file-name].md`
 
-## Process
+## Three-Tier Process
 
-1.  **Receive PRD Reference:** The user points the AI to a specific PRD file (e.g., `@docs/prds/prd-core-user-authentication-and-management.md`).
-2.  **Analyze PRD:** The AI reads and analyzes the functional requirements, user stories, and technical considerations of the specified PRD.
-3.  **Phase 1: Generate Parent Tasks:** Based on the PRD analysis, create the file and generate the main, high-level tasks required to implement the feature. Use your judgement on how many high-level tasks to use. It's likely to be about 5-7. Present these tasks to the user in the specified format (without sub-tasks yet). Inform the user: "I have generated the high-level tasks based on the PRD. Ready to generate the sub-tasks? Respond with 'Go' to proceed."
-4.  **Wait for Confirmation:** Pause and wait for the user to respond with "Go".
-5.  **Phase 2: Generate Sub-Tasks:** Once the user confirms, break down each parent task into smaller, actionable sub-tasks necessary to complete the parent task. Ensure sub-tasks logically follow from the parent task and cover the implementation details implied by the PRD.
-6.  **Identify Relevant Files:** Based on the tasks and PRD, identify potential files that will need to be created or modified across the monorepo. List these under the `Relevant Files` section, including corresponding test files with the correct naming conventions for our stack.
-7.  **Generate Final Output:** Combine the parent tasks, sub-tasks, relevant files, and notes into the final Markdown structure.
-8.  **Save Task List:** Save the generated document in the `/tasks/` directory with the filename `tasks-[prd-file-name].md`.
+1.  **Receive PRD Reference:** User points to a specific PRD file
+2.  **Analyze PRD:** Read and map functional requirements to implementation domains
+3.  **Phase 1: Generate Epic Tasks** - Create file with high-level epics (3-5 epics) directly mapped to PRD functional requirements
+4.  **Wait for Confirmation:** Pause for user approval with "Go"
+5.  **Phase 2: Generate Story Tasks** - Break epics into tech-stack specific implementation areas (Frontend, API, Database, etc.)
+6.  **Phase 3: Generate Atomic Tasks** - Create granular, file-specific tasks with explicit acceptance criteria
+7.  **PRD Traceability Mapping** - Create explicit mapping between PRD requirements and tasks
+8.  **Save Task List** - Save with complete three-tier structure
 
 ## Output Format
 
-The generated task list _must_ follow this structure:
+The generated task list _must_ follow this three-tier structure:
 
 ```markdown
+## PRD Traceability Matrix
+
+Map each functional requirement to specific tasks:
+- **FR-01** User Registration → Epic 1.0
+- **FR-02** Email Verification → Epic 2.0
+- **FR-03** Profile Management → Epic 3.0
+
 ## Relevant Files
 
--   `apps/api/app/schemas/new_schema.py` - Brief description (e.g., Pydantic schema for the new data model).
--   `apps/api/app/db/models/new_model.py` - Brief description (e.g., SQLAlchemy model for the database table).
--   `apps/api/app/api/v1/new_router.py` - Brief description (e.g., FastAPI router containing the new API endpoints).
--   `apps/api/tests/api/v1/test_new_router.py` - Backend unit/integration tests for the new API endpoints using `pytest`.
--   `apps/web/src/components/features/new-feature/NewComponent.tsx` - Brief description (e.g., Main React component for this feature).
--   `apps/web/src/components/features/new-feature/NewComponent.test.tsx` - Frontend unit tests for the React component using Jest and React Testing Library.
+Tech-stack specific file structure:
+- `src/app/api/auth/register/route.ts` - Next.js API route for user registration
+- `src/app/(auth)/register/page.tsx` - Registration page component  
+- `src/components/ui/form/RegisterForm.tsx` - Reusable registration form component
+- `src/lib/auth/validation.ts` - Authentication validation utilities
+- `src/lib/types/user.ts` - TypeScript user type definitions
+- `src/components/ui/form/RegisterForm.test.tsx` - Component unit tests
 
-### Notes on Testing
+### Testing Notes
 
--   **Backend Testing:** Unit tests for the Python backend are located in `apps/api/tests/`. To run them, navigate to the `apps/api` directory and execute `pytest`.
--   **Frontend Testing:** Unit tests for Next.js components are placed alongside the component files (e.g., `NewComponent.tsx` and `NewComponent.test.tsx` in the same folder). To run them, navigate to the `apps/web` directory and execute `pnpm test`.
+- **Component Testing:** Place test files alongside components (`.test.tsx`)
+- **API Testing:** Test API routes using Next.js testing utilities
+- **Type Safety:** Leverage TypeScript for compile-time validation
+- **Run Tests:** Use `npm test` or `pnpm test` from project root
 
 ## Tasks
 
--   [ ] 1.0 Parent Task Title (e.g., Setup Backend API Endpoints)
-    -   [ ] 1.1 [Sub-task description 1.1]
-    -   [ ] 1.2 [Sub-task description 1.2]
--   [ ] 2.0 Parent Task Title (e.g., Build Frontend UI Components)
-    -   [ ] 2.1 [Sub-task description 2.1]
--   [ ] 3.0 Parent Task Title (may not require sub-tasks if purely structural or configuration)
+### Three-Tier Structure: Epic → Story → Atomic
+
+- [ ] **1.0 Epic: User Registration System** *(FR-01)*
+  - [ ] **1.1 Story: Frontend Registration Interface**
+    - [ ] **1.1.1 Atomic:** Create `RegisterForm.tsx` component with email/password fields
+      - **Files:** `src/components/ui/form/RegisterForm.tsx`
+      - **Dependencies:** Form validation utilities
+      - **Acceptance:** Form validates email format, password strength, shows errors
+      - **Tech:** Uses CVA for variants, Lucide icons, Tailwind styling
+    - [ ] **1.1.2 Atomic:** Build registration page at `/register` route
+      - **Files:** `src/app/(auth)/register/page.tsx`
+      - **Dependencies:** RegisterForm component complete
+      - **Acceptance:** Page renders form, handles submission, redirects on success
+      - **Tech:** Next.js App Router, TypeScript, responsive design
+  - [ ] **1.2 Story: Backend Registration API**
+    - [ ] **1.2.1 Atomic:** Implement `/api/auth/register` endpoint
+      - **Files:** `src/app/api/auth/register/route.ts`
+      - **Dependencies:** User type definitions
+      - **Acceptance:** Accepts POST with user data, validates, returns 201/400
+      - **Tech:** Next.js API routes, TypeScript, proper error handling
+    - [ ] **1.2.2 Atomic:** Create user validation utilities
+      - **Files:** `src/lib/auth/validation.ts`
+      - **Dependencies:** None
+      - **Acceptance:** Email/password validation functions with TypeScript types
+      - **Tech:** Pure functions, comprehensive validation rules
+
+- [ ] **2.0 Epic: Email Verification System** *(FR-02)*
+  - [ ] **2.1 Story: Verification Email Logic**
+    - [ ] **2.1.1 Atomic:** [Detailed atomic task...]
+  - [ ] **2.2 Story: Verification UI Components**
+    - [ ] **2.2.1 Atomic:** [Detailed atomic task...]
+
+## Task Specificity Requirements
+
+### Epic Tasks (1.0, 2.0, 3.0...)
+- **Scope:** Maps 1:1 with PRD functional requirements
+- **Purpose:** High-level feature boundaries
+- **Duration:** Multiple days to weeks
+- **Example:** "User Authentication System" covering registration, login, logout
+
+### Story Tasks (1.1, 1.2, 2.1, 2.2...)
+- **Scope:** Tech-stack specific implementation domains
+- **Purpose:** Logical grouping of related atomic tasks
+- **Duration:** 1-3 days
+- **Categories:** Frontend Components, API Endpoints, Database Schema, Utilities, Testing
+- **Example:** "Frontend Registration Interface" containing all UI components for registration
+
+### Atomic Tasks (1.1.1, 1.1.2, 1.2.1...)
+- **Scope:** Single file or specific functionality
+- **Purpose:** Immediately actionable work items
+- **Duration:** 2-8 hours
+- **Requirements:**
+  - **Files:** Exact file paths to create/modify
+  - **Dependencies:** What must be complete first
+  - **Acceptance:** Specific, testable completion criteria
+  - **Tech:** Specific technologies and patterns to use
+
+## Quality Gates
+
+### Epic Review Checklist
+- [ ] All PRD functional requirements are covered
+- [ ] No functional requirement spans multiple epics
+- [ ] Epic titles clearly indicate the feature boundary
+
+### Story Review Checklist  
+- [ ] Stories align with project's tech stack
+- [ ] Each story represents a cohesive implementation domain
+- [ ] Dependencies between stories are clearly identified
+- [ ] Stories can be worked on by different developers simultaneously
+
+### Atomic Review Checklist
+- [ ] Task can be completed by a junior developer in 2-8 hours
+- [ ] Specific file paths are provided
+- [ ] Acceptance criteria are testable and specific
+- [ ] Tech requirements specify exact tools/patterns from our stack
+- [ ] Dependencies are clearly stated
 
 ## Interaction Model
 
-The process explicitly requires a pause after generating parent tasks to get user confirmation ("Go") before proceeding to generate the detailed sub-tasks. This ensures the high-level plan aligns with user expectations before diving into details.
+**Three-Phase Generation:**
+1. **Phase 1:** Generate epics only, wait for "Go" confirmation
+2. **Phase 2:** Generate stories for each epic, wait for "Go" confirmation  
+3. **Phase 3:** Generate atomic tasks for each story
+
+This staged approach ensures alignment at each level before adding complexity.
 
 ## Target Audience
 
-
-Assume the primary reader of the task list is a **junior developer** who will implement the feature.
+Assume the primary reader is a **junior developer** who needs:
+- Explicit file paths and structures
+- Clear acceptance criteria for each task
+- Specific tech stack guidance
+- Obvious dependency ordering
+- Testable completion conditions
