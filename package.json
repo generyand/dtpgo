@@ -8,7 +8,13 @@
     "start": "next start",
     "lint": "next lint",
     "structure": "node scripts/list-structure.js",
-    "structure:full": "node scripts/list-structure.js --full"
+    "structure:full": "node scripts/list-structure.js --full",
+    "db:test": "node scripts/test-db-connection.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma migrate reset",
+    "db:push": "prisma db push"
   },
   "dependencies": {
     "@prisma/client": "^6.13.0",

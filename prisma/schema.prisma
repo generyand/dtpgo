@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Program model - stores academic programs (BSIT, BSCPE, etc.)
+model Program {
+  id          String   @id @default(cuid())
+  name        String   @unique // e.g., "BSIT", "BSCPE"
+  displayName String   // e.g., "Bachelor of Science in Information Technology"
+  description String?  // Optional description of the program
+  isActive    Boolean  @default(true) // Allow programs to be disabled
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  students Student[]
+
+  @@map("programs")
+}
+
+// Student model - stores student registration data
+model Student {
+  id              String   @id @default(cuid())
+  studentIdNumber String   @unique // Format: S000-0000-000 (enforced by validation)
+  firstName       String
+  lastName        String
+  email           String   @unique
+  year            Int      // Academic year level (1-5)
+  programId       String   // Foreign key to Program
+  registrationSource String @default("public") // "admin" or "public"
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relationships
+  program Program @relation(fields: [programId], references: [id], onDelete: Restrict)
+
+  // Indexes for performance
+  @@index([studentIdNumber])
+  @@index([email])
+  @@index([programId])
+  @@index([year])
+  @@index([registrationSource])
+  @@index([createdAt])
+  
+  @@map("students")
+}
+
+// Registration attempt logging model - tracks all registration attempts
+model RegistrationAttempt {
+  id          String   @id @default(cuid())
+  studentId   String?  // Reference to student if successful, null if failed
+  attemptData Json     // Stores the attempted registration data
+  source      String   // "admin" or "public"
+  success     Boolean  // Whether the registration was successful
+  errorMessage String? // Error message if failed
+  ipAddress   String?  // IP address of the registrant
+  userAgent   String?  // User agent string
+  createdAt   DateTime @default(now())
+
+  // Indexes for analytics
+  @@index([source])
+  @@index([success])
+  @@index([createdAt])
+  @@index([ipAddress])
+  
+  @@map("registration_attempts")
+}
+
+// Email status tracking model - tracks email sending status
+model EmailStatus {
+  id          String   @id @default(cuid())
+  studentId   String   // Reference to student
+  emailType   String   // "welcome_admin" or "welcome_public"
+  status      String   // "pending", "sent", "failed", "retry"
+  attempts    Int      @default(0)
+  lastAttempt DateTime?
+  errorMessage String?
+  sentAt      DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Indexes for monitoring
+  @@index([studentId])
+  @@index([status])
+  @@index([emailType])
+  @@index([createdAt])
+  
+  @@map("email_status")
+}
