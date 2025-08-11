@@ -56,7 +56,7 @@ Tech-stack specific file structure for this system:
   - **Duration:** 3-5 days
   - **Dependencies:** Supabase project setup
 
-- [ ] **2.0 Epic: Database Schema & Student Data Model** *(FR-2)*  
+- [x] **2.0 Epic: Database Schema & Student Data Model** *(FR-2)*  
   - Design and implement Prisma schema for Student and Program models
   - Set up database relationships and constraints
   - Create database seed scripts for initial program data
@@ -158,7 +158,7 @@ Tech-stack specific file structure for this system:
   - **Duration:** 1 day
   - **Dependencies:** Schema defined
 
-- [ ] **2.3 Story: Database Seeding**
+- [x] **2.3 Story: Database Seeding**
   - Create seed scripts for initial program data
   - Set up development data fixtures
   - **Duration:** 1 day

@@ -93,13 +93,13 @@
 
 #### Story 2.3: Database Seeding
 
-- [ ] **2.3.1 Atomic:** Create program seed data
+- [x] **2.3.1 Atomic:** Create program seed data
   - **Files:** `prisma/seed.ts`
   - **Dependencies:** Query functions complete
   - **Acceptance:** Seed script creates initial programs (BSIT, BSCPE) with idempotency
   - **Tech:** Prisma seeding, upsert operations, TypeScript
 
-- [ ] **2.3.2 Atomic:** Add development student fixtures
+- [x] **2.3.2 Atomic:** Add development student fixtures
   - **Files:** `prisma/seed.ts` (extend existing)
   - **Dependencies:** Program seed data
   - **Acceptance:** Creates sample students for testing, follows student ID pattern
