@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "programs" (
+CREATE TABLE "public"."programs" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "displayName" TEXT NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE "programs" (
 );
 
 -- CreateTable
-CREATE TABLE "students" (
+CREATE TABLE "public"."students" (
     "id" TEXT NOT NULL,
     "studentIdNumber" TEXT NOT NULL,
     "firstName" TEXT NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE "students" (
 );
 
 -- CreateTable
-CREATE TABLE "registration_attempts" (
+CREATE TABLE "public"."registration_attempts" (
     "id" TEXT NOT NULL,
     "studentId" TEXT,
     "attemptData" JSONB NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE "registration_attempts" (
 );
 
 -- CreateTable
-CREATE TABLE "email_status" (
+CREATE TABLE "public"."email_status" (
     "id" TEXT NOT NULL,
     "studentId" TEXT NOT NULL,
     "emailType" TEXT NOT NULL,
@@ -59,55 +59,55 @@ CREATE TABLE "email_status" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "programs_name_key" ON "programs"("name");
+CREATE UNIQUE INDEX "programs_name_key" ON "public"."programs"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "students_studentIdNumber_key" ON "students"("studentIdNumber");
+CREATE UNIQUE INDEX "students_studentIdNumber_key" ON "public"."students"("studentIdNumber");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "students_email_key" ON "students"("email");
+CREATE UNIQUE INDEX "students_email_key" ON "public"."students"("email");
 
 -- CreateIndex
-CREATE INDEX "students_studentIdNumber_idx" ON "students"("studentIdNumber");
+CREATE INDEX "students_studentIdNumber_idx" ON "public"."students"("studentIdNumber");
 
 -- CreateIndex
-CREATE INDEX "students_email_idx" ON "students"("email");
+CREATE INDEX "students_email_idx" ON "public"."students"("email");
 
 -- CreateIndex
-CREATE INDEX "students_programId_idx" ON "students"("programId");
+CREATE INDEX "students_programId_idx" ON "public"."students"("programId");
 
 -- CreateIndex
-CREATE INDEX "students_year_idx" ON "students"("year");
+CREATE INDEX "students_year_idx" ON "public"."students"("year");
 
 -- CreateIndex
-CREATE INDEX "students_registrationSource_idx" ON "students"("registrationSource");
+CREATE INDEX "students_registrationSource_idx" ON "public"."students"("registrationSource");
 
 -- CreateIndex
-CREATE INDEX "students_createdAt_idx" ON "students"("createdAt");
+CREATE INDEX "students_createdAt_idx" ON "public"."students"("createdAt");
 
 -- CreateIndex
-CREATE INDEX "registration_attempts_source_idx" ON "registration_attempts"("source");
+CREATE INDEX "registration_attempts_source_idx" ON "public"."registration_attempts"("source");
 
 -- CreateIndex
-CREATE INDEX "registration_attempts_success_idx" ON "registration_attempts"("success");
+CREATE INDEX "registration_attempts_success_idx" ON "public"."registration_attempts"("success");
 
 -- CreateIndex
-CREATE INDEX "registration_attempts_createdAt_idx" ON "registration_attempts"("createdAt");
+CREATE INDEX "registration_attempts_createdAt_idx" ON "public"."registration_attempts"("createdAt");
 
 -- CreateIndex
-CREATE INDEX "registration_attempts_ipAddress_idx" ON "registration_attempts"("ipAddress");
+CREATE INDEX "registration_attempts_ipAddress_idx" ON "public"."registration_attempts"("ipAddress");
 
 -- CreateIndex
-CREATE INDEX "email_status_studentId_idx" ON "email_status"("studentId");
+CREATE INDEX "email_status_studentId_idx" ON "public"."email_status"("studentId");
 
 -- CreateIndex
-CREATE INDEX "email_status_status_idx" ON "email_status"("status");
+CREATE INDEX "email_status_status_idx" ON "public"."email_status"("status");
 
 -- CreateIndex
-CREATE INDEX "email_status_emailType_idx" ON "email_status"("emailType");
+CREATE INDEX "email_status_emailType_idx" ON "public"."email_status"("emailType");
 
 -- CreateIndex
-CREATE INDEX "email_status_createdAt_idx" ON "email_status"("createdAt");
+CREATE INDEX "email_status_createdAt_idx" ON "public"."email_status"("createdAt");
 
 -- AddForeignKey
-ALTER TABLE "students" ADD CONSTRAINT "students_programId_fkey" FOREIGN KEY ("programId") REFERENCES "programs"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."students" ADD CONSTRAINT "students_programId_fkey" FOREIGN KEY ("programId") REFERENCES "public"."programs"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

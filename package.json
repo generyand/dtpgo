@@ -9,12 +9,12 @@
     "lint": "next lint",
     "structure": "node scripts/list-structure.js",
     "structure:full": "node scripts/list-structure.js --full",
-    "db:test": "node scripts/test-db-connection.js",
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio",
-    "db:reset": "prisma migrate reset",
-    "db:push": "prisma db push"
+    "db:test": "dotenv -e .env.local -- node scripts/test-db-connection.js",
+    "db:generate": "dotenv -e .env.local -- prisma generate",
+    "db:migrate": "dotenv -e .env.local -- prisma migrate dev",
+    "db:studio": "dotenv -e .env.local -- prisma studio",
+    "db:reset": "dotenv -e .env.local -- prisma migrate reset",
+    "db:push": "dotenv -e .env.local -- prisma db push"
   },
   "dependencies": {
     "@prisma/client": "^6.13.0",
@@ -36,6 +36,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-cli": "^10.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
     "prisma": "^6.13.0",
