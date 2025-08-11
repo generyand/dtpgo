@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { checkIPWhitelist, getIPWhitelistConfig } from '@/lib/security/ip-whitelist'
 
 // Protected admin routes that require authentication
 const ADMIN_ROUTES = ['/admin', '/dashboard']
@@ -24,7 +25,18 @@ function isAdminRoute(pathname: string): boolean {
 }
 
 /**
- * Middleware function to handle authentication for admin routes
+ * Middleware function to handle authentication and IP whitelisting for admin routes
+ * 
+ * Security layers (applied in order):
+ * 1. IP Whitelist check (if enabled)
+ * 2. Authentication check via Supabase session
+ * 
+ * Environment variables for IP whitelisting:
+ * - IP_WHITELIST_ENABLED: Enable/disable IP whitelisting (default: false)
+ * - IP_WHITELIST_IPS: Comma-separated list of allowed IPs
+ * - IP_WHITELIST_RANGES: Comma-separated list of CIDR blocks or IP ranges
+ * - IP_WHITELIST_ALLOW_LOCALHOST: Allow localhost access (default: true)
+ * - IP_WHITELIST_ALLOW_PRIVATE: Allow private network access (default: true)
  */
 export async function middleware(req: NextRequest) {
   let response = NextResponse.next({
@@ -38,6 +50,35 @@ export async function middleware(req: NextRequest) {
   // Skip middleware for public routes and API routes that don't need protection
   if (!isAdminRoute(pathname)) {
     return response
+  }
+
+  // Check IP whitelist for admin routes when enabled
+  const ipWhitelistConfig = getIPWhitelistConfig()
+  if (ipWhitelistConfig.enabled) {
+    const ipCheck = checkIPWhitelist(req, ipWhitelistConfig)
+    
+    if (!ipCheck.allowed) {
+      console.warn(`IP whitelist violation: ${ipCheck.reason}`)
+      
+      // Return 403 Forbidden for IP whitelist violations
+      // This provides a clear security boundary without revealing auth details
+      return new NextResponse(
+        JSON.stringify({
+          error: 'Access denied',
+          message: 'Your IP address is not authorized to access this resource'
+        }),
+        {
+          status: 403,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Blocked-Reason': 'ip-whitelist'
+          }
+        }
+      )
+    }
+    
+    // Log successful IP whitelist check for audit purposes
+    console.log(`IP whitelist check passed for ${ipCheck.ip} accessing ${pathname}`)
   }
 
   try {
@@ -115,7 +156,34 @@ export async function middleware(req: NextRequest) {
   } catch (error) {
     console.error('Middleware error:', error)
     
-    // On any error, redirect to login for security
+    // Check if this is an IP whitelist related error
+    const ipWhitelistConfig = getIPWhitelistConfig()
+    if (ipWhitelistConfig.enabled) {
+      try {
+        const ipCheck = checkIPWhitelist(req, ipWhitelistConfig)
+        if (!ipCheck.allowed) {
+          // If IP whitelist is the issue, return 403 instead of redirect
+          return new NextResponse(
+            JSON.stringify({
+              error: 'Access denied',
+              message: 'Your IP address is not authorized to access this resource'
+            }),
+            {
+              status: 403,
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Blocked-Reason': 'ip-whitelist-error'
+              }
+            }
+          )
+        }
+      } catch (ipError) {
+        console.error('IP whitelist check error:', ipError)
+        // Fall through to auth redirect on IP check errors
+      }
+    }
+    
+    // On any non-IP-related error, redirect to login for security
     const redirectUrl = new URL('/auth/login', req.url)
     redirectUrl.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(redirectUrl)
