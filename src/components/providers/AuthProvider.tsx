@@ -88,9 +88,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
           loading: false,
           error: result.error,
         }))
+      } else if (result.user) {
+        // Manually set auth state for admin user from API response
+        const adminUser = {
+            id: result.user.id,
+            email: result.user.email,
+            aud: 'authenticated',
+            role: 'admin',
+            app_metadata: {},
+            user_metadata: {},
+            created_at: new Date().toISOString(),
+        };
+        setAuthState({
+            user: adminUser,
+            session: {
+                access_token: 'admin-token',
+                user: adminUser,
+                refresh_token: 'admin-refresh-token',
+                expires_in: 3600,
+                token_type: 'bearer',
+            },
+            loading: false,
+            error: null,
+        });
       }
       
-      return result
+      return { error: result.error }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
       setAuthState((prev) => ({
@@ -134,7 +157,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setAuthState((prev) => ({ ...prev, loading: true, error: null }))
     
     try {
-      await authSignOut()
+        if (authState.user?.role === 'admin') {
+            setAuthState({ user: null, session: null, loading: false, error: null });
+        } else {
+            await authSignOut()
+        }
       // The auth state will be updated by the onAuthStateChange listener
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'

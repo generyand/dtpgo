@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+// import { prisma } from '../db/client' // Remove prisma client import
 import type { 
   LoginCredentials, 
   RegisterCredentials, 
@@ -46,19 +47,39 @@ export function mapAuthError(error: AuthError | Error | null): AuthErrorDetail |
 /**
  * Sign in with email and password
  */
-export async function signInWithCredentials(credentials: LoginCredentials): Promise<{ error: string | null }> {
+export async function signInWithCredentials(credentials: LoginCredentials): Promise<{ error: string | null; user?: any }> {
   try {
+    // Check for admin user via API route
+    if (credentials.email.endsWith('@example.com')) {
+      const response = await fetch('/api/auth/admin-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { error: data.error || 'Admin login failed' };
+      }
+
+      return { error: null, user: data.user };
+    }
+
+    // Fallback to Supabase auth for non-admin users
     const { error } = await supabase.auth.signInWithPassword({
       email: credentials.email,
       password: credentials.password,
-    })
+    });
 
     if (error) {
-      const mappedError = mapAuthError(error)
-      return { error: mappedError?.message || error.message }
+      const mappedError = mapAuthError(error);
+      return { error: mappedError?.message || error.message };
     }
 
-    return { error: null }
+    return { error: null };
   } catch (error) {
     const mappedError = mapAuthError(error as Error)
     return { error: mappedError?.message || 'An unexpected error occurred' }

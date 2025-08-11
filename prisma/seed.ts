@@ -74,6 +74,29 @@ async function main() {
     console.warn('⚠️ Could not find BSIT or BSCPE programs. Skipping student seeding.');
   }
 
+  // Seed Admin User for development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Seeding admin user for development...');
+    const adminEmail = 'admin@example.com';
+    const adminPassword = 'password123'; // In a real app, use a hashed password
+
+    const existingAdmin = await prisma.admin.findUnique({
+      where: { email: adminEmail },
+    });
+
+    if (!existingAdmin) {
+      await prisma.admin.create({
+        data: {
+          email: adminEmail,
+          password: adminPassword, // Remember to hash passwords in a real application
+        },
+      });
+      console.log('✅ Admin user seeded successfully.');
+    } else {
+      console.log('ℹ️ Admin user already exists.');
+    }
+  }
+
   console.log('🏁 Database seeding finished.');
 }
 
