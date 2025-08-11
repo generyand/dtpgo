@@ -9,19 +9,19 @@
 
 #### Story 1.1: Supabase Auth Integration
 
-- [ ] **1.1.1 Atomic:** Set up Supabase client configuration
+- [x] **1.1.1 Atomic:** Set up Supabase client configuration
   - **Files:** `src/lib/auth/supabase.ts`, `.env.local`
   - **Dependencies:** Supabase project created
   - **Acceptance:** Supabase client initialized with proper config, environment variables documented
   - **Tech:** TypeScript, Supabase Auth client, environment variable validation
 
-- [ ] **1.1.2 Atomic:** Create auth utilities and session management
+- [x] **1.1.2 Atomic:** Create auth utilities and session management
   - **Files:** `src/lib/auth/utils.ts`, `src/lib/types/auth.ts`
   - **Dependencies:** Supabase client configured
   - **Acceptance:** Functions for login, logout, session check, TypeScript types defined
   - **Tech:** Supabase Auth methods, TypeScript interfaces, cookie handling
 
-- [ ] **1.1.3 Atomic:** Build authentication context provider
+- [x] **1.1.3 Atomic:** Build authentication context provider
   - **Files:** `src/components/providers/AuthProvider.tsx`
   - **Dependencies:** Auth utilities complete
   - **Acceptance:** React context provides auth state, loading states, user session
@@ -29,13 +29,13 @@
 
 #### Story 1.2: Admin Route Protection
 
-- [ ] **1.2.1 Atomic:** Create authentication middleware
+- [x] **1.2.1 Atomic:** Create authentication middleware
   - **Files:** `src/middleware.ts`
   - **Dependencies:** Auth utilities ready
   - **Acceptance:** Middleware protects `/admin` routes, redirects unauthenticated users
   - **Tech:** Next.js middleware, Supabase session validation
 
-- [ ] **1.2.2 Atomic:** Build admin route guard component
+- [x] **1.2.2 Atomic:** Build admin route guard component
   - **Files:** `src/components/auth/AdminGuard.tsx`
   - **Dependencies:** Auth context provider
   - **Acceptance:** Component wraps admin pages, shows loading/unauthorized states
@@ -43,13 +43,13 @@
 
 #### Story 1.3: IP Whitelisting Infrastructure
 
-- [ ] **1.3.1 Atomic:** Create IP whitelisting utility functions
+- [x] **1.3.1 Atomic:** Create IP whitelisting utility functions
   - **Files:** `src/lib/security/ip-whitelist.ts`
   - **Dependencies:** None
   - **Acceptance:** Functions to check IP against whitelist, configurable IP ranges
   - **Tech:** IP address validation, CIDR notation support, TypeScript
 
-- [ ] **1.3.2 Atomic:** Integrate IP checking into middleware
+- [x] **1.3.2 Atomic:** Integrate IP checking into middleware
   - **Files:** `src/middleware.ts` (modify existing)
   - **Dependencies:** IP whitelist utilities, auth middleware
   - **Acceptance:** Admin routes check IP whitelist when enabled, graceful failure
@@ -59,13 +59,13 @@
 
 #### Story 2.1: Prisma Schema Design
 
-- [ ] **2.1.1 Atomic:** Define Student and Program models
+- [x] **2.1.1 Atomic:** Define Student and Program models
   - **Files:** `prisma/schema.prisma`
   - **Dependencies:** Database connection established
   - **Acceptance:** Models defined with all fields, constraints, relationships per PRD
   - **Tech:** Prisma schema syntax, PostgreSQL constraints, foreign keys
 
-- [ ] **2.1.2 Atomic:** Create initial database migration
+- [x] **2.1.2 Atomic:** Create initial database migration
   - **Files:** `prisma/migrations/` (auto-generated)
   - **Dependencies:** Schema defined
   - **Acceptance:** Migration creates tables with proper indexes and constraints
@@ -73,19 +73,19 @@
 
 #### Story 2.2: Database Client & Queries
 
-- [ ] **2.2.1 Atomic:** Set up Prisma client instance
+- [x] **2.2.1 Atomic:** Set up Prisma client instance
   - **Files:** `src/lib/db/client.ts`
   - **Dependencies:** Schema migration complete
   - **Acceptance:** Singleton Prisma client with proper connection handling
   - **Tech:** Prisma Client, connection pooling, error handling
 
-- [ ] **2.2.2 Atomic:** Create student query functions
+- [x] **2.2.2 Atomic:** Create student query functions
   - **Files:** `src/lib/db/queries/students.ts`
   - **Dependencies:** Prisma client ready
   - **Acceptance:** CRUD functions for students with TypeScript types, pagination support
   - **Tech:** Prisma queries, TypeScript generics, pagination patterns
 
-- [ ] **2.2.3 Atomic:** Create program query functions
+- [x] **2.2.3 Atomic:** Create program query functions
   - **Files:** `src/lib/db/queries/programs.ts`
   - **Dependencies:** Prisma client ready
   - **Acceptance:** Functions to get all programs, create new programs with validation
