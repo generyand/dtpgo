@@ -109,19 +109,19 @@
 
 #### Story 3.1: Admin Dashboard Layout
 
-- [ ] **3.1.1 Atomic:** Create admin layout component
+- [x] **3.1.1 Atomic:** Create admin layout component
   - **Files:** `src/app/(admin)/layout.tsx`
   - **Dependencies:** Auth guard component
   - **Acceptance:** Layout with navigation, responsive design, auth protection
   - **Tech:** Next.js layout, Tailwind CSS, responsive design patterns
 
-- [ ] **3.1.2 Atomic:** Build admin navigation component
+- [x] **3.1.2 Atomic:** Build admin navigation component
   - **Files:** `src/components/admin/AdminNav.tsx`
   - **Dependencies:** None
   - **Acceptance:** Navigation menu with dashboard, register, students, analytics links
   - **Tech:** Next.js Link components, Tailwind CSS, active state handling
 
-- [ ] **3.1.3 Atomic:** Create dashboard home page
+- [x] **3.1.3 Atomic:** Create dashboard home page
   - **Files:** `src/app/(admin)/dashboard/page.tsx`
   - **Dependencies:** Admin layout, student queries
   - **Acceptance:** Dashboard shows overview cards with student counts and recent activity
