@@ -1,18 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DTP Attendance
+
+A modern attendance tracking system built with Next.js 15, TypeScript, and Tailwind CSS.
 
 ## Getting Started
 
 First, run the development server:
 
 ```bash
+pnpm dev
+# or
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+
+## Project Structure
+
+To view the project structure, you can use one of these commands:
+
+### Using pnpm (if PowerShell execution policy allows):
+```bash
+pnpm structure          # Shows clean project structure
+pnpm structure:full     # Shows complete structure including node_modules
+```
+
+### Using Node.js directly:
+```bash
+node scripts/list-structure.js           # Shows clean project structure
+node scripts/list-structure.js --full    # Shows complete structure including node_modules
+```
+
+### Using Windows batch file:
+```bash
+scripts\structure.bat           # Shows clean project structure  
+scripts\structure.bat --full    # Shows complete structure including node_modules
+```
+
+The structure command intelligently excludes build artifacts, dependencies, and temporary files while showing the essential project organization.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
