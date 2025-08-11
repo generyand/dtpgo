@@ -149,6 +149,20 @@ async function getUsers() {
 
 ## Development Tools
 
+### Package Manager
+- **pnpm**: Fast, disk space efficient package manager
+- **Commands**: Use `pnpm install`, `pnpm dev`, `pnpm build`, etc.
+- **Lockfile**: Maintain `pnpm-lock.yaml` for consistent installs
+
+```bash
+# Good: Using pnpm commands
+pnpm install              # Install dependencies
+pnpm dev                  # Start development server
+pnpm build               # Build for production
+pnpm add <package>       # Add new dependency
+pnpm add -D <package>    # Add dev dependency
+```
+
 ### ESLint 9 with Next.js Config
 - **Next.js Rules**: Use `eslint-config-next` for Next.js best practices
 - **TypeScript Integration**: Proper TypeScript linting rules
