@@ -11,7 +11,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
           {/* Brand with two logos */}
-          <div className="md:col-span-5 flex items-start gap-5">
+          <div className="md:col-span-5 flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <Image src="/logo/um.png" alt="UM Digos College" width={56} height={56} className="rounded-full bg-white p-1" />
               <Image src={ORG.logoSrc} alt="DTP" width={56} height={56} className="rounded-full bg-white p-1" />

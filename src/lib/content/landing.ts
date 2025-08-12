@@ -14,11 +14,12 @@ export const NAV_LINKS = [
 export const NAV_CTA_TEXT = "Request a Demo";
 
 export const HERO = {
-  headline: "Effortless Assembly Attendance. Instantly.",
+  headline: "Modernizing Assembly Attendance, Effortlessly.",
   subheadline:
-    "Say goodbye to manual roll calls and paper sheets. Our system provides fast, accurate, and real-time attendance tracking for all your department's events.",
+    "Launch events, scan arrivals, and see attendance update in real‑time — all in one modern dashboard.",
   ctaText: "Join Now ->",
   ctaHref: "/join",
+  imageSrc: "/features/Hero.png",
 };
 
 export interface FeatureItem {
