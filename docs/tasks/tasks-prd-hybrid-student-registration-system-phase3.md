@@ -175,25 +175,25 @@
 
 #### Story 3.4: Admin Analytics Dashboard
 
-- [ ] **3.4.1 Atomic:** Create analytics data aggregation functions
+- [x] **3.4.1 Atomic:** Create analytics data aggregation functions
   - **Files:** `src/lib/db/queries/analytics.ts`
   - **Dependencies:** Student queries complete
   - **Acceptance:** Functions return registration counts by source, program, year breakdowns
   - **Tech:** Prisma aggregation queries, TypeScript types, data transformation
 
-- [ ] **3.4.2 Atomic:** Build analytics visualization components
+- [x] **3.4.2 Atomic:** Build analytics visualization components
   - **Files:** `src/components/admin/AnalyticsCards.tsx`, `src/components/admin/AnalyticsCharts.tsx`
   - **Dependencies:** Analytics queries
   - **Acceptance:** Cards show key metrics, charts display program/year distributions
   - **Tech:** React components, chart library integration, responsive design
 
-- [ ] **3.4.3 Atomic:** Create analytics page
+- [x] **3.4.3 Atomic:** Create analytics page
   - **Files:** `src/app/(admin)/analytics/page.tsx`
   - **Dependencies:** Analytics components, analytics API
   - **Acceptance:** Page displays real-time metrics, auto-refreshes, exports data
   - **Tech:** React Server Components, real-time updates, data visualization
 
-- [ ] **3.4.4 Atomic:** Implement analytics API endpoint
+- [x] **3.4.4 Atomic:** Implement analytics API endpoint
   - **Files:** `src/app/api/admin/analytics/route.ts`
   - **Dependencies:** Analytics queries
   - **Acceptance:** GET endpoint returns all analytics data with proper caching
