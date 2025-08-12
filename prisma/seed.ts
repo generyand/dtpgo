@@ -38,27 +38,19 @@ async function main() {
   if (bsitProgram && bscpeProgram) {
     const students = [
       {
-        studentIdNumber: 'S2023-0001-001',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        year: 1,
+        studentIdNumber: '59889',
+        firstName: 'VINCENT ACE',
+        lastName: 'RIVERA',
+        email: 'augusto08rivera12@gmail.com',
+        year: 4,
         programId: bsitProgram.id,
       },
       {
-        studentIdNumber: 'S2023-0002-002',
-        firstName: 'Jane',
-        lastName: 'Smith',
-        email: 'jane.smith@example.com',
-        year: 2,
-        programId: bscpeProgram.id,
-      },
-      {
-        studentIdNumber: 'S2022-0003-003',
-        firstName: 'Peter',
-        lastName: 'Jones',
-        email: 'peter.jones@example.com',
-        year: 3,
+        studentIdNumber: '59886',
+        firstName: 'GENE RYAN',
+        lastName: 'DEPALUBOS',
+        email: 'generyan.dep@gmail.com',
+        year: 4,
         programId: bsitProgram.id,
       },
     ];
