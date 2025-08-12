@@ -172,7 +172,7 @@ Tech-stack specific file structure for this system:
   - **Duration:** 1-2 days
   - **Dependencies:** Authentication system
 
-- [ ] **3.2 Story: Admin Registration Form**
+- [x] **3.2 Story: Admin Registration Form**
   - Build single student registration form component
   - Implement "Register and Add Another" workflow
   - **Duration:** 1-2 days
