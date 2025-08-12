@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStudentById } from '@/lib/db/queries/students';
 import { createBrandedQRCode } from '@/lib/qr/branding';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const student = await getStudentById(id);
 
     if (!student) {
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       studentId: student.studentIdNumber,
     });
 
-    return new NextResponse(qrCodeBuffer, {
+    return new NextResponse(new Uint8Array(qrCodeBuffer), {
       status: 200,
       headers: {
         'Content-Type': 'image/png',
@@ -24,7 +24,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       },
     });
   } catch (error) {
-    console.error(`Failed to generate QR code for student ${params.id}:`, error);
+    const { id } = await params;
+    console.error(`Failed to generate QR code for student ${id}:`, error);
     return NextResponse.json({ error: 'Failed to generate QR code' }, { status: 500 });
   }
 } 
