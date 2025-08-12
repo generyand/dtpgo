@@ -237,13 +237,13 @@
 
 #### Story 4.3: Registration Success Flow
 
-- [ ] **4.3.1 Atomic:** Create QR code success page
+- [x] **4.3.1 Atomic:** Create QR code success page
   - **Files:** `src/app/join/success/page.tsx`
   - **Dependencies:** QR code display component
   - **Acceptance:** Page shows branded QR code, student info, user-controlled dismissal
   - **Tech:** React components, QR code display, mobile-optimized layout
 
-- [ ] **4.3.2 Atomic:** Implement public registration API endpoint
+- [x] **4.3.2 Atomic:** Implement public registration API endpoint
   - **Files:** `src/app/api/public/register/route.ts`
   - **Dependencies:** Student queries, QR generation, email service, rate limiting
   - **Acceptance:** POST endpoint creates student, generates QR, sends email, handles failures
