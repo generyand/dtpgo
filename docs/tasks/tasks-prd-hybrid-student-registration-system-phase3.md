@@ -149,25 +149,25 @@
 
 #### Story 3.3: Student Management Table
 
-- [ ] **3.3.1 Atomic:** Create student data table component
+- [x] **3.3.1 Atomic:** Create student data table component
   - **Files:** `src/components/admin/StudentsTable.tsx`
   - **Dependencies:** Student queries
   - **Acceptance:** Paginated table with search, sort, edit actions, responsive design
   - **Tech:** React table patterns, Tailwind CSS tables, pagination logic
 
-- [ ] **3.3.2 Atomic:** Build student edit modal component
+- [x] **3.3.2 Atomic:** Build student edit modal component
   - **Files:** `src/components/admin/EditStudentModal.tsx`
   - **Dependencies:** RegisterForm component (reusable)
   - **Acceptance:** Modal with pre-filled form, update functionality, validation
   - **Tech:** React portals, form pre-population, modal state management
 
-- [ ] **3.3.3 Atomic:** Create students management page
-  - **Files:** `src/app/(admin)/students/page.tsx`
+- [x] **3.3.3 Atomic:** Create students management page
+  - **Files:** `src/app/admin/students/page.tsx`
   - **Dependencies:** StudentsTable, EditStudentModal, student API endpoints
   - **Acceptance:** Page displays table, handles edit/delete operations, real-time updates
   - **Tech:** React Server Components, client-side state, optimistic updates
 
-- [ ] **3.3.4 Atomic:** Implement student management API endpoints
+- [x] **3.3.4 Atomic:** Implement student management API endpoints
   - **Files:** `src/app/api/admin/students/route.ts`, `src/app/api/admin/students/[id]/route.ts`
   - **Dependencies:** Student queries
   - **Acceptance:** GET (list), PUT (update), DELETE endpoints with proper validation
