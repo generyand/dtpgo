@@ -1,163 +1,187 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { studentSchema, StudentFormInput } from '@/lib/validations/student';
+import { studentSchema, StudentFormInput, studentIdRegex } from '@/lib/validations/student';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { useDebounce } from '@/hooks/use-debounce';
 
-type Program = {
+interface Program {
   id: string;
   name: string;
-};
+  displayName: string;
+}
 
 interface PublicRegisterFormProps {
   onSubmit: (data: StudentFormInput) => Promise<void>;
   isSubmitting: boolean;
 }
 
-export function PublicRegisterForm({ onSubmit, isSubmitting }: PublicRegisterFormProps) {
+export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFormProps) => {
   const [programs, setPrograms] = useState<Program[]>([]);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+    watch,
+    setError,
+    clearErrors,
+    setValue,
+  } = useForm<StudentFormInput>({
+    resolver: zodResolver(studentSchema),
+    mode: 'onBlur',
+  });
+
+  const studentIdValue = watch('studentIdNumber');
+  const emailValue = watch('email');
+
+  const debouncedStudentId = useDebounce(studentIdValue, 500);
+  const debouncedEmail = useDebounce(emailValue, 500);
 
   useEffect(() => {
-    async function fetchPrograms() {
+    const fetchPrograms = async () => {
       try {
-        const res = await fetch('/api/admin/programs'); // Reuse the admin endpoint for now
-        if (!res.ok) throw new Error('Failed to fetch programs');
-        const data = await res.json();
-        setPrograms(data.programs ?? []);
+        const response = await fetch('/api/admin/programs');
+        if (!response.ok) throw new Error('Failed to load programs');
+        const data = await response.json();
+        setPrograms(data.programs);
       } catch (error) {
-        toast.error('Failed to load programs');
+        toast.error('Could not load programs. Please try again later.');
       }
-    }
+    };
     fetchPrograms();
   }, []);
 
-  const form = useForm<StudentFormInput>({
-    resolver: zodResolver(studentSchema),
-    defaultValues: {
-      studentIdNumber: '',
-      firstName: '',
-      lastName: '',
-      email: '',
-      year: 1,
-      programId: '',
-    },
-  });
+  useEffect(() => {
+    const checkDuplicate = async (field: 'email' | 'studentIdNumber', value: string) => {
+      if (!value) return;
 
-  const handleFormSubmit: SubmitHandler<StudentFormInput> = async (data) => {
-    await onSubmit(data);
-  };
+      if (field === 'studentIdNumber' && !studentIdRegex.test(value)) {
+        return;
+      }
+      if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/public/check-duplicate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ [field]: value }),
+        });
+        const data = await response.json();
+        if (data.isDuplicate) {
+          setError(field, { type: 'manual', message: `This ${field === 'email' ? 'email' : 'student ID'} is already registered.` });
+        } else {
+          clearErrors(field);
+        }
+      } catch (error) {
+        // Do not show toast here to avoid bothering user for background validation failure
+        console.error(`Failed to check duplicate for ${field}`, error);
+      }
+    };
+
+    checkDuplicate('studentIdNumber', debouncedStudentId);
+  }, [debouncedStudentId, setError, clearErrors]);
+
+  useEffect(() => {
+    const checkDuplicate = async (field: 'email' | 'studentIdNumber', value: string) => {
+      if (!value) return;
+
+      if (field === 'studentIdNumber' && !studentIdRegex.test(value)) {
+        return;
+      }
+      if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/public/check-duplicate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ [field]: value }),
+        });
+        const data = await response.json();
+        if (data.isDuplicate) {
+          setError(field, { type: 'manual', message: `This ${field === 'email' ? 'email' : 'student ID'} is already registered.` });
+        } else {
+          clearErrors(field);
+        }
+      } catch (error) {
+        // Do not show toast here to avoid bothering user for background validation failure
+        console.error(`Failed to check duplicate for ${field}`, error);
+      }
+    };
+    checkDuplicate('email', debouncedEmail);
+  }, [debouncedEmail, setError, clearErrors]);
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="studentIdNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Student ID</FormLabel>
-              <FormControl>
-                <Input placeholder="SXXXX-XXXX-XXX" {...field} className="py-6 text-lg" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="firstName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>First Name</FormLabel>
-              <FormControl>
-                <Input placeholder="John" {...field} className="py-6 text-lg" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="lastName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Last Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Doe" {...field} className="py-6 text-lg" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="you@example.com" {...field} className="py-6 text-lg" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="year"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Year Level</FormLabel>
-              <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} defaultValue={String(field.value)}>
-                <FormControl>
-                  <SelectTrigger className="py-6 text-lg">
-                    <SelectValue placeholder="Select year level" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {[1, 2, 3, 4, 5].map(year => (
-                    <SelectItem key={year} value={String(year)}>{year}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="programId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Program</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger className="py-6 text-lg">
-                    <SelectValue placeholder="Select a program" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {programs.map(program => (
-                    <SelectItem key={program.id} value={program.id}>{program.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" className="w-full py-6 text-lg" disabled={isSubmitting}>
-          {isSubmitting ? 'Submitting...' : 'Register'}
-        </Button>
-      </form>
-    </Form>
-  );
-}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full max-w-md">
+      <div className="space-y-2">
+        <Label htmlFor="studentIdNumber">Student ID Number</Label>
+        <Input id="studentIdNumber" {...register('studentIdNumber')} placeholder="SXXXX-XXXX-XXX" />
+        {errors.studentIdNumber && <p className="text-sm text-red-500">{errors.studentIdNumber.message}</p>}
+      </div>
 
-export default PublicRegisterForm; 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="firstName">First Name</Label>
+          <Input id="firstName" {...register('firstName')} placeholder="Juan" />
+          {errors.firstName && <p className="text-sm text-red-500">{errors.firstName.message}</p>}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="lastName">Last Name</Label>
+          <Input id="lastName" {...register('lastName')} placeholder="Dela Cruz" />
+          {errors.lastName && <p className="text-sm text-red-500">{errors.lastName.message}</p>}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="email">Email Address</Label>
+        <Input id="email" type="email" {...register('email')} placeholder="juan.delacruz@example.com" />
+        {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="programId">Program</Label>
+          <Select onValueChange={(value) => setValue('programId', value)} name="programId">
+            <SelectTrigger>
+              <SelectValue placeholder="Select Program" />
+            </SelectTrigger>
+            <SelectContent>
+              {programs.map((p) => (
+                <SelectItem key={p.id} value={p.id}>{p.displayName}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.programId && <p className="text-sm text-red-500">{errors.programId.message}</p>}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="year">Year Level</Label>
+          <Select onValueChange={(value) => setValue('year', parseInt(value, 10))} name="year">
+            <SelectTrigger>
+              <SelectValue placeholder="Select Year" />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5].map((y) => (
+                <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.year && <p className="text-sm text-red-500">{errors.year.message}</p>}
+        </div>
+      </div>
+
+      <Button type="submit" disabled={isSubmitting} className="w-full">
+        {isSubmitting ? 'Submitting...' : 'Register'}
+      </Button>
+    </form>
+  );
+}; 

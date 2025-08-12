@@ -223,16 +223,16 @@
 
 #### Story 4.2: Real-Time Validation
 
-- [ ] **4.2.1 Atomic:** Create duplicate checking API endpoint
+- [x] **4.2.1 Atomic:** Create duplicate checking API endpoint
   - **Files:** `src/app/api/public/check-duplicate/route.ts`
   - **Dependencies:** Student queries
   - **Acceptance:** POST endpoint checks student ID and email uniqueness with rate limiting
   - **Tech:** Next.js API routes, database queries, rate limiting middleware
 
-- [ ] **4.2.2 Atomic:** Implement live validation in public form
-  - **Files:** `src/components/public/PublicRegisterForm.tsx` (enhance existing)
-  - **Dependencies:** Duplicate checking API
-  - **Acceptance:** Form shows real-time validation feedback, debounced API calls
+- [x] **4.2.2 Atomic:** Implement live validation in public form
+  - **Files:** `src/components/public/PublicRegisterForm.tsx`, `src/hooks/use-debounce.ts`
+  - **Dependencies:** 4.2.1
+  - **Acceptance:** Form provides real-time feedback on student ID/email duplication with debouncing
   - **Tech:** React hooks, debouncing, API integration, UX feedback
 
 #### Story 4.3: Registration Success Flow

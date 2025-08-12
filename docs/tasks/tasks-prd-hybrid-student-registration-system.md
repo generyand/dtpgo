@@ -198,7 +198,7 @@ Tech-stack specific file structure for this system:
   - **Duration:** 1-2 days
   - **Dependencies:** Database client ready
 
-- [ ] **4.2 Story: Real-Time Validation**
+- [x] **4.2 Story: Real-Time Validation**
   - Build duplicate checking for student ID and email
   - Implement live validation feedback
   - **Duration:** 1-2 days
