@@ -129,13 +129,13 @@
 
 #### Story 3.2: Admin Registration Form
 
-- [ ] **3.2.1 Atomic:** Build student registration form component
+- [x] **3.2.1 Atomic:** Build student registration form component
   - **Files:** `src/components/admin/RegisterForm.tsx`
   - **Dependencies:** Program queries, validation schemas
   - **Acceptance:** Form with all student fields, program dropdown, validation feedback
   - **Tech:** React Hook Form, Zod validation, Tailwind CSS form styling
 
-- [ ] **3.2.2 Atomic:** Create admin registration page
+- [x] **3.2.2 Atomic:** Create admin registration page
   - **Files:** `src/app/(admin)/register/page.tsx`
   - **Dependencies:** RegisterForm component, admin registration API
   - **Acceptance:** Page with form, "Register and Add Another" functionality, success feedback

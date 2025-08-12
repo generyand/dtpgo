@@ -5,9 +5,9 @@ import type {
   RegisterCredentials, 
   SessionCheckResult,
   AuthErrorDetail,
-  AuthErrorType 
+  AdminUser
 } from '../types/auth'
-import type { AuthError } from '@supabase/supabase-js'
+import type { AuthError, AuthChangeEvent, Session } from '@supabase/supabase-js'
 
 /**
  * Maps Supabase auth errors to our custom error types
@@ -47,7 +47,7 @@ export function mapAuthError(error: AuthError | Error | null): AuthErrorDetail |
 /**
  * Sign in with email and password
  */
-export async function signInWithCredentials(credentials: LoginCredentials): Promise<{ error: string | null; user?: any }> {
+export async function signInWithCredentials(credentials: LoginCredentials): Promise<{ error: string | null; user?: AdminUser }> {
   const supabase = createSupabaseBrowserClient();
   try {
     // Check for admin user via API route
@@ -196,14 +196,14 @@ export async function getCurrentUser() {
 /**
  * Check if user is authenticated
  */
-export function isAuthenticated(session: any): boolean {
+export function isAuthenticated(session: Session | null): boolean {
   return !!(session?.user && session?.access_token)
 }
 
 /**
  * Subscribe to auth state changes
  */
-export function onAuthStateChange(callback: (event: string, session: any) => void) {
+export function onAuthStateChange(callback: (event: AuthChangeEvent, session: Session | null) => void) {
   const supabase = createSupabaseBrowserClient();
   return supabase.auth.onAuthStateChange(callback)
 }

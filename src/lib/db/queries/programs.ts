@@ -5,7 +5,7 @@
  * These functions are used to manage academic programs within the system.
  */
 
-import { Prisma } from '@prisma/client';
+import { Prisma, Program } from '@prisma/client';
 import { prisma } from '../client';
 
 /**
@@ -14,13 +14,18 @@ import { prisma } from '../client';
 export type CreateProgramData = Omit<Prisma.ProgramCreateInput, 'id' | 'createdAt' | 'updatedAt'>;
 
 /**
+ * Narrowed type for listing programs in UIs where only core fields are needed.
+ */
+export type ProgramListItem = Pick<Program, 'id' | 'name' | 'displayName' | 'isActive'>;
+
+/**
  * Fetches a list of programs.
  * By default, it returns only active programs.
  *
  * @param options - Options to include inactive programs.
  * @returns A promise that resolves to an array of programs.
  */
-export async function getPrograms(options?: { includeInactive?: boolean }): Promise<Prisma.ProgramGetPayload<{}>[]> {
+export async function getPrograms(options?: { includeInactive?: boolean }): Promise<ProgramListItem[]> {
   const where: Prisma.ProgramWhereInput = {};
 
   if (!options?.includeInactive) {
@@ -32,6 +37,12 @@ export async function getPrograms(options?: { includeInactive?: boolean }): Prom
     orderBy: {
       displayName: 'asc',
     },
+    select: {
+      id: true,
+      name: true,
+      displayName: true,
+      isActive: true,
+    },
   });
 }
 
@@ -41,7 +52,7 @@ export async function getPrograms(options?: { includeInactive?: boolean }): Prom
  * @param id - The unique ID of the program.
  * @returns A promise that resolves to the program object or null if not found.
  */
-export async function getProgramById(id: string): Promise<Prisma.ProgramGetPayload<{}> | null> {
+export async function getProgramById(id: string): Promise<Program | null> {
   return prisma.program.findUnique({
     where: { id },
   });
@@ -53,7 +64,7 @@ export async function getProgramById(id: string): Promise<Prisma.ProgramGetPaylo
  * @param data - The data for the new program.
  * @returns A promise that resolves to the newly created program object.
  */
-export async function createProgram(data: CreateProgramData): Promise<Prisma.ProgramGetPayload<{}>> {
+export async function createProgram(data: CreateProgramData): Promise<Program> {
   return prisma.program.create({
     data,
   });
@@ -69,7 +80,7 @@ export async function createProgram(data: CreateProgramData): Promise<Prisma.Pro
 export async function updateProgram(
   id: string,
   data: Partial<CreateProgramData>
-): Promise<Prisma.ProgramGetPayload<{}>> {
+): Promise<Program> {
   return prisma.program.update({
     where: { id },
     data,

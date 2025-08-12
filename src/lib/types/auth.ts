@@ -52,3 +52,10 @@ export interface AuthErrorDetail {
   type: AuthErrorType
   message: string
 }
+
+// Custom admin user type (if needed for frontend)
+export interface AdminUser {
+  id: string;
+  email: string;
+  role: 'admin';
+}

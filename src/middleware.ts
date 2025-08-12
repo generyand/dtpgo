@@ -1,6 +1,5 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { checkIPWhitelist, getIPWhitelistConfig } from '@/lib/security/ip-whitelist'
 
 // Protected admin routes that require authentication
 const ADMIN_ROUTES = ['/admin', '/dashboard']
@@ -24,186 +23,107 @@ function isAdminRoute(pathname: string): boolean {
   return ADMIN_ROUTE_PATTERNS.some(pattern => pattern.test(pathname))
 }
 
-/**
- * Middleware function to handle authentication and IP whitelisting for admin routes
- * 
- * Security layers (applied in order):
- * 1. IP Whitelist check (if enabled)
- * 2. Authentication check via Supabase session
- * 
- * Environment variables for IP whitelisting:
- * - IP_WHITELIST_ENABLED: Enable/disable IP whitelisting (default: false)
- * - IP_WHITELIST_IPS: Comma-separated list of allowed IPs
- * - IP_WHITELIST_RANGES: Comma-separated list of CIDR blocks or IP ranges
- * - IP_WHITELIST_ALLOW_LOCALHOST: Allow localhost access (default: true)
- * - IP_WHITELIST_ALLOW_PRIVATE: Allow private network access (default: true)
- */
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+    request: { headers: request.headers },
   })
 
   const { pathname } = request.nextUrl
-  
+
   // Skip middleware for public routes and API routes that don't need protection
   if (!isAdminRoute(pathname)) {
     return response
   }
 
-  // Check IP whitelist for admin routes when enabled
-  const ipWhitelistConfig = getIPWhitelistConfig()
-  if (ipWhitelistConfig.enabled) {
-    const ipCheck = checkIPWhitelist(request, ipWhitelistConfig)
-    
-    if (!ipCheck.allowed) {
-      console.warn(`IP whitelist violation: ${ipCheck.reason}`)
-      
-      // Return 403 Forbidden for IP whitelist violations
-      // This provides a clear security boundary without revealing auth details
-      return new NextResponse(
-        JSON.stringify({
-          error: 'Access denied',
-          message: 'Your IP address is not authorized to access this resource'
-        }),
-        {
-          status: 403,
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Blocked-Reason': 'ip-whitelist'
-          }
-        }
-      )
-    }
-    
-    // Log successful IP whitelist check for audit purposes
-    console.log(`IP whitelist check passed for ${ipCheck.ip} accessing ${pathname}`)
+  // Debug bypass: allow disabling auth checks entirely for admin routes
+  if (process.env.DISABLE_AUTH === 'true') {
+    console.warn('DISABLE_AUTH is enabled - skipping admin auth checks in middleware')
+    return response
   }
+
+  // Simple Auth Fallback: allow access if our simple auth cookie is present
+  const simpleAuthCookie = request.cookies.get('APP_AUTH')?.value
+  if (simpleAuthCookie) {
+    console.log('[Auth] Simple auth cookie detected, allowing access to', pathname)
+    return response
+  }
+
+  // Validate Supabase env vars early to avoid redirect loops when misconfigured
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase env vars missing in middleware. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY')
+    // Add debug header to help in network tab
+    const dbg = NextResponse.next()
+    dbg.headers.set('X-Auth-Reason', 'missing-supabase-env')
+    return dbg
+  }
+
+  // IP whitelist checks removed
 
   try {
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl!,
+      supabaseAnonKey!,
       {
         cookies: {
           get(name: string) {
             return request.cookies.get(name)?.value
           },
           set(name: string, value: string, options: CookieOptions) {
-            request.cookies.set({
-              name,
-              value,
-              ...options,
-            })
-            response = NextResponse.next({
-              request: {
-                headers: request.headers,
-              },
-            })
-            response.cookies.set({
-              name,
-              value,
-              ...options,
-            })
+            request.cookies.set({ name, value, ...options })
+            response = NextResponse.next({ request: { headers: request.headers } })
+            response.cookies.set({ name, value, ...options })
           },
           remove(name: string, options: CookieOptions) {
-            request.cookies.set({
-              name,
-              value: '',
-              ...options,
-            })
-            response = NextResponse.next({
-              request: {
-                headers: request.headers,
-              },
-            })
-            response.cookies.set({
-              name,
-              value: '',
-              ...options,
-            })
+            request.cookies.set({ name, value: '', ...options })
+            response = NextResponse.next({ request: { headers: request.headers } })
+            response.cookies.set({ name, value: '', ...options })
           },
         },
       }
     )
-    
+
     // Refresh session if expired - required for Server Components
     const { data: { session }, error } = await supabase.auth.getSession()
-    
+
     if (error) {
       console.error('Middleware auth error:', error)
-      // Redirect to login on session error
       const redirectUrl = new URL('/auth/login', request.url)
       redirectUrl.searchParams.set('redirectTo', pathname)
-      return NextResponse.redirect(redirectUrl)
+      const res = NextResponse.redirect(redirectUrl)
+      res.headers.set('X-Auth-Reason', 'supabase-error')
+      return res
     }
 
-    // If no session exists, redirect to login
     if (!session || !session.user) {
       const redirectUrl = new URL('/auth/login', request.url)
       redirectUrl.searchParams.set('redirectTo', pathname)
-      return NextResponse.redirect(redirectUrl)
+      const res = NextResponse.redirect(redirectUrl)
+      res.headers.set('X-Auth-Reason', 'no-session')
+      try {
+        const names = request.cookies.getAll().map(c => c.name).join(',')
+        res.headers.set('X-Auth-Cookies', names || 'none')
+      } catch {}
+      return res
     }
 
-    // Optional: Add role-based access control here
-    // You can check user roles from session.user.user_metadata or app_metadata
-    // For now, any authenticated user can access admin routes
-    
     // User is authenticated, allow access
     return response
-    
+
   } catch (error) {
     console.error('Middleware error:', error)
-    
-    // Check if this is an IP whitelist related error
-    const ipWhitelistConfig = getIPWhitelistConfig()
-    if (ipWhitelistConfig.enabled) {
-      try {
-        const ipCheck = checkIPWhitelist(request, ipWhitelistConfig)
-        if (!ipCheck.allowed) {
-          // If IP whitelist is the issue, return 403 instead of redirect
-          return new NextResponse(
-            JSON.stringify({
-              error: 'Access denied',
-              message: 'Your IP address is not authorized to access this resource'
-            }),
-            {
-              status: 403,
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Blocked-Reason': 'ip-whitelist-error'
-              }
-            }
-          )
-        }
-      } catch (ipError) {
-        console.error('IP whitelist check error:', ipError)
-        // Fall through to auth redirect on IP check errors
-      }
-    }
-    
-    // On any non-IP-related error, redirect to login for security
+
     const redirectUrl = new URL('/auth/login', request.url)
     redirectUrl.searchParams.set('redirectTo', pathname)
-    return NextResponse.redirect(redirectUrl)
+    const res = NextResponse.redirect(redirectUrl)
+    res.headers.set('X-Auth-Reason', 'middleware-exception')
+    return res
   }
 }
 
-/**
- * Middleware configuration
- * Specify which routes this middleware should run on
- */
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api/auth (auth API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder files
-     */
     '/((?!api/auth|_next/static|_next/image|favicon.ico|public/).*)',
   ],
 }

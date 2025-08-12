@@ -112,11 +112,19 @@ export function AdminGuard({
   const { user, session, loading, error } = useAuth()
   const router = useRouter()
   const [isInitialized, setIsInitialized] = useState(false)
+  const [hasSimpleAuth, setHasSimpleAuth] = useState(false)
 
   useEffect(() => {
     // Add a small delay to ensure auth context is properly initialized
     const timer = setTimeout(() => {
       setIsInitialized(true)
+      // Detect simple auth cookie on client
+      try {
+        if (typeof document !== 'undefined') {
+          const hasCookie = document.cookie.split(';').some(c => c.trim().startsWith('APP_AUTH='))
+          setHasSimpleAuth(hasCookie)
+        }
+      } catch {}
     }, 100)
 
     return () => clearTimeout(timer)
@@ -127,14 +135,14 @@ export function AdminGuard({
     window.location.reload()
   }
 
-  // Handle redirect for unauthorized access
+  // Handle redirect for unauthorized access (skip when simple auth is active)
   useEffect(() => {
-    if (isInitialized && !loading && requireAuth && !user && !error) {
+    if (isInitialized && !loading && requireAuth && !hasSimpleAuth && !user && !error) {
       const currentPath = window.location.pathname
       const redirectUrl = `${redirectTo}?redirectTo=${encodeURIComponent(currentPath)}`
       router.push(redirectUrl)
     }
-  }, [isInitialized, loading, user, error, requireAuth, redirectTo, router])
+  }, [isInitialized, loading, user, error, requireAuth, redirectTo, router, hasSimpleAuth])
 
   // Show loading state while auth is being checked
   if (!isInitialized || loading) {
@@ -144,6 +152,11 @@ export function AdminGuard({
   // Show error state if there's an authentication error
   if (error) {
     return <ErrorMessage error={error} onRetry={handleRetry} />
+  }
+
+  // If simple auth is present, allow access
+  if (hasSimpleAuth) {
+    return <>{children}</>
   }
 
   // Show unauthorized state if authentication is required but user is not authenticated

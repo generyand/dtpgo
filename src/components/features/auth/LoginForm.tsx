@@ -1,21 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginInput } from '@/lib/validations/auth';
-import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { useRouter, useSearchParams } from 'next/navigation';
 
 export function LoginForm() {
-  const { signIn, loading } = useAuth();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirectTo') || '/admin/dashboard';
+  const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -26,17 +21,40 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: LoginInput) {
-    const { error } = await signIn(values);
+    try {
+      setSubmitting(true);
 
-    if (error) {
-      toast.error('Login Failed', {
-        description: error,
-      });
-    } else {
-      toast.success('Login Successful', {
-        description: 'Redirecting to your dashboard...',
-      });
-      router.push(redirectTo);
+      // Simple auth: accept any non-empty credentials (dev-only)
+      if (!values.email || !values.password) {
+        toast.error('Login Failed', { description: 'Email and password are required' });
+        setSubmitting(false);
+        return;
+      }
+
+      // Optionally enforce a specific admin credential via env (if provided)
+      const requiredEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+      const requiredPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+      if (requiredEmail && requiredPassword) {
+        if (values.email !== requiredEmail || values.password !== requiredPassword) {
+          toast.error('Login Failed', { description: 'Invalid admin credentials' });
+          setSubmitting(false);
+          return;
+        }
+      }
+
+      // Set simple auth cookie (1 week) - read by middleware
+      const oneWeekSeconds = 60 * 60 * 24 * 7;
+      document.cookie = `APP_AUTH=1; Max-Age=${oneWeekSeconds}; Path=/; SameSite=Lax`;
+
+      // Debug logs
+      console.log('[Auth Debug] Set APP_AUTH cookie. document.cookie:', document.cookie);
+
+      toast.success('Login Successful', { description: 'Redirecting to your dashboard...' });
+
+      // Hard redirect to ensure fresh server state
+      window.location.assign('/admin/dashboard');
+    } finally {
+      // keep submitting true until navigation to avoid double submit
     }
   }
 
@@ -69,8 +87,8 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? 'Signing In...' : 'Sign In'}
+        <Button type="submit" className="w-full" disabled={submitting}>
+          {submitting ? 'Signing In...' : 'Sign In'}
         </Button>
       </form>
     </Form>

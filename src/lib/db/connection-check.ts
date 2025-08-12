@@ -4,6 +4,7 @@
  */
 
 import { PrismaClient } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 
 // Global for Prisma client in development
 const globalForPrisma = globalThis as unknown as {
@@ -42,8 +43,8 @@ export async function verifyDatabaseConnection(): Promise<{
         schemaReady: true,
         details: 'Database connection and schema verified successfully'
       }
-    } catch (schemaError: any) {
-      if (schemaError.code === 'P2021') {
+    } catch (schemaError: unknown) {
+      if (schemaError instanceof Prisma.PrismaClientKnownRequestError && schemaError.code === 'P2021') {
         console.log('⚠️  Database connected but schema not applied')
         console.log('💡 Run: npm run db:migrate')
         
@@ -54,32 +55,34 @@ export async function verifyDatabaseConnection(): Promise<{
           details: 'Database is connected but migrations need to be run. Execute: npm run db:migrate'
         }
       } else {
-        console.log('⚠️  Database connected but schema issue:', schemaError.message)
+        const message = schemaError instanceof Error ? schemaError.message : 'Unknown schema error'
+        console.log('⚠️  Database connected but schema issue:', message)
         
         return {
           connected: true,
           schemaReady: false,
           error: 'Schema error',
-          details: `Schema validation failed: ${schemaError.message}`
+          details: `Schema validation failed: ${message}`
         }
       }
     }
     
-  } catch (connectionError: any) {
+  } catch (connectionError: unknown) {
+    const message = connectionError instanceof Error ? connectionError.message : 'Unknown connection error'
     console.error('❌ Database connection failed!')
-    console.error('Error:', connectionError.message)
+    console.error('Error:', message)
     
-    let errorDetails = `Connection failed: ${connectionError.message}`
+    let errorDetails = `Connection failed: ${message}`
     
-    if (connectionError.message.includes('ECONNREFUSED')) {
+    if (message.includes('ECONNREFUSED')) {
       errorDetails += '\n\nTroubleshooting tips:\n1. Ensure PostgreSQL is running\n2. Check your DATABASE_URL in .env.local\n3. Verify the port (usually 5432)'
     }
     
-    if (connectionError.message.includes('password authentication failed')) {
+    if (message.includes('password authentication failed')) {
       errorDetails += '\n\nCheck your username and password in DATABASE_URL'
     }
     
-    if (connectionError.message.includes('database') && connectionError.message.includes('does not exist')) {
+    if (message.includes('database') && message.includes('does not exist')) {
       errorDetails += '\n\nCreate the database first or check the database name in DATABASE_URL'
     }
     
