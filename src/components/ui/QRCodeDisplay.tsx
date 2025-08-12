@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Button } from './button';
 import { Download } from 'lucide-react';
 
@@ -40,7 +41,7 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
         URL.revokeObjectURL(qrCodeUrl);
       }
     };
-  }, [studentId]);
+  }, [studentId, qrCodeUrl]);
 
   const handleDownload = () => {
     if (qrCodeUrl) {
@@ -64,7 +65,7 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
   return (
     <div className="flex flex-col items-center gap-4">
       {qrCodeUrl && (
-        <img src={qrCodeUrl} alt={`QR Code for student ${studentId}`} className="max-w-xs border rounded-lg" />
+        <Image src={qrCodeUrl} alt={`QR Code for student ${studentId}`} className="max-w-xs border rounded-lg" width={200} height={200} />
       )}
       <Button onClick={handleDownload} disabled={!qrCodeUrl}>
         <Download className="mr-2 h-4 w-4" />
