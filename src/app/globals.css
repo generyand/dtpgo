@@ -45,6 +45,8 @@
 
 :root {
   --radius: 0.625rem;
+  /* Brand color for yellow accents */
+  --brand-yellow: #facc15; /* Tailwind yellow-400 */
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
