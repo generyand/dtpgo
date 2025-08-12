@@ -4,7 +4,8 @@ import { createBrandedQRCode } from '@/lib/qr/branding';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const student = await getStudentById(params.id);
+    const { id } = params;
+    const student = await getStudentById(id);
 
     if (!student) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
