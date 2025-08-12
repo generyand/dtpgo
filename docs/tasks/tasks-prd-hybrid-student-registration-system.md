@@ -231,7 +231,7 @@ Tech-stack specific file structure for this system:
   - **Duration:** 1-2 days
   - **Dependencies:** Student ID format defined
 
-- [ ] **5.2 Story: QR Code Display Components**
+- [x] **5.2 Story: QR Code Display Components**
   - Create reusable QR code display components
   - Implement downloadable/shareable image generation
   - **Duration:** 1 day

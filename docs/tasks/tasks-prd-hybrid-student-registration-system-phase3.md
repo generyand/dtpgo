@@ -267,13 +267,13 @@
 
 #### Story 5.2: QR Code Display Components
 
-- [ ] **5.2.1 Atomic:** Create QR code display component
+- [x] **5.2.1 Atomic:** Create QR code display component
   - **Files:** `src/components/ui/QRCodeDisplay.tsx`
   - **Dependencies:** Branded QR functions
   - **Acceptance:** Component displays QR code with branding, download functionality
   - **Tech:** React component, image handling, download triggers
 
-- [ ] **5.2.2 Atomic:** Add QR code to student types and queries
+- [x] **5.2.2 Atomic:** Add QR code to student types and queries
   - **Files:** `src/lib/types/student.ts` (enhance), `src/lib/db/queries/students.ts` (enhance)
   - **Dependencies:** QR generation utilities
   - **Acceptance:** Student type includes QR code data, queries generate QR when needed
