@@ -63,7 +63,7 @@ Tech-stack specific file structure for this system:
   - **Duration:** 2-3 days
   - **Dependencies:** Database connection established
 
-- [ ] **3.0 Epic: Admin Dashboard Features** *(FR-3)*
+- [x] **3.0 Epic: Admin Dashboard Features** *(FR-3)*
   - Build comprehensive admin interface for student management
   - Implement registration, viewing, editing, and analytics capabilities
   - Create responsive dashboard layout with navigation
@@ -192,7 +192,7 @@ Tech-stack specific file structure for this system:
 
 #### Epic 4.0: Public Registration Interface
 
-- [ ] **4.1 Story: Mobile-First Registration Page**
+- [x] **4.1 Story: Mobile-First Registration Page**
   - Create responsive public registration page layout
   - Implement mobile-optimized form design
   - **Duration:** 1-2 days

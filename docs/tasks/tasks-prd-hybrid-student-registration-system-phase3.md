@@ -203,19 +203,19 @@
 
 #### Story 4.1: Mobile-First Registration Page
 
-- [ ] **4.1.1 Atomic:** Create public registration layout
+- [x] **4.1.1 Atomic:** Create public registration layout
   - **Files:** `src/app/join/layout.tsx`
   - **Dependencies:** None
   - **Acceptance:** Mobile-optimized layout with minimal navigation, portrait-first design
   - **Tech:** Next.js layout, Tailwind CSS mobile-first, viewport optimization
 
-- [ ] **4.1.2 Atomic:** Build public registration form component
+- [x] **4.1.2 Atomic:** Build public registration form component
   - **Files:** `src/components/public/PublicRegisterForm.tsx`
   - **Dependencies:** Validation schemas, program queries
   - **Acceptance:** Mobile-friendly form with large touch targets, clear validation
   - **Tech:** React Hook Form, mobile-first styling, touch-friendly inputs
 
-- [ ] **4.1.3 Atomic:** Create public registration page
+- [x] **4.1.3 Atomic:** Create public registration page
   - **Files:** `src/app/join/page.tsx`
   - **Dependencies:** PublicRegisterForm, public registration API
   - **Acceptance:** Page handles form submission, loading states, error display
