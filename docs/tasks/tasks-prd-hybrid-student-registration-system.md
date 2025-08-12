@@ -70,7 +70,7 @@ Tech-stack specific file structure for this system:
   - **Duration:** 5-7 days  
   - **Dependencies:** Authentication system, database schema
 
-- [ ] **4.0 Epic: Public Registration Interface** *(FR-4)*
+- [x] **4.0 Epic: Public Registration Interface** *(FR-4)*
   - Develop mobile-first public registration page
   - Implement real-time duplicate validation
   - Create success screen with QR code display
@@ -204,11 +204,24 @@ Tech-stack specific file structure for this system:
   - **Duration:** 1-2 days
   - **Dependencies:** Database queries, validation schemas
 
-- [ ] **4.3 Story: Registration Success Flow**
-  - Create success page with QR code display
-  - Implement user-controlled dismissal workflow
-  - **Duration:** 1-2 days
-  - **Dependencies:** QR code generation system
+- [x] **4.3 Story: Success State and Error Handling**
+  - **FR-04.3:** Provide clear user feedback on registration success or failure.
+  - **Tasks:**
+  - [x] **4.3.1 Atomic:** Create public registration API endpoint
+    - **Files:** `src/app/api/public/register/route.ts`
+    - **Dependencies:** Student queries, validation schemas
+    - **Acceptance:** API handles public submissions, sets source to 'public'
+    - **Tech:** Next.js API route, Prisma client
+  - [x] **4.3.2 Atomic:** Create dedicated success page
+    - **Files:** `src/app/join/success/page.tsx`, `src/app/join/success/layout.tsx`
+    - **Dependencies:** None
+    - **Acceptance:** Page confirms successful registration, provides next steps
+    - **Tech:** React component, static content
+  - [x] **4.3.3 Atomic:** Handle form submission and redirection
+    - **Files:** `src/app/join/page.tsx`
+    - **Dependencies:** 4.3.1, 4.3.2
+    - **Acceptance:** Form submits to public API, redirects to success page on 2xx, shows toast on error
+    - **Tech:** Client-side fetch, error handling, Next.js router
 
 #### Epic 5.0: QR Code Generation System
 
