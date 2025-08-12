@@ -225,7 +225,7 @@ Tech-stack specific file structure for this system:
 
 #### Epic 5.0: QR Code Generation System
 
-- [ ] **5.1 Story: QR Code Generation Utilities**
+- [x] **5.1 Story: QR Code Generation Utilities**
   - Build QR code generation functions for student IDs
   - Create branded QR code image composition
   - **Duration:** 1-2 days

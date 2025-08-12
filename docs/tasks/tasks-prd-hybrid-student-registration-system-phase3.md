@@ -253,13 +253,13 @@
 
 #### Story 5.1: QR Code Generation Utilities
 
-- [ ] **5.1.1 Atomic:** Create QR code generation functions
+- [x] **5.1.1 Atomic:** Create QR code generation functions
   - **Files:** `src/lib/qr/generator.ts`
   - **Dependencies:** None
   - **Acceptance:** Functions generate QR codes from student IDs, configurable size/format
   - **Tech:** QR code library, base64 encoding, TypeScript types
 
-- [ ] **5.1.2 Atomic:** Build branded QR code composition
+- [x] **5.1.2 Atomic:** Build branded QR code composition
   - **Files:** `src/lib/qr/branding.ts`
   - **Dependencies:** QR generator functions
   - **Acceptance:** Creates branded image with logo, student info, QR code
