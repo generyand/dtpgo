@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Table,
   TableBody,
@@ -30,7 +30,7 @@ export function StudentsTable() {
   const [search, setSearch] = useState('');
   const [editingStudent, setEditingStudent] = useState<StudentWithProgram | null>(null);
 
-  async function fetchStudents() {
+  const fetchStudents = useCallback(async () => {
     try {
       const params = new URLSearchParams({
         page: String(page),
@@ -43,9 +43,10 @@ export function StudentsTable() {
       setStudents(data.students ?? []);
       setTotal(data.total ?? 0);
     } catch (error) {
+      console.error('Failed to load students:', error);
       toast.error('Failed to load students');
     }
-  }
+  }, [page, limit, search]);
   
   async function handleDelete(studentId: string) {
     if (!confirm('Are you sure you want to delete this student?')) return;
@@ -57,13 +58,14 @@ export function StudentsTable() {
       toast.success('Student deleted successfully');
       fetchStudents(); // Refresh the table
     } catch (error) {
+      console.error('Failed to delete student:', error);
       toast.error('Failed to delete student');
     }
   }
   
   useEffect(() => {
     fetchStudents();
-  }, [page, limit, search]);
+  }, [fetchStudents]);
 
   return (
     <div className="space-y-4">

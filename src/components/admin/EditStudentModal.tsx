@@ -36,6 +36,7 @@ export function EditStudentModal({ student, isOpen, onClose, onUpdate }: EditStu
       onUpdate();
       onClose();
     } catch (error) {
+      console.error('Failed to update student:', error);
       toast.error('Failed to update student');
     } finally {
       setIsSubmitting(false);

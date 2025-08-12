@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ isDuplicate: !!existingStudent }, { status: 200 });
   } catch (error) {
+    console.error('Error checking for duplicate student:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

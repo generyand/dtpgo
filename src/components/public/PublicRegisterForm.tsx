@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { studentSchema, StudentFormInput, studentIdRegex } from '@/lib/validations/student';
@@ -28,7 +28,6 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
     register,
     handleSubmit,
     formState: { errors },
-    control,
     watch,
     setError,
     clearErrors,
@@ -52,74 +51,47 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
         const data = await response.json();
         setPrograms(data.programs);
       } catch (error) {
+        console.error('Failed to load programs:', error);
         toast.error('Could not load programs. Please try again later.');
       }
     };
     fetchPrograms();
   }, []);
 
+  const checkDuplicate = useCallback(async (field: 'email' | 'studentIdNumber', value: string) => {
+    if (!value) return;
+
+    if (field === 'studentIdNumber' && !studentIdRegex.test(value)) {
+      return;
+    }
+    if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/public/check-duplicate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [field]: value }),
+      });
+      const data = await response.json();
+      if (data.isDuplicate) {
+        setError(field, { type: 'manual', message: `This ${field === 'email' ? 'email' : 'student ID'} is already registered.` });
+      } else {
+        clearErrors(field);
+      }
+    } catch (error) {
+      console.error(`Failed to check duplicate for ${field}`, error);
+    }
+  }, [setError, clearErrors]);
+
   useEffect(() => {
-    const checkDuplicate = async (field: 'email' | 'studentIdNumber', value: string) => {
-      if (!value) return;
-
-      if (field === 'studentIdNumber' && !studentIdRegex.test(value)) {
-        return;
-      }
-      if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/public/check-duplicate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ [field]: value }),
-        });
-        const data = await response.json();
-        if (data.isDuplicate) {
-          setError(field, { type: 'manual', message: `This ${field === 'email' ? 'email' : 'student ID'} is already registered.` });
-        } else {
-          clearErrors(field);
-        }
-      } catch (error) {
-        // Do not show toast here to avoid bothering user for background validation failure
-        console.error(`Failed to check duplicate for ${field}`, error);
-      }
-    };
-
     checkDuplicate('studentIdNumber', debouncedStudentId);
-  }, [debouncedStudentId, setError, clearErrors]);
+  }, [debouncedStudentId, checkDuplicate]);
 
   useEffect(() => {
-    const checkDuplicate = async (field: 'email' | 'studentIdNumber', value: string) => {
-      if (!value) return;
-
-      if (field === 'studentIdNumber' && !studentIdRegex.test(value)) {
-        return;
-      }
-      if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/public/check-duplicate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ [field]: value }),
-        });
-        const data = await response.json();
-        if (data.isDuplicate) {
-          setError(field, { type: 'manual', message: `This ${field === 'email' ? 'email' : 'student ID'} is already registered.` });
-        } else {
-          clearErrors(field);
-        }
-      } catch (error) {
-        // Do not show toast here to avoid bothering user for background validation failure
-        console.error(`Failed to check duplicate for ${field}`, error);
-      }
-    };
     checkDuplicate('email', debouncedEmail);
-  }, [debouncedEmail, setError, clearErrors]);
+  }, [debouncedEmail, checkDuplicate]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full max-w-md">

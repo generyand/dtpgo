@@ -17,6 +17,7 @@ export async function PUT(
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: 'Validation failed', issues: error.issues }, { status: 400 });
     }
+    console.error('Error updating student:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -30,6 +31,7 @@ export async function DELETE(
     await deleteStudent(params.id);
     return new NextResponse(null, { status: 204 }); // No Content
   } catch (error) {
+    console.error('Error deleting student:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 
