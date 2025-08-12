@@ -9,8 +9,8 @@ export default function RegistrationSuccessPage() {
       <p className="text-gray-600 mb-6">
         Thank you for registering. Your information has been submitted successfully.
       </p>
-      <Link href="/">
-        <a className="text-blue-500 hover:underline">Return to Homepage</a>
+      <Link href="/" className="text-blue-500 hover:underline">
+        Return to Homepage
       </Link>
     </div>
   );
