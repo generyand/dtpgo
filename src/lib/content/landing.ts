@@ -92,7 +92,7 @@ export const FAQ = [
   },
   {
     q: "What do students need to check in?",
-    a: "All they need is a smartphone with a camera. No special app installation is required on their end, making the process frictionless.",
+    a: "All they need is a smartphone with their QR code. No special app installation is required on their end, making the process frictionless.",
   },
   {
     q: "Can this be used for events other than assemblies?",

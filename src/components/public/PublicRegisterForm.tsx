@@ -33,14 +33,9 @@ const EMAIL_DOMAINS = [
   'protonmail.com',
 ];
 
-// Utility function to capitalize names
-const capitalizeName = (name: string): string => {
-  return name
-    .toLowerCase()
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-    .replace(/\b(de|del|dela|van|von|da|di|du|le|la)\b/gi, match => match.toLowerCase());
+// Utility function to uppercase names
+const uppercaseName = (name: string): string => {
+  return name.toUpperCase();
 };
 
 export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFormProps) => {
@@ -94,17 +89,17 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
     fetchPrograms();
   }, []);
 
-  // Auto-capitalize first name
+  // Auto-uppercase first name
   useEffect(() => {
-    if (firstNameValue && firstNameValue !== capitalizeName(firstNameValue)) {
-      setValue('firstName', capitalizeName(firstNameValue));
+    if (firstNameValue && firstNameValue !== uppercaseName(firstNameValue)) {
+      setValue('firstName', uppercaseName(firstNameValue));
     }
   }, [firstNameValue, setValue]);
 
-  // Auto-capitalize last name
+  // Auto-uppercase last name
   useEffect(() => {
-    if (lastNameValue && lastNameValue !== capitalizeName(lastNameValue)) {
-      setValue('lastName', capitalizeName(lastNameValue));
+    if (lastNameValue && lastNameValue !== uppercaseName(lastNameValue)) {
+      setValue('lastName', uppercaseName(lastNameValue));
     }
   }, [lastNameValue, setValue]);
 
@@ -222,9 +217,12 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
               </div>
               <Input 
                 id="studentIdNumber" 
+                type="number"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 {...register('studentIdNumber')} 
                 placeholder="Input your student ID number"
-                className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors"
+                className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               {errors.studentIdNumber && (
                 <p className="text-sm text-red-600 flex items-center gap-1">

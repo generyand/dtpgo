@@ -54,7 +54,7 @@ export function HeaderNav() {
               className="hidden md:inline-flex text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               asChild
             >
-              <Link href="/auth/login">Sign In</Link>
+              <Link href="/join">Join</Link>
             </Button>
             
             {/* Removed demo button */}
@@ -87,11 +87,11 @@ export function HeaderNav() {
               ))}
               <div className="pt-3 mt-3 border-t border-gray-100">
                 <Link 
-                  href="/auth/login"
+                  href="/join"
                   className="block text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-medium py-3 px-4 rounded-lg transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Sign In
+                  Join
                 </Link>
               </div>
             </nav>

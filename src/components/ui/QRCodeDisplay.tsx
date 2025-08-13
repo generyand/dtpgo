@@ -92,23 +92,117 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
 
   if (isLoading) {
     return (
-      <div className="relative overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-amber-50 min-h-screen py-8 px-4">
-        {/* Background Elements */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl" />
+      <div className="relative py-8 px-4">
+        <div className="">
+          {/* Background Elements */}
+          <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl" />
 
-        <div className="relative mx-auto max-w-2xl flex items-center justify-center min-h-[60vh]">
-          <div className="group relative overflow-hidden rounded-2xl border bg-white shadow-lg">
-            <div className="absolute -right-10 -top-10 size-24 rounded-full bg-yellow-400/10 blur-xl" />
-            <div className="relative p-6 sm:p-8 text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-200 border-t-amber-600 mx-auto mb-4" />
-              <p className="text-gray-500 text-sm font-medium">
-                {retryCount > 0 ? 'Retrying...' : 'Generating your QR code...'}
-              </p>
+          <div className="relative mx-auto max-w-2xl">
+            {/* Header Section Skeleton */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-200 animate-pulse text-sm font-medium mb-4 w-40 h-8">
+              </div>
+
+              <div className="space-y-3 mb-3">
+                <div className="h-8 bg-gray-200 rounded animate-pulse mx-auto w-3/4"></div>
+                <div className="h-8 bg-gray-200 rounded animate-pulse mx-auto w-1/2"></div>
+              </div>
+
+              <div className="space-y-2 max-w-lg mx-auto">
+                <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4 mx-auto"></div>
+              </div>
             </div>
-            <div className="h-1 w-0 bg-gradient-to-r from-yellow-400 to-yellow-500 transition-all duration-500 group-hover:w-full" />
+
+            {/* QR Code Display Card Skeleton */}
+            <div className="group relative overflow-hidden rounded-2xl border bg-white shadow-lg">
+              <div className="absolute -right-10 -top-10 size-24 rounded-full bg-yellow-400/10 blur-xl" />
+
+              <div className="relative p-6 sm:p-8 space-y-6 bg-white">
+                {/* Student Information Skeleton */}
+                <div className="text-center space-y-2">
+                  <div className="flex items-center justify-center gap-2 mb-4">
+                    <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse w-32"></div>
+                  </div>
+
+                  <div className="h-6 bg-gray-200 rounded animate-pulse mx-auto w-48 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded animate-pulse mx-auto w-24"></div>
+                </div>
+
+                {/* QR Code Animation */}
+                <div className="text-center space-y-4">
+                  <div className="bg-white rounded-lg p-4 shadow-sm inline-block">
+                    <div className="w-[280px] sm:w-[320px] h-[280px] sm:h-[320px] relative bg-gray-50 rounded-lg overflow-hidden">
+                      {/* Subtle QR Grid Animation */}
+                      <div className="grid grid-cols-12 gap-1 w-full h-full p-4">
+                        {Array.from({ length: 144 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="bg-gray-200 rounded-sm animate-pulse"
+                            style={{
+                              animationDelay: `${i * 20}ms`,
+                              animationDuration: '2s',
+                            }}
+                          />
+                        ))}
+                      </div>
+                      
+                      {/* Subtle scanning effect */}
+                      <div 
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/20 to-transparent w-8"
+                        style={{ 
+                          animation: 'scan-horizontal 3s ease-in-out infinite'
+                        }} 
+                      />
+                    </div>
+                  </div>
+
+                  {/* Instructions Skeleton */}
+                  <div className="bg-gray-100 border border-gray-200 rounded-lg p-4 animate-pulse">
+                    <div className="flex items-start gap-3">
+                      <div className="w-5 h-5 bg-gray-200 rounded mt-0.5 flex-shrink-0"></div>
+                      <div className="text-left space-y-2 flex-1">
+                        <div className="h-4 bg-gray-200 rounded w-24"></div>
+                        <div className="h-3 bg-gray-200 rounded"></div>
+                        <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Download Button Skeleton */}
+                  <div className="w-full h-12 bg-gray-200 rounded animate-pulse"></div>
+
+                  {/* Trust Indicators Skeleton */}
+                  <div className="pt-4 border-t border-gray-100">
+                    <div className="flex items-center justify-center gap-4">
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-gray-200 rounded-full"></div>
+                        <div className="h-3 bg-gray-200 rounded w-16"></div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-gray-200 rounded-full"></div>
+                        <div className="h-3 bg-gray-200 rounded w-20"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Accent Line */}
+              <div className="h-1 bg-gray-200 animate-pulse"></div>
+            </div>
           </div>
         </div>
+        
+        <style jsx>{`
+          @keyframes scan-horizontal {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(320px); }
+            100% { transform: translateX(-100%); }
+          }
+        `}</style>
       </div>
     );
   }
