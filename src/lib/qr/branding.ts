@@ -22,6 +22,7 @@ export async function createBrandedQRCode(studentInfo: StudentInfo): Promise<Buf
       .png()
       .toBuffer();
 
+    // Create base canvas
     const canvas = sharp({
       create: {
         width: 300,
@@ -31,9 +32,9 @@ export async function createBrandedQRCode(studentInfo: StudentInfo): Promise<Buf
       },
     });
 
-    // Enhanced branding with DTP colors and styling
+    // Fallback approach: Use basic SVG with minimal font requirements
     const textSvg = `
-      <svg width="300" height="120">
+      <svg width="300" height="120" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="dtpGradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" style="stop-color:#D97706;stop-opacity:1" />
@@ -41,16 +42,30 @@ export async function createBrandedQRCode(studentInfo: StudentInfo): Promise<Buf
           </linearGradient>
         </defs>
         <style>
-          .dtp-title { fill: #1F2937; font-size: 14px; font-family: Arial, sans-serif; font-weight: bold; }
-          .student-name { fill: #374151; font-size: 18px; font-family: Arial, sans-serif; font-weight: bold; }
-          .student-id { fill: #6B7280; font-size: 14px; font-family: Arial, sans-serif; }
-          .separator { stroke: url(#dtpGradient); stroke-width: 2; }
+          text { 
+            font-family: sans-serif; 
+            text-anchor: middle; 
+          }
+          .dtp-title { 
+            fill: #1F2937; 
+            font-size: 14px; 
+            font-weight: bold; 
+          }
+          .student-name { 
+            fill: #374151; 
+            font-size: 18px; 
+            font-weight: bold; 
+          }
+          .student-id { 
+            fill: #6B7280; 
+            font-size: 14px; 
+          }
         </style>
-        <text x="150" y="20" text-anchor="middle" class="dtp-title">Department of Technical Programs</text>
-        <text x="150" y="35" text-anchor="middle" class="dtp-title">UM Digos College</text>
-        <line x1="50" y1="45" x2="250" y2="45" class="separator" />
-        <text x="150" y="70" text-anchor="middle" class="student-name">${studentInfo.name}</text>
-        <text x="150" y="90" text-anchor="middle" class="student-id">ID: ${studentInfo.studentId}</text>
+        <text x="150" y="20" class="dtp-title">Department of Technical Programs</text>
+        <text x="150" y="35" class="dtp-title">UM Digos College</text>
+        <line x1="50" y1="45" x2="250" y2="45" stroke="url(#dtpGradient)" stroke-width="2" />
+        <text x="150" y="70" class="student-name">${studentInfo.name}</text>
+        <text x="150" y="90" class="student-id">ID: ${studentInfo.studentId}</text>
       </svg>
     `;
 
