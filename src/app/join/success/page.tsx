@@ -100,12 +100,11 @@ function SuccessContent() {
 
   // Success case - show QR code
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-amber-50 min-h-screen">
       <QRCodeDisplay studentId={studentId} />
-
-      <div className="mt-6 flex flex-col sm:flex-row gap-3">        
-        <Link 
-          href="/" 
+      <div className=" flex flex-col sm:flex-row gap-3 justify-center mb-10">
+        <Link
+          href="/"
           className="text-amber-600 hover:text-amber-700 text-sm font-medium hover:underline transition-colors flex items-center gap-1"
         >
           <Home className="w-4 h-4" />

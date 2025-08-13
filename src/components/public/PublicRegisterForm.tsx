@@ -137,7 +137,7 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
   }, [debouncedEmail, checkDuplicate]);
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-amber-50 min-h-screen py-8 px-4">
+    <div className="relative overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-amber-50 min-h-screen">
       {/* Background Elements */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl" />
