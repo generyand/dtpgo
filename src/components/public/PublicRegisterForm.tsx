@@ -179,6 +179,7 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
       setRegistrationSuccess(true);
       // Success feedback will be handled by the parent component
     } catch (error) {
+      console.error('Registration failed:', error);
       setRegistrationSuccess(false);
       // Error feedback will be handled by the parent component
     }

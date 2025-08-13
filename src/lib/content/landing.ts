@@ -48,7 +48,7 @@ export const FEATURES: FeatureItem[] = [
     title: "Significant Time Wasted",
     description:
       "Long queues form as students wait to sign attendance sheets. Organizers spend hours manually counting and organizing attendance data.",
-    iconSrc: "/img/time-Wasted.webp",
+    iconSrc: "/img/time-wasted.webp",
     iconAlt: "Time wasting problem",
     bullets: ["Long waiting lines", "Manual data entry"],
   },
@@ -103,6 +103,19 @@ export const FAQ = [
     a: "The data is securely stored and accessible only to authorized administrators. Unique QR codes prevent fraudulent check-ins.",
   },
 ];
+
+export const FINAL_CTA = {
+  headline: "Ready to Modernize Your Event Attendance?",
+  subheadline: "Join thousands of students and organizers who have already made the switch to digital attendance tracking.",
+  ctaText: "Get Started Now",
+  ctaHref: "/join",
+  points: [
+    "Instant QR code generation",
+    "Real-time attendance tracking", 
+    "Secure and reliable data",
+    "No app installation required"
+  ]
+};
 
 export const FOOTER = {
   contactEmail: "dtp.dc@umindanao.edu.ph",

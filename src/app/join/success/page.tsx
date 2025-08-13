@@ -9,7 +9,6 @@ import { AlertCircle, Home, RotateCcw } from 'lucide-react';
 function SuccessContent() {
   const searchParams = useSearchParams();
   const studentId = searchParams.get('studentId');
-  const studentName = searchParams.get('name');
   const error = searchParams.get('error');
 
   // Handle different error scenarios
