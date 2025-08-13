@@ -97,7 +97,6 @@ export function Hero() {
                 Reports
               </span>
             </div>
-
             {/* Enhanced CTA Button with Real Arrow */}
             <div className="pt-2">
               <Button

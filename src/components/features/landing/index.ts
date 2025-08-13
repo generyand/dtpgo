@@ -5,5 +5,3 @@ export * from "./HowItWorksUser"
 export * from "./HowItWorks"
 export * from "./Faq"
 export * from "./Footer"
-
-

@@ -10,39 +10,32 @@ interface StudentInfo {
 export async function createBrandedQRCode(studentInfo: StudentInfo): Promise<Buffer> {
   try {
     const qrCodeDataUrl = await generateQRCodeDataURL(studentInfo.studentId, {
-      width: 200,
-      margin: 1,
+      width: 240,
+      margin: 2,
     });
     const qrCodeBuffer = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64');
 
-    const logoPath = path.join(process.cwd(), 'public/next.svg');
-    const logoBuffer = await sharp(logoPath).resize(50, 50).toBuffer();
+    // Use DTP logo
+    const logoPath = path.join(process.cwd(), 'public/logo/dtp.png');
+    const logoBuffer = await sharp(logoPath)
+      .resize(80, 80)
+      .png()
+      .toBuffer();
 
+    // Create a clean, simple branded QR code
     const canvas = sharp({
       create: {
-        width: 300,
-        height: 400,
+        width: 320,
+        height: 380,
         channels: 4,
         background: { r: 255, g: 255, b: 255, alpha: 1 },
       },
     });
 
-    const textSvg = `
-      <svg width="300" height="100">
-        <style>
-          .title { fill: #333; font-size: 20px; font-family: Arial, sans-serif; text-align: center; }
-          .subtitle { fill: #666; font-size: 16px; font-family: Arial, sans-serif; text-align: center; }
-        </style>
-        <text x="150" y="40" text-anchor="middle" class="title">${studentInfo.name}</text>
-        <text x="150" y="70" text-anchor="middle" class="subtitle">${studentInfo.studentId}</text>
-      </svg>
-    `;
-
     return canvas
       .composite([
-        { input: logoBuffer, top: 20, left: 125 },
-        { input: Buffer.from(textSvg), top: 80, left: 0 },
-        { input: qrCodeBuffer, top: 180, left: 50 },
+        { input: logoBuffer, top: 20, left: 120 }, // DTP logo at top center
+        { input: qrCodeBuffer, top: 120, left: 40 }, // QR code below logo
       ])
       .png()
       .toBuffer();

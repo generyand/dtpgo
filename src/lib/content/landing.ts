@@ -10,7 +10,6 @@ export const NAV_LINKS = [
   { href: "#how-it-works-user", label: "How It Works" },
   { href: "#faq", label: "FAQ" },
 ] as const;
-
 export const HERO = {
   headline: "Modernizing Assembly Attendance, Effortlessly.",
   subheadline:
@@ -86,7 +85,6 @@ export const HOW_IT_WORKS_ADMIN = [
     body: "Monitor real-time attendance data and generate detailed reports when needed.",
   },
 ];
-
 export const FAQ = [
   {
     q: "Is the system difficult to set up?",

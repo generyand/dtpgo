@@ -3,37 +3,128 @@
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { QRCodeDisplay } from '@/components/ui/QRCodeDisplay';
-import { CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import { AlertCircle, Home, RotateCcw } from 'lucide-react';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const studentId = searchParams.get('studentId');
+  const studentName = searchParams.get('name');
+  const error = searchParams.get('error');
 
+  // Handle different error scenarios
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
+        <div className="w-full max-w-md mx-auto">
+          <div className="bg-white rounded-2xl border border-red-200 shadow-lg overflow-hidden">
+            {/* Error Header */}
+            <div className="bg-gradient-to-r from-red-50 to-red-100 border-b border-red-200 px-4 py-5 text-center">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <AlertCircle className="w-6 h-6 text-red-600" />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">Registration Failed</h2>
+              <p className="text-red-700 text-sm">We encountered an issue with your registration</p>
+            </div>
+
+            {/* Error Message */}
+            <div className="px-4 py-6 text-center">
+              <p className="text-gray-700 text-sm mb-4 leading-relaxed">
+                {decodeURIComponent(error)}
+              </p>
+              
+              <div className="space-y-3">
+                <Link href="/join" className="block">
+                  <div className="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
+                    <RotateCcw className="w-4 h-4" />
+                    Try Again
+                  </div>
+                </Link>
+                
+                <Link href="/" className="block">
+                  <div className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
+                    <Home className="w-4 h-4" />
+                    Return to Homepage
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle missing student ID
+  if (!studentId) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
+        <div className="w-full max-w-md mx-auto">
+          <div className="bg-white rounded-2xl border border-amber-200 shadow-lg overflow-hidden">
+            {/* Warning Header */}
+            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border-b border-amber-200 px-4 py-5 text-center">
+              <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <AlertCircle className="w-6 h-6 text-amber-600" />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">Invalid Access</h2>
+              <p className="text-amber-700 text-sm">No registration data found</p>
+            </div>
+
+            {/* Warning Message */}
+            <div className="px-4 py-6 text-center">
+              <p className="text-gray-700 text-sm mb-4 leading-relaxed">
+                It looks like you accessed this page directly. Please complete the registration process first.
+              </p>
+              
+              <div className="space-y-3">
+                <Link href="/join" className="block">
+                  <div className="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
+                    <RotateCcw className="w-4 h-4" />
+                    Start Registration
+                  </div>
+                </Link>
+                
+                <Link href="/" className="block">
+                  <div className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
+                    <Home className="w-4 h-4" />
+                    Return to Homepage
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Success case - show QR code
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center p-4">
-      <CheckCircle className="w-16 h-16 text-green-500 mb-4" />
-      <h1 className="text-3xl font-bold mb-2">Registration Successful!</h1>
-      <p className="text-gray-600 mb-6 max-w-md">
-        Thank you for registering. Your information has been submitted successfully. Below is your QR code for event check-in.
-      </p>
-
-      {studentId ? (
-        <QRCodeDisplay studentId={studentId} />
-      ) : (
-        <p className="text-red-500">Could not display QR code. Student ID not found.</p>
-      )}
-
-      <Link href="/" className="mt-8 text-blue-500 hover:underline">
-        Return to Homepage
-      </Link>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-amber-50 min-h-screen">
+      <QRCodeDisplay studentId={studentId} />
+      <div className=" flex flex-col sm:flex-row gap-3 justify-center mb-10">
+        <Link
+          href="/"
+          className="text-amber-600 hover:text-amber-700 text-sm font-medium hover:underline transition-colors flex items-center gap-1"
+        >
+          <Home className="w-4 h-4" />
+          Return to Homepage
+        </Link>
+      </div>
     </div>
   );
 }
 
 export default function RegistrationSuccessPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-200 border-t-amber-600 mx-auto mb-4" />
+          <p className="text-gray-500 text-sm text-center">Loading your registration status...</p>
+        </div>
+      </div>
+    }>
       <SuccessContent />
     </Suspense>
   );
