@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useDebounce } from '@/hooks/use-debounce';
-import { User, Mail, GraduationCap, Calendar, CheckCircle, Zap } from 'lucide-react';
+import { User, Mail, GraduationCap, Calendar, CheckCircle, Zap, AlertCircle } from 'lucide-react';
 
 interface Program {
   id: string;
@@ -33,29 +33,51 @@ const EMAIL_DOMAINS = [
   'protonmail.com',
 ];
 
+// Utility function to capitalize names
+const capitalizeName = (name: string): string => {
+  return name
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+    .replace(/\b(de|del|dela|van|von|da|di|du|le|la)\b/gi, match => match.toLowerCase());
+};
+
 export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFormProps) => {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [showEmailSuggestions, setShowEmailSuggestions] = useState(false);
   const [emailSuggestions, setEmailSuggestions] = useState<string[]>([]);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
   
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     watch,
     setError,
     clearErrors,
     setValue,
   } = useForm<StudentFormInput>({
     resolver: zodResolver(studentSchema),
-    mode: 'onBlur',
+    mode: 'onChange', // Changed from 'onBlur' to 'onChange' for real-time validation
   });
 
   const studentIdValue = watch('studentIdNumber');
   const emailValue = watch('email');
+  const firstNameValue = watch('firstName');
+  const lastNameValue = watch('lastName');
+  const programIdValue = watch('programId');
 
   const debouncedStudentId = useDebounce(studentIdValue, 500);
   const debouncedEmail = useDebounce(emailValue, 500);
+
+  // Get selected program's short name for display
+  const selectedProgram = programs.find(p => p.id === programIdValue);
+  const selectedProgramDisplay = selectedProgram ? selectedProgram.name : '';
+
+  // Check if form has any errors
+  const hasErrors = Object.keys(errors).length > 0;
+  const isFormDisabled = isSubmitting || hasErrors || !isValid;
 
   useEffect(() => {
     const fetchPrograms = async () => {
@@ -71,6 +93,20 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
     };
     fetchPrograms();
   }, []);
+
+  // Auto-capitalize first name
+  useEffect(() => {
+    if (firstNameValue && firstNameValue !== capitalizeName(firstNameValue)) {
+      setValue('firstName', capitalizeName(firstNameValue));
+    }
+  }, [firstNameValue, setValue]);
+
+  // Auto-capitalize last name
+  useEffect(() => {
+    if (lastNameValue && lastNameValue !== capitalizeName(lastNameValue)) {
+      setValue('lastName', capitalizeName(lastNameValue));
+    }
+  }, [lastNameValue, setValue]);
 
   // Email domain suggestions logic
   useEffect(() => {
@@ -136,8 +172,20 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
     checkDuplicate('email', debouncedEmail);
   }, [debouncedEmail, checkDuplicate]);
 
+  const handleFormSubmit = async (data: StudentFormInput) => {
+    try {
+      setRegistrationSuccess(false);
+      await onSubmit(data);
+      setRegistrationSuccess(true);
+      // Success feedback will be handled by the parent component
+    } catch (error) {
+      setRegistrationSuccess(false);
+      // Error feedback will be handled by the parent component
+    }
+  };
+
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-amber-50 min-h-screen">
+    <div className="relative overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-amber-50 min-h-screen py-8 px-4">
       {/* Background Elements */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl" />
@@ -164,7 +212,7 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
         <div className="group relative overflow-hidden rounded-2xl border bg-white shadow-lg hover:shadow-xl transition-all duration-300">
           <div className="absolute -right-10 -top-10 size-24 rounded-full bg-yellow-400/10 blur-xl group-hover:bg-yellow-400/15 transition-colors" />
           
-          <form onSubmit={handleSubmit(onSubmit)} className="relative p-6 sm:p-8 space-y-6">
+          <form onSubmit={handleSubmit(handleFormSubmit)} className="relative p-6 sm:p-8 space-y-6">
             {/* Student ID */}
             <div className="space-y-2">
               <div className="flex items-center gap-2 mb-2">
@@ -273,16 +321,18 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
                   <GraduationCap className="size-4 text-yellow-600" />
                   <Label htmlFor="programId" className="font-semibold text-gray-900">Program</Label>
                 </div>
-                <Select onValueChange={(value) => setValue('programId', value)} name="programId">
+                <Select onValueChange={(value) => setValue('programId', value, { shouldValidate: true })} {...register('programId')}>
                   <SelectTrigger className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20">
-                    <SelectValue placeholder="Select your program" />
+                    <SelectValue placeholder="Select your program" className="truncate text-left">
+                      {selectedProgramDisplay || "Select your program"}
+                    </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-w-[400px]">
                     {programs.map((p) => (
-                      <SelectItem key={p.id} value={p.id} className="hover:bg-yellow-50">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{p.name}</span>
-                          <span className="text-sm text-gray-500">({p.displayName})</span>
+                      <SelectItem key={p.id} value={p.id} className="hover:bg-yellow-50 py-3">
+                        <div className="flex flex-col items-start gap-0.5 w-full">
+                          <span className="font-medium text-sm leading-tight truncate w-full">{p.name}</span>
+                          <span className="text-xs text-gray-400 leading-tight truncate w-full">({p.displayName})</span>
                         </div>
                       </SelectItem>
                     ))}
@@ -301,7 +351,7 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
                   <Calendar className="size-4 text-yellow-600" />
                   <Label htmlFor="year" className="font-semibold text-gray-900">Year Level</Label>
                 </div>
-                <Select onValueChange={(value) => setValue('year', parseInt(value, 10))} name="year">
+                <Select onValueChange={(value) => setValue('year', parseInt(value, 10), { shouldValidate: true })} {...register('year')}>
                   <SelectTrigger className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20">
                     <SelectValue placeholder="Select year" />
                   </SelectTrigger>
@@ -322,17 +372,53 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
               </div>
             </div>
 
+            {/* Validation Error Summary */}
+            {hasErrors && !isSubmitting && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-red-800 text-sm font-semibold mb-1">Please fix the following errors:</p>
+                    <ul className="text-red-700 text-sm space-y-1">
+                      {Object.entries(errors).map(([field, error]) => (
+                        <li key={field} className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-red-500 rounded-full flex-shrink-0" />
+                          {error.message}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Submit Button */}
             <div className="pt-4">
               <Button 
                 type="submit" 
-                disabled={isSubmitting} 
-                className="w-full h-12 bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 text-black font-semibold shadow-lg hover:shadow-xl transition-all duration-200 group/btn"
+                disabled={isFormDisabled}
+                className={`w-full h-12 font-semibold shadow-lg hover:shadow-xl transition-all duration-200 group/btn ${
+                  isFormDisabled 
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300 hover:shadow-lg' 
+                    : registrationSuccess
+                    ? 'bg-green-500 hover:bg-green-600 text-white'
+                    : 'bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 text-black'
+                }`}
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent" />
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent" />
                     <span>Registering...</span>
+                  </div>
+                ) : registrationSuccess ? (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="size-4" />
+                    <span>Registration Successful!</span>
+                  </div>
+                ) : isFormDisabled ? (
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="size-4" />
+                    <span>Please complete all required fields</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
@@ -359,7 +445,13 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
           </form>
 
           {/* Bottom Accent Line */}
-          <div className="h-1 w-0 bg-gradient-to-r from-yellow-400 to-yellow-500 transition-all duration-500 group-hover:w-full" />
+          <div className={`h-1 w-0 transition-all duration-500 group-hover:w-full ${
+            registrationSuccess 
+              ? 'bg-gradient-to-r from-green-400 to-green-500' 
+              : isFormDisabled 
+              ? 'bg-gradient-to-r from-gray-300 to-gray-400'
+              : 'bg-gradient-to-r from-yellow-400 to-yellow-500'
+          }`} />
         </div>
       </div>
     </div>
