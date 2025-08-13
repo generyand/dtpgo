@@ -106,7 +106,7 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
             <CheckCircle className="w-5 h-5 text-green-600" />
           </div>
           <h2 className="text-base font-semibold text-gray-900 mb-1">Registration Successful!</h2>
-          <p className="text-green-700 text-xs font-medium">Welcome to DTP Events! Your QR code is ready for future use.</p>
+          <p className="text-green-700 text-xs font-medium">Welcome to DTP, Ga! Your QR code is ready for future use.</p>
         </div>
 
         {/* Student Information Display (Simplified, Plain Text, Centered) */}
