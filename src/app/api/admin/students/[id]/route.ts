@@ -32,6 +32,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
     const parsed = studentSchema.partial().parse(body); // Allow partial updates
+    const { id } = await params;
     const student = await updateStudent(id, parsed);
     return NextResponse.json({ student }, { status: 200 });
   } catch (error) {

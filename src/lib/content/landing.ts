@@ -1,25 +1,22 @@
 export const ORG = {
   name: "Department of Technical Programs",
   college: "UM Digos College",
-  logoSrc: "/logo/dtp.png",
+  logoSrc: "/img/dtp.webp",
 };
 
 export const NAV_LINKS = [
-  { href: "#home", label: "Home" },
-  { href: "#features", label: "Features" },
-  { href: "#how-it-works", label: "How It Works" },
+  { href: "#top", label: "Home" },
+  { href: "#features", label: "Problems" },
+  { href: "#how-it-works-user", label: "How It Works" },
   { href: "#faq", label: "FAQ" },
 ] as const;
-
-export const NAV_CTA_TEXT = "Request a Demo";
-
 export const HERO = {
   headline: "Modernizing Assembly Attendance, Effortlessly.",
   subheadline:
     "Launch events, scan arrivals, and see attendance update in real‑time — all in one modern dashboard.",
   ctaText: "Join Now ->",
   ctaHref: "/join",
-  imageSrc: "/features/Hero.png",
+  imageSrc: "/img/Hero.webp",
 };
 
 export interface FeatureItem {
@@ -32,58 +29,62 @@ export interface FeatureItem {
 
 export const FEATURES: FeatureItem[] = [
   {
-    title: "Instant QR Code Check-in",
+    title: "Tedious Manual Writing",
     description:
-      "Students and attendees scan a unique QR code upon entry. No more lines, no more manual ticking, no more delays.",
-    iconSrc: "/features/qrcode.png",
-    iconAlt: "QR code icon",
-    bullets: ["One-tap check-in", "Unique event QR"],
+      "Tired of writing names on paper? Students waste time signing attendance sheets while organizers struggle with illegible handwriting and lost records.",
+    iconSrc: "/img/manual-writing.webp",
+    iconAlt: "Manual writing problem",
+    bullets: ["Hand cramps from writing", "Illegible signatures"],
   },
   {
-    title: "Real-Time Attendance Dashboard",
+    title: "Easy to Manipulate Records",
     description:
-      "Monitor who has arrived and who is absent from a single screen. Accessible on any device—PC, tablet, or phone.",
-    iconSrc: "/features/realtime.png",
-    iconAlt: "Realtime dashboard icon",
-    bullets: ["Live presence updates", "Works on any device"],
+      "Paper attendance sheets can be easily forged, altered, or lost. Friends can sign for absent classmates, making traditional methods unreliable.",
+    iconSrc: "/img/manipulate.webp",
+    iconAlt: "Data manipulation problem",
+    bullets: ["Fake signatures", "Lost paper records"],
   },
   {
-    title: "Automated Report Generation",
+    title: "Significant Time Wasted",
     description:
-      "Instantly export detailed attendance records for assemblies and seminars. Perfect for compliance and record-keeping.",
-    iconSrc: "/features/analytics.png",
-    iconAlt: "Analytics/report icon",
-    bullets: ["CSV/PDF exports", "Audit-friendly"],
+      "Long queues form as students wait to sign attendance sheets. Organizers spend hours manually counting and organizing attendance data.",
+    iconSrc: "/img/time-Wasted.webp",
+    iconAlt: "Time wasting problem",
+    bullets: ["Long waiting lines", "Manual data entry"],
   },
 ];
 
-export const HOW_IT_WORKS = [
+// For Students/Attendees
+export const HOW_IT_WORKS_USER = [
   {
-    title: "Create Event",
-    body: "Add your assembly details to generate a unique, secure QR code.",
+    title: "Register & Save QR Code",
+    body: "Complete your registration and save your unique QR code to your device for quick access.",
   },
   {
-    title: "Scan to Attend",
-    body: "Display the QR code; attendees scan with their smartphone to be marked present.",
+    title: "Present Your QR Code",
+    body: "Show your QR code to the event scanner for instant attendance recording.",
+  },
+  {
+    title: "Enjoy the Event",
+    body: "Relax and enjoy the event knowing your attendance has been automatically recorded.",
+  },
+];
+
+// For Event Organizers/Recorders
+export const HOW_IT_WORKS_ADMIN = [
+  {
+    title: "Create Event",
+    body: "Set up your event details and generate a unique registration link for attendees.",
+  },
+  {
+    title: "Scan to Record",
+    body: "Use the scanner to quickly record attendance by scanning attendee QR codes.",
   },
   {
     title: "Track & Report",
-    body: "View live data and download the complete report when the event ends.",
+    body: "Monitor real-time attendance data and generate detailed reports when needed.",
   },
 ];
-
-export const FINAL_CTA = {
-  headline: "Ready to Modernize Your Assembly Attendance?",
-  subheadline:
-    "Boost efficiency, ensure 100% accuracy, and provide a seamless experience for staff and students.",
-  ctaText: "Request a Live Demo",
-  points: [
-    "Get started in under 5 minutes",
-    "Works on phone, tablet, and laptop",
-    "Secure & verified platform",
-  ],
-};
-
 export const FAQ = [
   {
     q: "Is the system difficult to set up?",
@@ -113,9 +114,15 @@ export const FOOTER = {
     "Digos City, Philippines",
   ],
   socials: [
-    { label: "Website", href: "https://umdc.umindanao.edu.ph/login", type: "website" },
-    { label: "Facebook", href: "https://www.facebook.com/DepartmentOfTechnicalPrograms", type: "facebook" },
+    {
+      label: "Website",
+      href: "https://umdc.umindanao.edu.ph/login",
+      type: "website",
+    },
+    {
+      label: "Facebook",
+      href: "https://www.facebook.com/DepartmentOfTechnicalPrograms",
+      type: "facebook",
+    },
   ],
 };
-
-

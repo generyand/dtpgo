@@ -13,8 +13,8 @@ export function Faq() {
               <MessageCircle className="size-4" />
               <span>FAQ</span>
             </div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900">Frequently Asked Questions</h3>
-            <p className="mt-2 text-gray-600">Quick answers to common questions about the attendance platform.</p>
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Frequently Asked Questions</h3>
+            <p className="mt-2 text-sm sm:text-base text-gray-600">Quick answers to common questions about the attendance platform.</p>
           </div>
         </Reveal>
         <Reveal delayMs={200}>
@@ -22,15 +22,15 @@ export function Faq() {
             <Accordion type="multiple" className="space-y-2">
               {FAQ.map((item, idx) => (
                 <AccordionItem key={item.q} value={`item-${idx + 1}`} className="border-0">
-                  <AccordionTrigger className="rounded-xl hover:no-underline hover:bg-gray-50 px-4 py-4 transition-colors duration-200 [&[data-state=open]]:bg-yellow-50">
-                    <span className="inline-flex items-center gap-4 text-left">
-                      <span className="inline-flex items-center justify-center size-8 rounded-full bg-yellow-100 text-yellow-600 flex-shrink-0">
+                  <AccordionTrigger className="rounded-xl hover:no-underline hover:bg-gray-50 px-3 sm:px-4 py-3 sm:py-4 transition-colors duration-200 [&[data-state=open]]:bg-yellow-50">
+                    <span className="inline-flex items-center gap-3 sm:gap-4 text-left">
+                      <span className="inline-flex items-center justify-center size-6 sm:size-8 rounded-full bg-yellow-100 text-yellow-600 flex-shrink-0">
                         <HelpCircle className="size-4" />
                       </span>
-                      <span className="font-semibold text-gray-900">{item.q}</span>
+                      <span className="font-semibold text-sm sm:text-base text-gray-900">{item.q}</span>
                     </span>
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 ml-12 text-gray-600 leading-relaxed">
+                  <AccordionContent className="px-3 sm:px-4 pb-3 sm:pb-4 ml-9 sm:ml-12 text-sm sm:text-base text-gray-600 leading-relaxed">
                     {item.a}
                   </AccordionContent>
                 </AccordionItem>

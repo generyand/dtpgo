@@ -3,15 +3,15 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { NAV_LINKS, NAV_CTA_TEXT, ORG } from "@/lib/content/landing"
-import { Menu, X, ArrowRight, Sparkles } from "lucide-react"
+import { NAV_LINKS, ORG } from "@/lib/content/landing"
+import { Menu, X } from "lucide-react"
 import { useState } from "react"
 
 export function HeaderNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200/50 bg-white/95 backdrop-blur-xl shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200/50 bg-white/95 backdrop-blur-xl shadow-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Enhanced Logo */}
@@ -26,9 +26,9 @@ export function HeaderNav() {
                 className="relative rounded-full border-2 border-gray-100 shadow-sm group-hover:border-yellow-200 transition-colors" 
               />
             </div>
-            <div className="hidden sm:block">
-              <div className="font-bold text-gray-900 text-lg group-hover:text-gray-800 transition-colors">{ORG.name}</div>
-              <div className="text-xs text-gray-500 -mt-1">{ORG.college}</div>
+            <div className="block">
+              <div className="font-bold text-gray-900 text-sm sm:text-lg group-hover:text-gray-800 transition-colors leading-tight">{ORG.name}</div>
+              <div className="text-xs text-gray-500 -mt-0.5 sm:-mt-1">{ORG.college}</div>
             </div>
           </Link>
 
@@ -57,17 +57,7 @@ export function HeaderNav() {
               <Link href="/auth/login">Sign In</Link>
             </Button>
             
-            {/* Main CTA Button */}
-            <Button 
-              className="bg-yellow-400 text-black hover:bg-yellow-500 shadow-md hover:shadow-lg transition-all duration-200 group" 
-              asChild
-            >
-              <Link href="#demo">
-                <Sparkles className="size-4 mr-2" />
-                {NAV_CTA_TEXT}
-                <ArrowRight className="size-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </Button>
+            {/* Removed demo button */}
 
             {/* Mobile Menu Button */}
             <Button

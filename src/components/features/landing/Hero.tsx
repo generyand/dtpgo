@@ -22,10 +22,10 @@ export function Hero() {
       <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl" />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
         {/* Left Content - Enhanced with Yellow Theme */}
         <Reveal delayMs={80}>
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-100 border border-yellow-200 text-yellow-800 text-sm font-medium">
               <Zap className="size-4" />
@@ -33,19 +33,19 @@ export function Hero() {
             </div>
 
             {/* Main Headline with Yellow "Effortlessly" */}
-            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
               <span className="text-gray-900">Modernizing Assembly</span>
               <br />
               <span className="text-gray-900">Attendance, </span>
               <span className="text-yellow-500">Effortlessly.</span>
             </h1>
 
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
               {HERO.subheadline}
             </p>
 
-            {/* Enhanced Feature List with Yellow Theme */}
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Enhanced Feature List - Hidden on mobile */}
+            <ul className="hidden sm:grid grid-cols-1 sm:grid-cols-2 gap-3">
               <li className="flex items-center gap-3 p-3 rounded-lg bg-yellow-50 border border-yellow-100">
                 <div className="size-6 rounded-full bg-yellow-400 flex items-center justify-center">
                   <Clock className="size-3 text-black" />
@@ -80,6 +80,23 @@ export function Hero() {
               </li>
             </ul>
 
+            {/* Simplified mobile feature list */}
+            <div className="sm:hidden flex flex-wrap gap-2 text-sm text-gray-600">
+              <span className="inline-flex items-center gap-1">
+                <CheckCircle className="size-3 text-yellow-500" />
+                QR Check-ins
+              </span>
+              <span className="text-gray-400">•</span>
+              <span className="inline-flex items-center gap-1">
+                <Clock className="size-3 text-yellow-500" />
+                Real-time
+              </span>
+              <span className="text-gray-400">•</span>
+              <span className="inline-flex items-center gap-1">
+                <BarChart3 className="size-3 text-yellow-500" />
+                Reports
+              </span>
+            </div>
             {/* Enhanced CTA Button with Real Arrow */}
             <div className="pt-2">
               <Button
@@ -109,9 +126,9 @@ export function Hero() {
               />
             </div>
 
-            {/* Floating Stats Cards */}
+            {/* Floating Stats Cards - Hidden on mobile */}
             <div
-              className="absolute -top-4 -left-6 bg-white rounded-lg p-3 shadow-lg border animate-bounce z-10"
+              className="hidden sm:block absolute -top-4 -left-6 bg-white rounded-lg p-3 shadow-lg border animate-bounce z-10"
               style={{ animationDuration: "3s" }}
             >
               <div className="flex items-center gap-2">
@@ -126,7 +143,7 @@ export function Hero() {
             </div>
 
             <div
-              className="absolute -bottom-4 -right-6 bg-white rounded-lg p-3 shadow-lg border animate-bounce z-10"
+              className="hidden sm:block absolute -bottom-4 -right-6 bg-white rounded-lg p-3 shadow-lg border animate-bounce z-10"
               style={{ animationDuration: "4s", animationDelay: "1s" }}
             >
               <div className="flex items-center gap-2">
@@ -140,7 +157,7 @@ export function Hero() {
               </div>
             </div>
 
-            <div className="absolute top-1/4 -right-8 bg-white rounded-lg p-2 shadow-lg border animate-pulse z-10">
+            <div className="hidden md:block absolute top-1/4 -right-8 bg-white rounded-lg p-2 shadow-lg border animate-pulse z-10">
               <div className="flex items-center gap-2">
                 <div className="size-6 rounded-full bg-blue-100 flex items-center justify-center">
                   <Users className="size-3 text-blue-600" />
