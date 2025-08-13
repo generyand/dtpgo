@@ -9,9 +9,9 @@ export function Footer() {
   return (
     <footer className="bg-gradient-to-b from-gray-900 to-black text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-8 md:gap-10">
           {/* Brand with two logos */}
-          <div className="md:col-span-5 flex flex-col gap-6">
+          <div className="sm:col-span-2 md:col-span-5 flex flex-col gap-4 sm:gap-6">
             <div className="flex items-center gap-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-sm" />
@@ -23,8 +23,8 @@ export function Footer() {
               </div>
             </div>
             <div>
-              <p className="font-bold text-xl text-white">{ORG.name}</p>
-              <p className="text-gray-300 font-medium">{ORG.college}</p>
+              <p className="font-bold text-lg sm:text-xl text-white">{ORG.name}</p>
+              <p className="text-sm sm:text-base text-gray-300 font-medium">{ORG.college}</p>
               <div className="mt-4 space-y-2">
                 <div className="flex items-start gap-2">
                   <MapPin className="size-4 text-yellow-400 mt-0.5 flex-shrink-0" />
@@ -39,8 +39,8 @@ export function Footer() {
           </div>
 
           {/* Contact & Support */}
-          <div className="md:col-span-4">
-            <h4 className="font-bold text-yellow-400 text-lg mb-4">Contact & Support</h4>
+          <div className="sm:col-span-1 md:col-span-4">
+            <h4 className="font-bold text-yellow-400 text-base sm:text-lg mb-3 sm:mb-4">Contact & Support</h4>
             <div className="rounded-xl border border-white/10 bg-white/[0.06] p-5 shadow-lg backdrop-blur-sm">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -68,8 +68,8 @@ export function Footer() {
           </div>
 
           {/* Stay Connected */}
-          <div className="md:col-span-3">
-            <h4 className="font-bold text-yellow-400 text-lg mb-4">Stay Connected</h4>
+          <div className="sm:col-span-1 md:col-span-3">
+            <h4 className="font-bold text-yellow-400 text-base sm:text-lg mb-3 sm:mb-4">Stay Connected</h4>
             <p className="text-sm text-gray-300 mb-4">Follow us for updates and announcements</p>
             <div className="flex items-center gap-3 mb-6">
               {FOOTER.socials?.map((s) => {
@@ -120,13 +120,13 @@ export function Footer() {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm text-gray-400">
+            <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-center sm:text-left">
               <p>© {year} {ORG.name}. All rights reserved.</p>
               <span className="hidden sm:inline">•</span>
               <p>Developed by <span className="text-yellow-400 font-medium">GEVIAS</span></p>
             </div>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 sm:gap-6">
               {FOOTER.legal.map((l) => (
                 <Link key={l} href="#" className="hover:text-yellow-400 transition-colors">{l}</Link>
               ))}

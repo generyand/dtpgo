@@ -1,16 +1,16 @@
 "use client";
 
-import { HeaderNav, Hero, Features, HowItWorks, FinalCta, Faq, Footer } from "@/components/features/landing";
+import { HeaderNav, Hero, Features, HowItWorksUser, HowItWorks, Faq, Footer } from "@/components/features/landing";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-white text-black">
+    <div id="top" className="min-h-screen flex flex-col bg-white text-black">
       <HeaderNav />
-      <main className="flex-1">
+      <main className="flex-1 pt-16">
         <Hero />
         <Features />
+        <HowItWorksUser />
         <HowItWorks />
-        <FinalCta />
         <Faq />
       </main>
       <Footer />
