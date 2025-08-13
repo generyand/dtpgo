@@ -24,8 +24,9 @@ export default function PublicJoinPage() {
         throw new Error(errorData.error || 'Registration failed');
       }
 
+      const { student } = await response.json();
       toast.success('Registration successful!');
-      router.push('/join/success');
+      router.push(`/join/success?studentId=${student.id}`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
       toast.error(`Registration failed: ${errorMessage}`);

@@ -237,13 +237,13 @@
 
 #### Story 4.3: Registration Success Flow
 
-- [ ] **4.3.1 Atomic:** Create QR code success page
+- [x] **4.3.1 Atomic:** Create QR code success page
   - **Files:** `src/app/join/success/page.tsx`
   - **Dependencies:** QR code display component
   - **Acceptance:** Page shows branded QR code, student info, user-controlled dismissal
   - **Tech:** React components, QR code display, mobile-optimized layout
 
-- [ ] **4.3.2 Atomic:** Implement public registration API endpoint
+- [x] **4.3.2 Atomic:** Implement public registration API endpoint
   - **Files:** `src/app/api/public/register/route.ts`
   - **Dependencies:** Student queries, QR generation, email service, rate limiting
   - **Acceptance:** POST endpoint creates student, generates QR, sends email, handles failures
@@ -253,13 +253,13 @@
 
 #### Story 5.1: QR Code Generation Utilities
 
-- [ ] **5.1.1 Atomic:** Create QR code generation functions
+- [x] **5.1.1 Atomic:** Create QR code generation functions
   - **Files:** `src/lib/qr/generator.ts`
   - **Dependencies:** None
   - **Acceptance:** Functions generate QR codes from student IDs, configurable size/format
   - **Tech:** QR code library, base64 encoding, TypeScript types
 
-- [ ] **5.1.2 Atomic:** Build branded QR code composition
+- [x] **5.1.2 Atomic:** Build branded QR code composition
   - **Files:** `src/lib/qr/branding.ts`
   - **Dependencies:** QR generator functions
   - **Acceptance:** Creates branded image with logo, student info, QR code
@@ -267,13 +267,13 @@
 
 #### Story 5.2: QR Code Display Components
 
-- [ ] **5.2.1 Atomic:** Create QR code display component
+- [x] **5.2.1 Atomic:** Create QR code display component
   - **Files:** `src/components/ui/QRCodeDisplay.tsx`
   - **Dependencies:** Branded QR functions
   - **Acceptance:** Component displays QR code with branding, download functionality
   - **Tech:** React component, image handling, download triggers
 
-- [ ] **5.2.2 Atomic:** Add QR code to student types and queries
+- [x] **5.2.2 Atomic:** Add QR code to student types and queries
   - **Files:** `src/lib/types/student.ts` (enhance), `src/lib/db/queries/students.ts` (enhance)
   - **Dependencies:** QR generation utilities
   - **Acceptance:** Student type includes QR code data, queries generate QR when needed

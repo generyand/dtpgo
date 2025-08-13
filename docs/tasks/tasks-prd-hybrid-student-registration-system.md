@@ -77,7 +77,7 @@ Tech-stack specific file structure for this system:
   - **Duration:** 4-6 days
   - **Dependencies:** Database schema, QR code system
 
-- [ ] **5.0 Epic: QR Code Generation System** *(FR-5)*
+- [x] **5.0 Epic: QR Code Generation System** *(FR-5)*
   - Build QR code generation utilities for student IDs
   - Create branded QR code display components
   - Implement downloadable/shareable QR code images
@@ -225,13 +225,13 @@ Tech-stack specific file structure for this system:
 
 #### Epic 5.0: QR Code Generation System
 
-- [ ] **5.1 Story: QR Code Generation Utilities**
+- [x] **5.1 Story: QR Code Generation Utilities**
   - Build QR code generation functions for student IDs
   - Create branded QR code image composition
   - **Duration:** 1-2 days
   - **Dependencies:** Student ID format defined
 
-- [ ] **5.2 Story: QR Code Display Components**
+- [x] **5.2 Story: QR Code Display Components**
   - Create reusable QR code display components
   - Implement downloadable/shareable image generation
   - **Duration:** 1 day

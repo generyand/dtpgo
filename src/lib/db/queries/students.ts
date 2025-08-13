@@ -8,6 +8,7 @@
 
 import { Prisma } from '@prisma/client';
 import { prisma } from '../client';
+import { createBrandedQRCode } from '@/lib/qr/branding';
 
 /**
  * Type definition for the result of student queries, including the program.
@@ -87,13 +88,28 @@ export async function getStudents(options: {
  * @param id - The unique ID of the student.
  * @returns A promise that resolves to the student object or null if not found.
  */
-export async function getStudentById(id: string): Promise<StudentWithProgram | null> {
-  return prisma.student.findUnique({
+export async function getStudentById(id: string, options: { includeQRCode?: boolean } = {}): Promise<StudentWithProgram & { qrCodeDataUrl?: string } | null> {
+  const student = await prisma.student.findUnique({
     where: { id },
-    include: {
-      program: true,
-    },
+    include: { program: true },
   });
+
+  if (!student) {
+    return null;
+  }
+
+  if (options.includeQRCode) {
+    const qrCodeBuffer = await createBrandedQRCode({
+      name: `${student.firstName} ${student.lastName}`,
+      studentId: student.studentIdNumber,
+    });
+    return {
+      ...student,
+      qrCodeDataUrl: `data:image/png;base64,${qrCodeBuffer.toString('base64')}`,
+    };
+  }
+
+  return student;
 }
 
 /**
