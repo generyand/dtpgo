@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from './button';
-import { Download, CheckCircle, Camera, User } from 'lucide-react';
+import { Download, CheckCircle, Camera, User, AlertCircle, RotateCcw } from 'lucide-react';
 
 interface QRCodeDisplayProps {
   studentId: string;
@@ -20,39 +20,49 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
   const [studentData, setStudentData] = useState<StudentData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Fetch QR code
+      const qrResponse = await fetch(`/api/students/${studentId}/qr`);
+      if (!qrResponse.ok) {
+        if (qrResponse.status === 404) {
+          throw new Error('Student record not found. Please verify your registration.');
+        } else if (qrResponse.status >= 500) {
+          throw new Error('Server error. Please try again in a moment.');
+        } else {
+          throw new Error('Failed to generate QR code. Please try again.');
+        }
+      }
+      const blob = await qrResponse.blob();
+      setQrCodeUrl(URL.createObjectURL(blob));
+
+      // Fetch student data
+      const studentResponse = await fetch(`/api/students/${studentId}`);
+      if (studentResponse.ok) {
+        const student = await studentResponse.json();
+        setStudentData({
+          firstName: student.firstName,
+          lastName: student.lastName,
+          studentIdNumber: student.studentIdNumber
+        });
+      } else {
+        // QR code worked but student data failed - not critical
+        console.warn('Could not fetch student details, but QR code is available');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!studentId) return;
-
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        // Fetch QR code
-        const qrResponse = await fetch(`/api/students/${studentId}/qr`);
-        if (!qrResponse.ok) {
-          throw new Error('Failed to load QR code.');
-        }
-        const blob = await qrResponse.blob();
-        setQrCodeUrl(URL.createObjectURL(blob));
-
-        // Fetch student data
-        const studentResponse = await fetch(`/api/students/${studentId}`);
-        if (studentResponse.ok) {
-          const student = await studentResponse.json();
-          setStudentData({
-            firstName: student.firstName,
-            lastName: student.lastName,
-            studentIdNumber: student.studentIdNumber
-          });
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchData();
 
     return () => {
@@ -63,7 +73,11 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
     // The qrCodeUrl is intentionally omitted from the dependency array to prevent an infinite loop.
     // The cleanup function correctly uses the value from the previous render to revoke the old URL.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [studentId]);
+  }, [studentId, retryCount]);
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+  };
 
   const handleDownload = () => {
     if (qrCodeUrl) {
@@ -78,10 +92,12 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-md mx-auto px-2 sm:px-3">
+      <div className="w-full max-w-md mx-auto">
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-200 border-t-amber-600 mx-auto mb-4" />
-          <p className="text-gray-500 text-sm">Generating your QR code...</p>
+          <p className="text-gray-500 text-sm">
+            {retryCount > 0 ? 'Retrying...' : 'Generating your QR code...'}
+          </p>
         </div>
       </div>
     );
@@ -89,9 +105,40 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
 
   if (error) {
     return (
-      <div className="w-full max-w-md mx-auto px-2 sm:px-3">
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 text-center">
-          <p className="text-red-600 text-sm">{error}</p>
+      <div className="w-full max-w-md mx-auto">
+        <div className="bg-white rounded-2xl border border-red-200 shadow-sm overflow-hidden">
+          {/* Error Header */}
+          <div className="bg-gradient-to-r from-red-50 to-red-100 border-b border-red-200 px-4 py-5 text-center">
+            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
+              <AlertCircle className="w-5 h-5 text-red-600" />
+            </div>
+            <h2 className="text-base font-semibold text-gray-900 mb-1">QR Code Error</h2>
+            <p className="text-red-700 text-xs font-medium">Unable to generate your QR code</p>
+          </div>
+
+          {/* Error Message & Actions */}
+          <div className="px-4 py-5 text-center">
+            <p className="text-gray-700 text-sm mb-4 leading-relaxed">
+              {error}
+            </p>
+            
+            <div className="space-y-3">
+              <Button 
+                onClick={handleRetry}
+                className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+                disabled={retryCount >= 3}
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                {retryCount >= 3 ? 'Max retries reached' : 'Try Again'}
+              </Button>
+              
+              {retryCount >= 3 && (
+                <p className="text-xs text-gray-500">
+                  If the problem persists, please contact support or try registering again.
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -112,7 +159,7 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
         {/* Student Information Display (Simplified, Plain Text, Centered) */}
         <div className="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100 text-center">
           <p className="text-lg font-semibold text-gray-900">
-            {studentData ? `${studentData.firstName} ${studentData.lastName}` : 'Loading...'}
+            {studentData ? `${studentData.firstName} ${studentData.lastName}` : 'Student'}
           </p>
           <p className="text-sm font-medium mt-1">
             ID: {studentData?.studentIdNumber || studentId}
@@ -125,10 +172,10 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
             <div className="mb-3 sm:mb-4">
               {/* Clean QR code with logo - Maximize mobile size */}
               <div className="relative">
-                <Image
-                  src={qrCodeUrl}
-                  alt="Your DTP Event QR Code"
-                  width={320}
+                <Image 
+                  src={qrCodeUrl} 
+                  alt="Your DTP Event QR Code" 
+                  width={320} 
                   height={380}
                   className="mx-auto w-full max-w-[300px] sm:max-w-[320px] h-auto rounded-xl"
                   priority
@@ -136,7 +183,7 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
               </div>
             </div>
           )}
-
+          
           {/* Screenshot/Download Instructions */}
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 sm:p-3 mb-3 sm:mb-4">
             <div className="flex items-start gap-2">
@@ -148,8 +195,8 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
           </div>
 
           {/* Enhanced Mobile Download Button */}
-          <Button
-            onClick={handleDownload}
+          <Button 
+            onClick={handleDownload} 
             disabled={!qrCodeUrl}
             className="w-full h-12 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-medium shadow-md hover:shadow-lg active:shadow-sm transition-all duration-150 touch-manipulation"
           >
