@@ -1,7 +1,7 @@
 export const ORG = {
   name: "Department of Technical Programs",
   college: "UM Digos College",
-  logoSrc: "/logo/dtp.png",
+  logoSrc: "/img/dtp.webp",
 };
 
 export const NAV_LINKS = [

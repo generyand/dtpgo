@@ -15,7 +15,7 @@ export function Footer() {
             <div className="flex items-center gap-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-sm" />
-                <Image src="/logo/um.png" alt="UM Digos College" width={56} height={56} className="relative rounded-full bg-white p-1 shadow-lg" />
+                <Image src="/img/um.webp" alt="UM Digos College" width={56} height={56} className="relative rounded-full bg-white p-1 shadow-lg" />
               </div>
               <div className="relative">
                 <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-sm" />
