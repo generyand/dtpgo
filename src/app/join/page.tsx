@@ -78,9 +78,5 @@ export default function PublicJoinPage() {
     }
   };
 
-  return (
-    <div className="w-full max-w-2xl mx-auto">
-      <PublicRegisterForm onSubmit={handleRegistration} isSubmitting={isSubmitting} />
-    </div>
-  );
+  return <PublicRegisterForm onSubmit={handleRegistration} isSubmitting={isSubmitting} />;
 } 
