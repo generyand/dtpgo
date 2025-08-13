@@ -26,12 +26,13 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
 // PUT handler for updating a student
 export async function PUT(
   request: NextRequest,
-  { params }: RouteContext
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
     const body = await request.json();
     const parsed = studentSchema.partial().parse(body); // Allow partial updates
+    const { id } = await params;
     const student = await updateStudent(id, parsed);
     return NextResponse.json({ student }, { status: 200 });
   } catch (error) {
@@ -46,7 +47,7 @@ export async function PUT(
 // DELETE handler for deleting a student
 export async function DELETE(
   request: NextRequest,
-  { params }: RouteContext
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
