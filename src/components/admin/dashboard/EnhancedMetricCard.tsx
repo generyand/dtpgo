@@ -111,7 +111,7 @@ export function EnhancedMetricCard({
         <div className="space-y-2">
           {/* Main metric value */}
           <div className="text-2xl font-bold text-gray-900">
-            {typeof value === 'number' ? value.toLocaleString() : value}
+            {typeof value === 'number' ? value.toLocaleString('en-PH') : value}
           </div>
           
           {/* Trend indicator and percentage change */}
@@ -128,7 +128,7 @@ export function EnhancedMetricCard({
           {/* Previous value comparison */}
           {previousValue !== undefined && percentageChange === undefined && (
             <p className="text-xs text-muted-foreground">
-              Previous: {typeof previousValue === 'number' ? previousValue.toLocaleString() : previousValue}
+              Previous: {typeof previousValue === 'number' ? previousValue.toLocaleString('en-PH') : previousValue}
             </p>
           )}
           

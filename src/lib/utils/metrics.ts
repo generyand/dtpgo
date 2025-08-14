@@ -160,7 +160,7 @@ export function formatPercentageChange(
  * @returns Formatted string
  */
 export function formatMetricValue(value: number, unit?: string): string {
-  const formattedValue = value.toLocaleString();
+  const formattedValue = value.toLocaleString('en-PH');
   return unit ? `${formattedValue} ${unit}` : formattedValue;
 }
 

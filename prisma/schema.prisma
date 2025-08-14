@@ -25,6 +25,7 @@ model Program {
 
   // Relationships
   students Student[]
+  activities Activity[]
 
   @@map("programs")
 }
@@ -44,6 +45,7 @@ model Student {
 
   // Relationships
   program Program @relation(fields: [programId], references: [id], onDelete: Restrict)
+  activities Activity[]
 
   // Indexes for performance
   @@index([studentIdNumber])
@@ -106,5 +108,56 @@ model Admin {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relationships
+  activities Activity[]
+
   @@map("admins")
+}
+
+// Activity model - comprehensive activity logging for dashboard feed
+model Activity {
+  id          String   @id @default(cuid())
+  type        String   // Activity type: "student_registration", "qr_generation", "admin_action", "system_event"
+  action      String   // Specific action: "register", "update", "delete", "generate_qr", "login", "export", etc.
+  description String   // Human-readable description of the activity
+  
+  // Entity references (nullable to support different activity types)
+  studentId   String?  // Reference to student if activity involves a student
+  adminId     String?  // Reference to admin if activity performed by admin
+  programId   String?  // Reference to program if activity involves a program
+  
+  // Activity metadata
+  metadata    Json?    // Additional structured data about the activity
+  source      String   @default("system") // "admin", "public", "system", "api"
+  severity    String   @default("info") // "info", "warning", "error", "success"
+  category    String   // "registration", "authentication", "data_management", "system", "analytics"
+  
+  // Context information
+  ipAddress   String?  // IP address where activity originated
+  userAgent   String?  // User agent if web-based activity
+  sessionId   String?  // Session identifier for tracking user sessions
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  
+  // Relationships
+  student     Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  admin       Admin?   @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  program     Program? @relation(fields: [programId], references: [id], onDelete: SetNull)
+  
+  // Indexes for performance and querying
+  @@index([type])
+  @@index([action])
+  @@index([category])
+  @@index([source])
+  @@index([severity])
+  @@index([studentId])
+  @@index([adminId])
+  @@index([programId])
+  @@index([createdAt])
+  @@index([type, createdAt]) // Composite index for activity feed queries
+  @@index([category, createdAt]) // Composite index for category-based queries
+  @@index([source, createdAt]) // Composite index for source-based queries
+  
+  @@map("activities")
 }

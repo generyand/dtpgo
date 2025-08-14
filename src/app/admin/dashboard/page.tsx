@@ -8,7 +8,11 @@ import { AlertTriangle } from 'lucide-react'
 import { countStudents } from '@/lib/db/queries/students'
 import { getPrograms } from '@/lib/db/queries/programs'
 import { countStudentsByProgram, countStudentsByRegistrationSource } from '@/lib/db/queries/analytics'
-import { MetricsGrid, type MetricData } from '@/components/admin/dashboard/MetricsGrid'
+import {
+  MetricsGrid,
+  type MetricData,
+} from '@/components/admin/dashboard/MetricsGrid';
+import { CompactActivityFeed } from '@/components/admin/dashboard/ActivityFeedContainer';
 
 export default async function DashboardPage() {
   let metrics: MetricData[] = []
@@ -127,13 +131,8 @@ export default async function DashboardPage() {
 
       {/* Additional Dashboard Content Placeholder */}
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-lg border bg-card p-6">
-          <h3 className="font-semibold mb-2">Recent Activity</h3>
-          <p className="text-sm text-muted-foreground">
-            Activity feed will be implemented in Epic 2.0
-          </p>
-        </div>
-        
+        <CompactActivityFeed />
+
         <div className="rounded-lg border bg-card p-6">
           <h3 className="font-semibold mb-2">Analytics Charts</h3>
           <p className="text-sm text-muted-foreground">

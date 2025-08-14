@@ -2,9 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 import { studentSchema } from '@/lib/validations/student'
 import { createStudent } from '@/lib/db/queries/students'
+import { logStudentRegistration, logSystemEvent } from '@/lib/db/queries/activity'
 import { Prisma } from '@prisma/client'
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+  let studentId: string | undefined
+  
+  // Extract request metadata
+  const ipAddress = request.headers.get('x-forwarded-for') || 
+                   request.headers.get('x-real-ip') || 
+                   'unknown'
+  const userAgent = request.headers.get('user-agent') || 'unknown'
+  
   try {
     const body = await request.json()
 
@@ -22,10 +32,77 @@ export async function POST(request: NextRequest) {
       registrationSource: 'admin',
     })
 
+    studentId = student.id
+
+    // Log successful registration activity
+    try {
+      await logStudentRegistration(
+        student.id,
+        'admin',
+        undefined, // adminId would be available with authentication
+        {
+          studentIdNumber: student.studentIdNumber,
+          firstName: student.firstName,
+          lastName: student.lastName,
+          email: student.email,
+          programId: student.programId,
+          year: student.year,
+          registrationDuration: Date.now() - startTime,
+          validationPassed: true,
+        },
+        ipAddress,
+        userAgent
+      )
+    } catch (activityError) {
+      // Don't fail the registration if activity logging fails
+      console.error('Failed to log registration activity:', activityError)
+    }
+
     // Optionally send email here when email service is available in Epic 6
 
     return NextResponse.json({ student }, { status: 201 })
   } catch (error: unknown) {
+    // Log failed registration attempt
+    try {
+      let errorType = 'unknown_error'
+      const errorDetails: Record<string, unknown> = {
+        registrationDuration: Date.now() - startTime,
+        validationPassed: false,
+      }
+
+      if (error instanceof ZodError) {
+        errorType = 'validation_error'
+        errorDetails.validationErrors = error.issues.map((i) => ({ 
+          path: i.path.join('.'), 
+          message: i.message 
+        }))
+      } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          errorType = 'duplicate_record'
+          errorDetails.duplicateFields = error.meta?.target
+        } else {
+          errorType = 'database_error'
+          errorDetails.prismaErrorCode = error.code
+        }
+      }
+
+      await logSystemEvent(
+        'registration_failed',
+        `Admin registration attempt failed: ${errorType}`,
+        'warning',
+        {
+          errorType,
+          studentId,
+          source: 'admin',
+          ipAddress,
+          userAgent,
+          ...errorDetails,
+        }
+      )
+    } catch (activityError) {
+      console.error('Failed to log registration failure activity:', activityError)
+    }
+
     // Zod validation error
     if (error instanceof ZodError) {
       const issues = error.issues.map((i) => ({ path: i.path.join('.'), message: i.message }))
