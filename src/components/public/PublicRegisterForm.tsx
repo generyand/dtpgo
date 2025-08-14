@@ -89,17 +89,23 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
     fetchPrograms();
   }, []);
 
-  // Auto-uppercase first name
+  // Auto-uppercase first name with debounce
   useEffect(() => {
     if (firstNameValue && firstNameValue !== uppercaseName(firstNameValue)) {
-      setValue('firstName', uppercaseName(firstNameValue));
+      const timeoutId = setTimeout(() => {
+        setValue('firstName', uppercaseName(firstNameValue), { shouldValidate: false });
+      }, 300);
+      return () => clearTimeout(timeoutId);
     }
   }, [firstNameValue, setValue]);
 
-  // Auto-uppercase last name
+  // Auto-uppercase last name with debounce
   useEffect(() => {
     if (lastNameValue && lastNameValue !== uppercaseName(lastNameValue)) {
-      setValue('lastName', uppercaseName(lastNameValue));
+      const timeoutId = setTimeout(() => {
+        setValue('lastName', uppercaseName(lastNameValue), { shouldValidate: false });
+      }, 300);
+      return () => clearTimeout(timeoutId);
     }
   }, [lastNameValue, setValue]);
 
