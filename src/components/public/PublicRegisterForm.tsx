@@ -89,25 +89,12 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
     fetchPrograms();
   }, []);
 
-  // Auto-uppercase first name with debounce
-  useEffect(() => {
-    if (firstNameValue && firstNameValue !== uppercaseName(firstNameValue)) {
-      const timeoutId = setTimeout(() => {
-        setValue('firstName', uppercaseName(firstNameValue), { shouldValidate: false });
-      }, 300);
-      return () => clearTimeout(timeoutId);
+  // Handle name transformation on blur
+  const handleNameBlur = (field: 'firstName' | 'lastName', value: string) => {
+    if (value && value !== uppercaseName(value)) {
+      setValue(field, uppercaseName(value), { shouldValidate: true });
     }
-  }, [firstNameValue, setValue]);
-
-  // Auto-uppercase last name with debounce
-  useEffect(() => {
-    if (lastNameValue && lastNameValue !== uppercaseName(lastNameValue)) {
-      const timeoutId = setTimeout(() => {
-        setValue('lastName', uppercaseName(lastNameValue), { shouldValidate: false });
-      }, 300);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [lastNameValue, setValue]);
+  };
 
   // Email domain suggestions logic
   useEffect(() => {
@@ -247,6 +234,7 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
                   {...register('firstName')} 
                   placeholder="Juan"
                   className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors"
+                  onBlur={(e) => handleNameBlur('firstName', e.target.value)}
                 />
                 {errors.firstName && (
                   <p className="text-sm text-red-600 flex items-center gap-1">
@@ -263,6 +251,7 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
                   {...register('lastName')} 
                   placeholder="Dela Cruz"
                   className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors"
+                  onBlur={(e) => handleNameBlur('lastName', e.target.value)}
                 />
                 {errors.lastName && (
                   <p className="text-sm text-red-600 flex items-center gap-1">
