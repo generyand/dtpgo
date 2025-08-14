@@ -59,8 +59,6 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
 
   const studentIdValue = watch('studentIdNumber');
   const emailValue = watch('email');
-  const firstNameValue = watch('firstName');
-  const lastNameValue = watch('lastName');
   const programIdValue = watch('programId');
 
   const debouncedStudentId = useDebounce(studentIdValue, 500);

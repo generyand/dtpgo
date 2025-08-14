@@ -24,11 +24,6 @@ interface RegisterFormProps {
   initialData?: Partial<StudentFormInput>;
 }
 
-interface RegistrationResult {
-  success: boolean;
-  studentId?: string;
-}
-
 // Popular email domains with gmail.com at top
 const EMAIL_DOMAINS = [
   'gmail.com',
