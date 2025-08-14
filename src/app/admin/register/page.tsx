@@ -78,9 +78,6 @@ export default function AdminRegisterPage() {
                 >
                   Clear
                 </Button>
-                <Button type="submit" formAction={() => {}} disabled={isSubmitting}>
-                  {isSubmitting ? 'Submitting...' : 'Submit'}
-                </Button>
               </div>
             </div>
           </div>

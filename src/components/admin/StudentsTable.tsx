@@ -17,10 +17,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, QrCode } from 'lucide-react';
 import type { StudentWithProgram } from '@/lib/db/queries/students';
 import { toast } from 'sonner';
 import EditStudentModal from './EditStudentModal';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { QRCodeDisplay } from '@/components/ui/QRCodeDisplay';
 
 export function StudentsTable() {
   const [students, setStudents] = useState<StudentWithProgram[]>([]);
@@ -29,6 +31,7 @@ export function StudentsTable() {
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
   const [editingStudent, setEditingStudent] = useState<StudentWithProgram | null>(null);
+  const [viewingQRStudent, setViewingQRStudent] = useState<StudentWithProgram | null>(null);
 
   const fetchStudents = useCallback(async () => {
     try {
@@ -105,6 +108,10 @@ export function StudentsTable() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setViewingQRStudent(student)}>
+                        <QrCode className="mr-2 h-4 w-4" />
+                        View QR Code
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setEditingStudent(student)}>
                         Edit
                       </DropdownMenuItem>
@@ -151,6 +158,23 @@ export function StudentsTable() {
           fetchStudents(); // Refresh the table data
         }}
       />
+      
+      {/* QR Code Modal */}
+      <Dialog open={!!viewingQRStudent} onOpenChange={() => setViewingQRStudent(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <QrCode className="h-5 w-5" />
+              QR Code - {viewingQRStudent ? `${viewingQRStudent.firstName} ${viewingQRStudent.lastName}` : ''}
+            </DialogTitle>
+          </DialogHeader>
+          {viewingQRStudent && (
+            <div className="mt-4">
+              <QRCodeDisplay studentId={viewingQRStudent.id} />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -8,7 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { QRCodeDisplay } from '@/components/ui/QRCodeDisplay';
 import { toast } from 'sonner';
+import { User, Mail, GraduationCap, Calendar, CheckCircle, UserPlus } from 'lucide-react';
 
 type Program = {
   id: string;
@@ -17,13 +19,32 @@ type Program = {
 };
 
 interface RegisterFormProps {
-  onSubmit: (data: StudentFormInput) => Promise<void>;
+  onSubmit: (data: StudentFormInput) => Promise<{ studentId?: string } | void>;
   isSubmitting: boolean;
   initialData?: Partial<StudentFormInput>;
 }
 
+interface RegistrationResult {
+  success: boolean;
+  studentId?: string;
+}
+
+// Popular email domains with gmail.com at top
+const EMAIL_DOMAINS = [
+  'gmail.com',
+  'outlook.com',
+  'yahoo.com',
+  'hotmail.com',
+  'icloud.com',
+  'protonmail.com',
+];
+
 export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFormProps) {
   const [programs, setPrograms] = useState<Program[]>([]);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registeredStudentId, setRegisteredStudentId] = useState<string | null>(null);
+  const [showEmailSuggestions, setShowEmailSuggestions] = useState(false);
+  const [emailSuggestions, setEmailSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchPrograms() {
@@ -51,118 +72,358 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
     },
   });
 
-  const handleFormSubmit: SubmitHandler<StudentFormInput> = async (data) => {
-    await onSubmit(data);
+  // Watch form values for email suggestions and program display
+  const emailValue = form.watch('email');
+  const programIdValue = form.watch('programId');
+
+  // Get selected program's short name for display
+  const selectedProgram = programs.find(p => p.id === programIdValue);
+  const selectedProgramDisplay = selectedProgram ? selectedProgram.name : '';
+
+  // Handle name transformation on blur
+  const handleNameBlur = (field: 'firstName' | 'lastName', value: string) => {
+    if (value && value !== value.toUpperCase()) {
+      form.setValue(field, value.toUpperCase(), { shouldValidate: true });
+    }
   };
 
+  // Email domain suggestions logic
+  useEffect(() => {
+    if (emailValue && emailValue.includes('@')) {
+      const [localPart, domainPart] = emailValue.split('@');
+      if (domainPart && domainPart.length > 0) {
+        const suggestions = EMAIL_DOMAINS
+          .filter(domain => domain.toLowerCase().startsWith(domainPart.toLowerCase()))
+          .map(domain => `${localPart}@${domain}`);
+        setEmailSuggestions(suggestions);
+        setShowEmailSuggestions(suggestions.length > 0 && domainPart !== domainPart.toLowerCase());
+      } else {
+        setShowEmailSuggestions(false);
+      }
+    } else if (emailValue && !emailValue.includes('@')) {
+      // Show suggestions when user starts typing without @
+      const suggestions = EMAIL_DOMAINS.map(domain => `${emailValue}@${domain}`);
+      setEmailSuggestions(suggestions);
+      setShowEmailSuggestions(emailValue.length > 0);
+    } else {
+      setShowEmailSuggestions(false);
+    }
+  }, [emailValue]);
+
+  const selectEmailSuggestion = (suggestion: string) => {
+    form.setValue('email', suggestion);
+    setShowEmailSuggestions(false);
+    form.clearErrors('email');
+  };
+
+  const handleFormSubmit: SubmitHandler<StudentFormInput> = async (data) => {
+    try {
+      setRegistrationSuccess(false);
+      // Transform names to uppercase before submission
+      const transformedData = {
+        ...data,
+        firstName: data.firstName.toUpperCase(),
+        lastName: data.lastName.toUpperCase(),
+      };
+      
+      const result = await onSubmit(transformedData);
+      
+      console.log('Registration result:', result);
+      console.log('Transformed data:', transformedData);
+      
+      // If onSubmit returns a student ID, show QR code
+      if (result && typeof result === 'object' && result.studentId) {
+        console.log('Using returned student ID:', result.studentId);
+        setRegisteredStudentId(result.studentId);
+        setRegistrationSuccess(true);
+      } else {
+        // Fallback: try to get student ID from the submitted data
+        // This assumes the student ID number can be used as the student ID
+        console.warn('No student ID returned from onSubmit, using student ID number as fallback');
+        console.log('Using fallback student ID:', transformedData.studentIdNumber);
+        setRegisteredStudentId(transformedData.studentIdNumber);
+        setRegistrationSuccess(true);
+      }
+    } catch (error) {
+      setRegistrationSuccess(false);
+      console.error('Registration failed:', error);
+    }
+  };
+
+  // Show QR code if registration was successful
+  if (registrationSuccess && registeredStudentId) {
+    return <QRCodeDisplay studentId={registeredStudentId} />;
+  }
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="studentIdNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Student ID</FormLabel>
-              <FormControl>
-                <Input placeholder="SXXXX-XXXX-XXX" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="firstName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>First Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="John" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Last Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-[80vh] py-8 px-4">
+      {/* Background Elements */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-400/10 rounded-full blur-3xl" />
+      
+      <div className="relative mx-auto max-w-2xl">
+        {/* Header Section */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 border border-blue-200 text-blue-800 text-sm font-medium mb-4">
+            <UserPlus className="size-4" />
+            <span>Admin Registration</span>
+          </div>
+          
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
+            <span className="text-gray-900">Register New </span>
+            <span className="text-blue-600">Student</span>
+          </h1>
+          
+          <p className="text-lg text-gray-600 leading-relaxed max-w-lg mx-auto">
+            Add a new student to the system and generate their QR code for event access.
+          </p>
         </div>
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="you@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="year"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Year Level</FormLabel>
-                <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} defaultValue={String(field.value)}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select year level" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {[1, 2, 3, 4, 5].map(year => (
-                      <SelectItem key={year} value={String(year)}>{year}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="programId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Program</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a program" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {programs.map(program => (
-                      <SelectItem key={program.id} value={program.id}>{program.name ?? program.displayName}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
+        {/* Registration Form Card */}
+        <div className="group relative overflow-hidden rounded-2xl border bg-white shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="absolute -right-10 -top-10 size-24 rounded-full bg-blue-400/10 blur-xl group-hover:bg-blue-400/15 transition-colors" />
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleFormSubmit)} className="relative p-6 sm:p-8 space-y-6">
+              {/* Student ID */}
+              <FormField
+                control={form.control}
+                name="studentIdNumber"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <div className="flex items-center gap-2 mb-2">
+                      <User className="size-4 text-blue-600" />
+                      <FormLabel className="font-semibold text-gray-900">Student ID Number</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Input 
+                        {...field}
+                        type="number"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        placeholder="Input student ID number"
+                        className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Name Fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem className="space-y-2">
+                      <FormLabel className="font-semibold text-gray-900">First Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field}
+                          placeholder="Juan"
+                          className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 transition-colors"
+                          onBlur={(e) => handleNameBlur('firstName', e.target.value)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem className="space-y-2">
+                      <FormLabel className="font-semibold text-gray-900">Last Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field}
+                          placeholder="Dela Cruz"
+                          className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 transition-colors"
+                          onBlur={(e) => handleNameBlur('lastName', e.target.value)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Email with Suggestions */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="space-y-2 relative">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Mail className="size-4 text-blue-600" />
+                      <FormLabel className="font-semibold text-gray-900">Email Address</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Input 
+                        {...field}
+                        type="email"
+                        placeholder="juan.delacruz@gmail.com"
+                        className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 transition-colors"
+                        onFocus={() => emailValue && setShowEmailSuggestions(emailSuggestions.length > 0)}
+                        onBlur={() => setTimeout(() => setShowEmailSuggestions(false), 200)}
+                      />
+                    </FormControl>
+                    
+                    {/* Email Suggestions Dropdown */}
+                    {showEmailSuggestions && emailSuggestions.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                        {emailSuggestions.slice(0, 6).map((suggestion, index) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            className="w-full text-left px-4 py-2 hover:bg-blue-50 hover:text-blue-800 transition-colors text-sm border-b border-gray-100 last:border-b-0"
+                            onClick={() => selectEmailSuggestion(suggestion)}
+                          >
+                            <span className="flex items-center gap-2">
+                              <Mail className="size-3 text-gray-400" />
+                              {suggestion}
+                              {index === 0 && suggestion.includes('gmail.com') && (
+                                <span className="ml-auto text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Popular</span>
+                              )}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Program and Year */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="programId"
+                  render={({ field }) => (
+                    <FormItem className="space-y-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <GraduationCap className="size-4 text-blue-600" />
+                        <FormLabel className="font-semibold text-gray-900">Program</FormLabel>
+                      </div>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20">
+                            <SelectValue placeholder="Select program" className="truncate text-left">
+                              {selectedProgramDisplay || "Select program"}
+                            </SelectValue>
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="max-w-[400px]">
+                          {programs.map((program) => (
+                            <SelectItem key={program.id} value={program.id} className="hover:bg-blue-50 py-3">
+                              <div className="flex flex-col items-start gap-0.5 w-full">
+                                <span className="font-medium text-sm leading-tight truncate w-full">{program.name}</span>
+                                {program.displayName && (
+                                  <span className="text-xs text-gray-400 leading-tight truncate w-full">({program.displayName})</span>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="year"
+                  render={({ field }) => (
+                    <FormItem className="space-y-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calendar className="size-4 text-blue-600" />
+                        <FormLabel className="font-semibold text-gray-900">Year Level</FormLabel>
+                      </div>
+                      <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} defaultValue={String(field.value)}>
+                        <FormControl>
+                          <SelectTrigger className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20">
+                            <SelectValue placeholder="Select year" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {[1, 2, 3, 4, 5].map((y) => (
+                            <SelectItem key={y} value={String(y)} className="hover:bg-blue-50">
+                              <span className="font-medium">{y}{y === 1 ? 'st' : y === 2 ? 'nd' : y === 3 ? 'rd' : 'th'} Year</span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Submit Button */}
+              <div className="pt-4">
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className={`w-full h-12 font-semibold shadow-lg hover:shadow-xl transition-all duration-200 group/btn ${
+                    isSubmitting 
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300 hover:shadow-lg' 
+                      : registrationSuccess
+                      ? 'bg-green-500 hover:bg-green-600 text-white'
+                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent" />
+                      <span>Registering...</span>
+                    </div>
+                  ) : registrationSuccess ? (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="size-4" />
+                      <span>Registration Successful!</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <UserPlus className="size-4 group-hover/btn:scale-110 transition-transform" />
+                      <span>Register Student</span>
+                    </div>
+                  )}
+                </Button>
+              </div>
+
+              {/* Trust Indicators */}
+              <div className="pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="size-3 text-green-500" />
+                    <span>Admin Access</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="size-3 text-green-500" />
+                    <span>Instant QR Generation</span>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </Form>
+
+          {/* Bottom Accent Line */}
+          <div className={`h-1 w-0 transition-all duration-500 group-hover:w-full ${
+            registrationSuccess 
+              ? 'bg-gradient-to-r from-green-400 to-green-500' 
+              : isSubmitting 
+              ? 'bg-gradient-to-r from-gray-300 to-gray-400'
+              : 'bg-gradient-to-r from-blue-400 to-blue-600'
+          }`} />
         </div>
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Submitting...' : 'Register Student'}
-        </Button>
-      </form>
-    </Form>
+      </div>
+    </div>
   );
 }
 
