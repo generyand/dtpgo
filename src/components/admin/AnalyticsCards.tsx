@@ -11,23 +11,31 @@ interface AnalyticsCardsProps {
 
 export function AnalyticsCards({ totalStudents, totalPrograms }: AnalyticsCardsProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 sm:grid-cols-2">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-100 text-yellow-800">
+              <Users className="h-4 w-4" />
+            </div>
+            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalStudents}</div>
+          <div className="text-3xl font-extrabold tracking-tight">{totalStudents}</div>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Academic Programs</CardTitle>
-          <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-100 text-yellow-800">
+              <BarChart3 className="h-4 w-4" />
+            </div>
+            <CardTitle className="text-sm font-medium">Academic Programs</CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalPrograms}</div>
+          <div className="text-3xl font-extrabold tracking-tight">{totalPrograms}</div>
         </CardContent>
       </Card>
     </div>

@@ -151,32 +151,24 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
   }
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-[80vh] py-8 px-4">
-      {/* Background Elements */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-400/10 rounded-full blur-3xl" />
-      
-      <div className="relative mx-auto max-w-2xl">
+    <div className="py-2 sm:py-4">
+      <div className="relative">
         {/* Header Section */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 border border-blue-200 text-blue-800 text-sm font-medium mb-4">
-            <UserPlus className="size-4" />
+        <div className="mb-6">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium mb-3">
+            <UserPlus className="size-3.5" />
             <span>Admin Registration</span>
           </div>
           
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
-            <span className="text-gray-900">Register New </span>
-            <span className="text-blue-600">Student</span>
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Register New Student</h1>
           
-          <p className="text-lg text-gray-600 leading-relaxed max-w-lg mx-auto">
-            Add a new student to the system and generate their QR code for event access.
+          <p className="mt-1 text-sm text-gray-600 max-w-prose">
+            Add a student to the system and automatically generate a QR code for event access.
           </p>
         </div>
 
         {/* Registration Form Card */}
-        <div className="group relative overflow-hidden rounded-2xl border bg-white shadow-lg hover:shadow-xl transition-all duration-300">
-          <div className="absolute -right-10 -top-10 size-24 rounded-full bg-blue-400/10 blur-xl group-hover:bg-blue-400/15 transition-colors" />
+        <div className="group relative overflow-hidden rounded-xl border bg-white shadow-sm">
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleFormSubmit)} className="relative p-6 sm:p-8 space-y-6">
@@ -187,7 +179,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                 render={({ field }) => (
                   <FormItem className="space-y-2">
                     <div className="flex items-center gap-2 mb-2">
-                      <User className="size-4 text-blue-600" />
+                      <User className="size-4 text-yellow-600" />
                       <FormLabel className="font-semibold text-gray-900">Student ID Number</FormLabel>
                     </div>
                     <FormControl>
@@ -197,7 +189,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                         inputMode="numeric"
                         pattern="[0-9]*"
                         placeholder="Input student ID number"
-                        className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </FormControl>
                     <FormMessage />
@@ -217,7 +209,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                         <Input 
                           {...field}
                           placeholder="Juan"
-                          className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 transition-colors"
+                          className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors"
                           onBlur={(e) => handleNameBlur('firstName', e.target.value)}
                         />
                       </FormControl>
@@ -236,7 +228,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                         <Input 
                           {...field}
                           placeholder="Dela Cruz"
-                          className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 transition-colors"
+                          className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors"
                           onBlur={(e) => handleNameBlur('lastName', e.target.value)}
                         />
                       </FormControl>
@@ -253,7 +245,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                 render={({ field }) => (
                   <FormItem className="space-y-2 relative">
                     <div className="flex items-center gap-2 mb-2">
-                      <Mail className="size-4 text-blue-600" />
+                      <Mail className="size-4 text-yellow-600" />
                       <FormLabel className="font-semibold text-gray-900">Email Address</FormLabel>
                     </div>
                     <FormControl>
@@ -261,7 +253,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                         {...field}
                         type="email"
                         placeholder="juan.delacruz@gmail.com"
-                        className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 transition-colors"
+                        className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors"
                         onFocus={() => emailValue && setShowEmailSuggestions(emailSuggestions.length > 0)}
                         onBlur={() => setTimeout(() => setShowEmailSuggestions(false), 200)}
                       />
@@ -274,14 +266,14 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                           <button
                             key={suggestion}
                             type="button"
-                            className="w-full text-left px-4 py-2 hover:bg-blue-50 hover:text-blue-800 transition-colors text-sm border-b border-gray-100 last:border-b-0"
+                            className="w-full text-left px-4 py-2 hover:bg-yellow-50 hover:text-yellow-800 transition-colors text-sm border-b border-gray-100 last:border-b-0"
                             onClick={() => selectEmailSuggestion(suggestion)}
                           >
                             <span className="flex items-center gap-2">
                               <Mail className="size-3 text-gray-400" />
                               {suggestion}
                               {index === 0 && suggestion.includes('gmail.com') && (
-                                <span className="ml-auto text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Popular</span>
+                                <span className="ml-auto text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Popular</span>
                               )}
                             </span>
                           </button>
@@ -302,12 +294,12 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                   render={({ field }) => (
                     <FormItem className="space-y-2">
                       <div className="flex items-center gap-2 mb-2">
-                        <GraduationCap className="size-4 text-blue-600" />
+                        <GraduationCap className="size-4 text-yellow-600" />
                         <FormLabel className="font-semibold text-gray-900">Program</FormLabel>
                       </div>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20">
+                          <SelectTrigger className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20">
                             <SelectValue placeholder="Select program" className="truncate text-left">
                               {selectedProgramDisplay || "Select program"}
                             </SelectValue>
@@ -315,7 +307,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                         </FormControl>
                         <SelectContent className="max-w-[400px]">
                           {programs.map((program) => (
-                            <SelectItem key={program.id} value={program.id} className="hover:bg-blue-50 py-3">
+                            <SelectItem key={program.id} value={program.id} className="hover:bg-yellow-50 py-3">
                               <div className="flex flex-col items-start gap-0.5 w-full">
                                 <span className="font-medium text-sm leading-tight truncate w-full">{program.name}</span>
                                 {program.displayName && (
@@ -337,18 +329,18 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                   render={({ field }) => (
                     <FormItem className="space-y-2">
                       <div className="flex items-center gap-2 mb-2">
-                        <Calendar className="size-4 text-blue-600" />
+                        <Calendar className="size-4 text-yellow-600" />
                         <FormLabel className="font-semibold text-gray-900">Year Level</FormLabel>
                       </div>
                       <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} defaultValue={String(field.value)}>
                         <FormControl>
-                          <SelectTrigger className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20">
+                          <SelectTrigger className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20">
                             <SelectValue placeholder="Select year" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {[1, 2, 3, 4, 5].map((y) => (
-                            <SelectItem key={y} value={String(y)} className="hover:bg-blue-50">
+                            <SelectItem key={y} value={String(y)} className="hover:bg-yellow-50">
                               <span className="font-medium">{y}{y === 1 ? 'st' : y === 2 ? 'nd' : y === 3 ? 'rd' : 'th'} Year</span>
                             </SelectItem>
                           ))}
@@ -370,7 +362,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300 hover:shadow-lg' 
                       : registrationSuccess
                       ? 'bg-green-500 hover:bg-green-600 text-white'
-                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      : 'bg-yellow-500 hover:bg-yellow-600 text-black'
                   }`}
                 >
                   {isSubmitting ? (
@@ -409,12 +401,12 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
           </Form>
 
           {/* Bottom Accent Line */}
-          <div className={`h-1 w-0 transition-all duration-500 group-hover:w-full ${
+          <div className={`h-0.5 w-full ${
             registrationSuccess 
-              ? 'bg-gradient-to-r from-green-400 to-green-500' 
+              ? 'bg-green-400' 
               : isSubmitting 
-              ? 'bg-gradient-to-r from-gray-300 to-gray-400'
-              : 'bg-gradient-to-r from-blue-400 to-blue-600'
+              ? 'bg-gray-300'
+              : 'bg-yellow-400'
           }`} />
         </div>
       </div>

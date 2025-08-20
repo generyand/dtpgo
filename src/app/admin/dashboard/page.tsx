@@ -150,7 +150,7 @@ export default async function DashboardPage() {
       <div className="hidden lg:flex min-h-screen w-full">
         <main className="flex-1 overflow-hidden">
           <div className="h-full overflow-y-auto">
-            <div className="space-y-6 p-6 xl:p-8">
+            <div className="space-y-6 p-4 sm:p-6 xl:p-8">
               {/* Header */}
               <div className="flex flex-col gap-2">
                 <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>

@@ -50,10 +50,10 @@ const SEVERITY_COLORS: Record<ActivitySeverity, {
   icon: string;
 }> = {
   info: {
-    bg: 'bg-blue-50',
-    text: 'text-blue-700',
-    border: 'border-blue-200',
-    icon: 'text-blue-500',
+    bg: 'bg-yellow-50',
+    text: 'text-yellow-800',
+    border: 'border-yellow-200',
+    icon: 'text-yellow-600',
   },
   success: {
     bg: 'bg-green-50',
@@ -256,7 +256,7 @@ export function ActivityItem({
         <div className={cn(
           'flex-shrink-0 flex items-center justify-center rounded-full',
           compactMode ? 'w-8 h-8' : 'w-10 h-10',
-          colors.bg === 'bg-blue-50' ? 'bg-blue-100' : 
+          colors.bg === 'bg-yellow-50' ? 'bg-yellow-100' : 
           colors.bg === 'bg-green-50' ? 'bg-green-100' :
           colors.bg === 'bg-yellow-50' ? 'bg-yellow-100' :
           colors.bg === 'bg-red-50' ? 'bg-red-100' :
@@ -339,14 +339,14 @@ export function ActivityItem({
             <div className="flex items-center gap-2">
               <div className={cn(
                 'w-2 h-2 rounded-full',
-                entityInfo.type === 'student' ? 'bg-blue-400' :
+                entityInfo.type === 'student' ? 'bg-yellow-400' :
                 entityInfo.type === 'admin' ? 'bg-purple-400' :
                 entityInfo.type === 'program' ? 'bg-green-400' : 'bg-gray-400'
               )} />
               <span className={cn(
                 'font-medium',
                 compactMode ? 'text-xs' : 'text-sm',
-                entityInfo.type === 'student' ? 'text-blue-700' :
+                entityInfo.type === 'student' ? 'text-yellow-800' :
                 entityInfo.type === 'admin' ? 'text-purple-700' :
                 entityInfo.type === 'program' ? 'text-green-700' : 'text-gray-700'
               )}>
