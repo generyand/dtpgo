@@ -1,23 +1,187 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import StudentsTable from '@/components/admin/StudentsTable';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import StudentsFilter, { FilterParams } from '@/components/admin/StudentsFilter';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { 
+  Users, 
+  Search, 
+  Filter, 
+  Download, 
+  UserPlus, 
+  MoreHorizontal,
+  Grid3X3
+} from 'lucide-react';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator 
+} from '@/components/ui/dropdown-menu';
 import { Toaster } from '@/components/ui/sonner';
 
 export default function StudentsPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<FilterParams>({});
+
   return (
-    <>
-      <Card>
-        <CardHeader>
-          <CardTitle>Student Management</CardTitle>
-          <CardDescription>View, edit, and manage student records.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <StudentsTable />
-        </CardContent>
-      </Card>
+    <div className="space-y-4 p-4 sm:space-y-6 sm:p-6">
+      {/* Header Section */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
+              <Users className="h-4 w-4" />
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+              Students
+            </h1>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Manage student records, view details, and generate QR codes
+          </p>
+        </div>
+
+        {/* Header Actions */}
+        <div className="flex items-center gap-2">
+          {/* Add Student Button */}
+          <Button className="hidden sm:flex items-center gap-2">
+            <UserPlus className="h-4 w-4" />
+            Add Student
+          </Button>
+
+          {/* Mobile Add Button */}
+          <Button size="icon" className="sm:hidden">
+            <UserPlus className="h-4 w-4" />
+          </Button>
+
+          {/* More Actions Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem className="flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Export Students
+              </DropdownMenuItem>
+              <DropdownMenuItem className="flex items-center gap-2 sm:hidden">
+                <UserPlus className="h-4 w-4" />
+                Add Student
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                Advanced Filters
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      {/* Search and Filter Bar */}
+      <div className="relative">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Input
+              placeholder="Search students..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Filter Button */}
+            <Button 
+              variant={showFilters ? "default" : "outline"} 
+              size="sm" 
+              className="flex items-center gap-2"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter className="h-4 w-4" />
+              <span className="hidden sm:inline">Filters</span>
+              {Object.keys(filters).length > 0 && (
+                <span className="ml-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-xs text-white">
+                  {Object.keys(filters).length}
+                </span>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* Filter Component */}
+        <StudentsFilter 
+          isOpen={showFilters}
+          onClose={() => setShowFilters(false)}
+          onFilterChange={setFilters}
+          initialFilters={filters}
+        />
+      </div>
+
+      {/* Content Area */}
+      <div className="rounded-lg border bg-white shadow-sm dark:bg-gray-900 overflow-hidden">
+        <div className="p-3 sm:p-6">
+          <StudentsTable searchQuery={searchQuery} filters={filters} />
+        </div>
+      </div>
+
+      {/* Quick Stats Footer */}
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-900">
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-blue-600" />
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              Total Students
+            </span>
+          </div>
+          <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+            161
+          </p>
+        </div>
+        <div className="rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-900">
+          <div className="flex items-center gap-2">
+            <UserPlus className="h-4 w-4 text-green-600" />
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              This Month
+            </span>
+          </div>
+          <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+            25
+          </p>
+        </div>
+        <div className="rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-900">
+          <div className="flex items-center gap-2">
+            <Grid3X3 className="h-4 w-4 text-purple-600" />
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              Programs
+            </span>
+          </div>
+          <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+            2
+          </p>
+        </div>
+        <div className="rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-900">
+          <div className="flex items-center gap-2">
+            <Download className="h-4 w-4 text-orange-600" />
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              QR Generated
+            </span>
+          </div>
+          <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+            142
+          </p>
+        </div>
+      </div>
+
       <Toaster richColors />
-    </>
+    </div>
   );
 } 

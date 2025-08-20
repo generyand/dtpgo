@@ -37,8 +37,11 @@ export async function getStudents(options: {
   sortBy?: keyof Prisma.StudentOrderByWithRelationInput;
   sortOrder?: 'asc' | 'desc';
   search?: string;
-  programId?: string;
+  program?: string; // Changed from programId to program for consistency with API
   year?: number;
+  registrationSource?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }): Promise<StudentWithProgram[]> {
   const {
     page = 1,
@@ -46,8 +49,11 @@ export async function getStudents(options: {
     sortBy = 'createdAt',
     sortOrder = 'desc',
     search,
-    programId,
+    program,
     year,
+    registrationSource,
+    dateFrom,
+    dateTo,
   } = options;
 
   const where: Prisma.StudentWhereInput = {};
@@ -61,12 +67,30 @@ export async function getStudents(options: {
     ];
   }
 
-  if (programId) {
-    where.programId = programId;
+  if (program) {
+    where.programId = program;
   }
 
   if (year) {
     where.year = year;
+  }
+
+  if (registrationSource) {
+    where.registrationSource = registrationSource;
+  }
+
+  // Date range filtering
+  if (dateFrom || dateTo) {
+    where.createdAt = {};
+    if (dateFrom) {
+      where.createdAt.gte = new Date(dateFrom);
+    }
+    if (dateTo) {
+      // Add 23:59:59 to include the entire day
+      const endDate = new Date(dateTo);
+      endDate.setHours(23, 59, 59, 999);
+      where.createdAt.lte = endDate;
+    }
   }
 
   return prisma.student.findMany({
@@ -182,10 +206,13 @@ export async function deleteStudent(id: string): Promise<void> {
  */
 export async function countStudents(options: {
   search?: string;
-  programId?: string;
+  program?: string; // Changed from programId to program for consistency
   year?: number;
+  registrationSource?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }): Promise<number> {
-  const { search, programId, year } = options;
+  const { search, program, year, registrationSource, dateFrom, dateTo } = options;
   
   const where: Prisma.StudentWhereInput = {};
 
@@ -198,12 +225,29 @@ export async function countStudents(options: {
     ];
   }
 
-  if (programId) {
-    where.programId = programId;
+  if (program) {
+    where.programId = program;
   }
 
   if (year) {
     where.year = year;
+  }
+
+  if (registrationSource) {
+    where.registrationSource = registrationSource;
+  }
+
+  // Date range filtering (same logic as getStudents)
+  if (dateFrom || dateTo) {
+    where.createdAt = {};
+    if (dateFrom) {
+      where.createdAt.gte = new Date(dateFrom);
+    }
+    if (dateTo) {
+      const endDate = new Date(dateTo);
+      endDate.setHours(23, 59, 59, 999);
+      where.createdAt.lte = endDate;
+    }
   }
   
   return prisma.student.count({ where });

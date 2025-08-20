@@ -122,7 +122,7 @@ export function AdminNav() {
           </SheetTrigger>
           <SheetContent 
             side="left" 
-            className="w-80 p-0 bg-white dark:bg-gray-900"
+            className="w-80 p-0 bg-white dark:bg-gray-900 z-50"
           >
             <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
             

@@ -7,10 +7,28 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '10', 10);
     const search = searchParams.get('search') || '';
+    
+    // Filter parameters
+    const program = searchParams.get('program') || undefined;
+    const year = searchParams.get('year') ? parseInt(searchParams.get('year')!, 10) : undefined;
+    const registrationSource = searchParams.get('registrationSource') || undefined;
+    const dateFrom = searchParams.get('dateFrom') || undefined;
+    const dateTo = searchParams.get('dateTo') || undefined;
+
+    const filters = {
+      page,
+      limit,
+      search,
+      program,
+      year,
+      registrationSource,
+      dateFrom,
+      dateTo,
+    };
 
     const [students, total] = await Promise.all([
-      getStudents({ page, limit, search }),
-      countStudents({ search }),
+      getStudents(filters),
+      countStudents(filters),
     ]);
 
     return NextResponse.json({ students, total }, { status: 200 });
