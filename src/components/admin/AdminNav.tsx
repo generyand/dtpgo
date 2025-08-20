@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, UserPlus, Users, BarChart3, Menu, X } from 'lucide-react';
+import { LayoutDashboard, UserPlus, Users, BarChart3, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 
@@ -53,7 +53,6 @@ function NavLink({
 
 export function AdminNav() {
   const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname();
 
   const handleNavClick = () => {
     setIsOpen(false);

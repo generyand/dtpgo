@@ -13,7 +13,7 @@ import {
 interface BaseChartProps {
   title: string;
   description?: string;
-  children: React.ReactNode;
+  children: React.ReactElement;
 }
 
 const BaseChart: React.FC<BaseChartProps> = ({

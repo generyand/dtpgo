@@ -5,7 +5,27 @@ import { useActivityApi } from '@/hooks/use-activity-api';
 import SimplifiedActivityFeed from './SimplifiedActivityFeed';
 
 // Transform activity data to simplified format
-const transformActivity = (activity: any): {
+const transformActivity = (activity: {
+  id: string;
+  type: string;
+  action: string;
+  description: string;
+  severity: string;
+  category: string;
+  source: string;
+  createdAt: string;
+  student?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  } | null;
+  admin?: {
+    email: string;
+  } | null;
+  program?: {
+    name: string;
+  } | null;
+}): {
   id: string;
   type: 'registration' | 'qr_generation' | 'admin_action' | 'system';
   description: string;

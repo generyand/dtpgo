@@ -11,9 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { X, CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { X } from 'lucide-react';
 
 export interface FilterParams {
   program?: string;
@@ -44,7 +42,6 @@ export function StudentsFilter({
 }: StudentsFilterProps) {
   const [filters, setFilters] = useState<FilterParams>(initialFilters);
   const [programs, setPrograms] = useState<Program[]>([]);
-  const [loading, setLoading] = useState(false);
 
   // Fetch programs on component mount
   useEffect(() => {
@@ -72,7 +69,7 @@ export function StudentsFilter({
   const handleApplyFilters = () => {
     // Remove empty values
     const cleanFilters = Object.fromEntries(
-      Object.entries(filters).filter(([_, value]) => value && value.trim() !== '')
+      Object.entries(filters).filter(([, value]) => value && value.trim() !== '')
     );
     onFilterChange(cleanFilters);
     onClose();

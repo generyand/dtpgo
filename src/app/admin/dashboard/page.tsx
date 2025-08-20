@@ -12,7 +12,6 @@ import {
   MetricsGrid,
   type MetricData,
 } from '@/components/admin/dashboard/MetricsGrid';
-import { CompactActivityFeed } from '@/components/admin/dashboard/ActivityFeedContainer';
 import SimplifiedActivityContainer from '@/components/admin/dashboard/SimplifiedActivityContainer';
 import AnalyticsCharts from '@/components/admin/dashboard/AnalyticsCharts';
 
