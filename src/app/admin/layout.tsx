@@ -18,7 +18,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
         <AdminNav />
         <div className="flex flex-col">
-          <main className="flex-1 bg-gray-100/40 p-4 sm:p-6 lg:p-8 dark:bg-gray-800/40">
+          <main className="flex-1 bg-gray-100/40 dark:bg-gray-800/40">
             {children}
           </main>
         </div>

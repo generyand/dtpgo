@@ -46,4 +46,67 @@ export async function countStudentsByRegistrationSource() {
     source: r.registrationSource,
     count: r._count.studentIdNumber,
   }));
+}
+
+export interface ProgramDistributionData {
+  name: string;
+  count: number;
+  percentage: number;
+}
+
+export async function getProgramDistribution(): Promise<ProgramDistributionData[]> {
+  const totalStudents = await prisma.student.count();
+
+  if (totalStudents === 0) {
+    return [];
+  }
+
+  const programCounts = await prisma.student.groupBy({
+    by: ['programId'],
+    _count: {
+      studentIdNumber: true,
+    },
+  });
+
+  const programs = await prisma.program.findMany({
+    where: {
+      id: { in: programCounts.map(p => p.programId) },
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  const programMap = new Map(programs.map(p => [p.id, p.name]));
+
+  return programCounts.map(item => {
+    const count = item._count.studentIdNumber;
+    const percentage = parseFloat(((count / totalStudents) * 100).toFixed(2));
+    return {
+      name: programMap.get(item.programId) || 'Unknown',
+      count,
+      percentage,
+    };
+  });
+}
+
+export async function getStudentRegistrationsByDateRange(
+  startDate: Date,
+  endDate: Date,
+) {
+  return prisma.student.findMany({
+    where: {
+      createdAt: {
+        gte: startDate,
+        lte: endDate,
+      },
+    },
+    select: {
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
 } 

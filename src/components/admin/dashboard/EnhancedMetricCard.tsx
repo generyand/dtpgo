@@ -100,15 +100,15 @@ export function EnhancedMetricCard({
   }
 
   return (
-    <Card className={cn(metricCardVariants({ trend, size }), className)}>
+    <Card className={cn(metricCardVariants({ trend, size }), "h-full flex flex-col", className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
         </CardTitle>
         <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
+      <CardContent className="flex-1 flex flex-col">
+        <div className="space-y-2 flex-1">
           {/* Main metric value */}
           <div className="text-2xl font-bold text-gray-900">
             {typeof value === 'number' ? value.toLocaleString('en-PH') : value}
@@ -132,7 +132,8 @@ export function EnhancedMetricCard({
             </p>
           )}
           
-          {/* Optional description */}
+          {/* Optional description - pushed to bottom */}
+          <div className="flex-1" />
           {description && (
             <p className="text-xs text-muted-foreground leading-relaxed">
               {description}
