@@ -62,7 +62,7 @@ export function AdminNav() {
     <>
       {/* Desktop Sidebar */}
       <div className="hidden border-r bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 lg:block dark:bg-gray-900/95 dark:supports-[backdrop-filter]:bg-gray-900/60">
-        <div className="flex h-full max-h-screen flex-col">
+        <div className="flex h-screen flex-col sticky top-0">
           {/* Desktop Header */}
           <div className="flex h-16 items-center border-b px-6 bg-gray-50/50 dark:bg-gray-800/50">
             <Link 
@@ -77,7 +77,7 @@ export function AdminNav() {
           </div>
           
           {/* Desktop Navigation */}
-          <div className="flex-1 overflow-auto py-4">
+          <div className="flex-1 overflow-y-auto py-4">
             <nav className="space-y-1 px-3">
               {navItems.map((item) => (
                 <NavLink key={item.href} {...item} />

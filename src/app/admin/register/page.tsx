@@ -51,7 +51,7 @@ export default function AdminRegisterPage() {
 
   return (
     <>
-      <Card className="w-full bg-white">
+      <Card className="w-full bg-white rounded-none">
         <CardHeader>
           <CardTitle className="text-gray-900">Register Student</CardTitle>
           <CardDescription className="text-gray-600">Fill in the student details below.</CardDescription>

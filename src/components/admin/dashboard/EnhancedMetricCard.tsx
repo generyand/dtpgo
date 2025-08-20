@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 
 // Enhanced metric card variants using CVA
 const metricCardVariants = cva(
-  "rounded-xl border bg-white shadow-sm transition-all duration-200 hover:shadow-md",
+  "rounded-sm border bg-white shadow-sm transition-all duration-200 hover:shadow-md",
   {
     variants: {
       trend: {
@@ -17,8 +17,8 @@ const metricCardVariants = cva(
         neutral: "bg-gradient-to-br from-yellow-50 via-white to-amber-50",
       },
       size: {
-        default: "p-4",
-        compact: "p-3",
+        default: "p-0",
+        compact: "p-0",
       }
     },
     defaultVariants: {
@@ -101,16 +101,17 @@ export function EnhancedMetricCard({
   }
 
   return (
-    <Card className={cn(metricCardVariants({ trend, size }), "h-full flex flex-col", className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card className={cn(metricCardVariants({ trend, size }), "h-full flex flex-col relative", className)}>
+      {/* Top-right icon badge - flush to the corner */}
+      <div className={cn('absolute top-0 right-0 h-8 w-8 rounded-tl-sm rounded-br-sm rounded-bl-sm rounded-tr-none flex items-center justify-center shadow-inner', iconAccent)}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <CardHeader className="space-y-0 pt-3 pb-3 px-4">
         <CardTitle className="text-sm font-medium text-gray-600">
           {title}
         </CardTitle>
-        <div className={cn('h-8 w-8 rounded-lg flex items-center justify-center shadow-inner', iconAccent)}>
-          <Icon className="h-4 w-4" />
-        </div>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col pt-0">
+      <CardContent className="flex-1 flex flex-col pt-1 pb-4 px-4">
         <div className="space-y-2 flex-1">
           {/* Main metric value */}
           <div className="text-3xl font-extrabold tracking-tight text-gray-900 leading-none">
