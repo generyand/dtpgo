@@ -8,17 +8,17 @@ import { cn } from '@/lib/utils';
 
 // Enhanced metric card variants using CVA
 const metricCardVariants = cva(
-  "transition-all duration-200 hover:shadow-lg",
+  "rounded-sm border bg-white shadow-sm transition-all duration-200 hover:shadow-md",
   {
     variants: {
       trend: {
-        up: "border-l-4 border-l-green-500",
-        down: "border-l-4 border-l-red-500",
-        neutral: "border-l-4 border-l-gray-400",
+        up: "bg-gradient-to-br from-yellow-50 via-white to-amber-50",
+        down: "bg-gradient-to-br from-yellow-50 via-white to-amber-50",
+        neutral: "bg-gradient-to-br from-yellow-50 via-white to-amber-50",
       },
       size: {
-        default: "p-6",
-        compact: "p-4",
+        default: "p-0",
+        compact: "p-0",
       }
     },
     defaultVariants: {
@@ -33,9 +33,9 @@ const trendVariants = cva(
   {
     variants: {
       trend: {
-        up: "text-green-600",
-        down: "text-red-600",
-        neutral: "text-gray-500",
+        up: "text-yellow-700",
+        down: "text-yellow-700",
+        neutral: "text-yellow-700",
       }
     },
     defaultVariants: {
@@ -72,6 +72,7 @@ export function EnhancedMetricCard({
 }: EnhancedMetricCardProps) {
   // Determine trend icon based on trend prop
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus;
+  const iconAccent = 'bg-yellow-100 text-yellow-800';
   
   // Format percentage change display
   const formatPercentageChange = (change: number) => {
@@ -100,23 +101,26 @@ export function EnhancedMetricCard({
   }
 
   return (
-    <Card className={cn(metricCardVariants({ trend, size }), "h-full flex flex-col", className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+    <Card className={cn(metricCardVariants({ trend, size }), "h-full flex flex-col relative", className)}>
+      {/* Top-right icon badge - flush to the corner */}
+      <div className={cn('absolute top-0 right-0 h-8 w-8 rounded-tl-sm rounded-br-sm rounded-bl-sm rounded-tr-none flex items-center justify-center shadow-inner', iconAccent)}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <CardHeader className="space-y-0 pt-3 pb-3 px-4">
+        <CardTitle className="text-sm font-medium text-gray-600">
           {title}
         </CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
+      <CardContent className="flex-1 flex flex-col pt-1 pb-4 px-4">
         <div className="space-y-2 flex-1">
           {/* Main metric value */}
-          <div className="text-2xl font-bold text-gray-900">
+          <div className="text-3xl font-extrabold tracking-tight text-gray-900 leading-none">
             {typeof value === 'number' ? value.toLocaleString('en-PH') : value}
           </div>
           
           {/* Trend indicator and percentage change */}
           {percentageChange !== undefined && (
-            <div className={cn(trendVariants({ trend }))}>
+            <div className={cn('flex items-center gap-2', trendVariants({ trend }))}>
               <TrendIcon className="h-3 w-3" />
               <span>{formatPercentageChange(percentageChange)}</span>
               <span className="text-xs text-muted-foreground ml-1">
@@ -124,20 +128,21 @@ export function EnhancedMetricCard({
               </span>
             </div>
           )}
-          
-          {/* Previous value comparison */}
-          {previousValue !== undefined && percentageChange === undefined && (
-            <p className="text-xs text-muted-foreground">
-              Previous: {typeof previousValue === 'number' ? previousValue.toLocaleString('en-PH') : previousValue}
-            </p>
-          )}
-          
-          {/* Optional description - pushed to bottom */}
-          <div className="flex-1" />
-          {description && (
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {description}
-            </p>
+
+          {/* Additional details */}
+          {(previousValue !== undefined || description) && (
+            <div className="mt-2 pt-2 border-t border-gray-100 space-y-1">
+              {previousValue !== undefined && percentageChange === undefined && (
+                <p className="text-xs text-muted-foreground">
+                  Previous: {typeof previousValue === 'number' ? previousValue.toLocaleString('en-PH') : previousValue}
+                </p>
+              )}
+              {description && (
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {description}
+                </p>
+              )}
+            </div>
           )}
         </div>
       </CardContent>

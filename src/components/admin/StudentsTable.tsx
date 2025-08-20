@@ -98,7 +98,7 @@ export function StudentsTable({ searchQuery = '', filters = {} }: StudentsTableP
                   <p className="font-medium text-gray-900 truncate">
                     {student.firstName} {student.lastName}
                   </p>
-                  <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
+                  <span className="inline-flex items-center rounded-full bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800">
                     {student.studentIdNumber}
                   </span>
                 </div>
@@ -135,27 +135,27 @@ export function StudentsTable({ searchQuery = '', filters = {} }: StudentsTableP
 
       {/* Desktop Table View */}
       <div className="hidden sm:block">
-        <div className="rounded-md border overflow-hidden">
+        <div className="rounded-lg border bg-white overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="min-w-[100px]">Student ID</TableHead>
-                  <TableHead className="min-w-[150px]">Name</TableHead>
-                  <TableHead className="min-w-[200px]">Email</TableHead>
-                  <TableHead className="min-w-[120px]">Program</TableHead>
+                  <TableHead className="min-w-[160px]">Name</TableHead>
+                  <TableHead className="min-w-[240px]">Email</TableHead>
+                  <TableHead className="min-w-[140px]">Program</TableHead>
                   <TableHead className="min-w-[60px]">Year</TableHead>
                   <TableHead className="text-right min-w-[80px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {students.map((student) => (
-                  <TableRow key={student.id}>
+                  <TableRow key={student.id} className="hover:bg-yellow-50/40">
                     <TableCell className="font-medium">{student.studentIdNumber}</TableCell>
                     <TableCell className="font-medium">
                       {student.firstName} {student.lastName}
                     </TableCell>
-                    <TableCell className="text-gray-600">{student.email}</TableCell>
+                    <TableCell className="text-gray-600 max-w-[260px] truncate">{student.email}</TableCell>
                     <TableCell>{student.program.name}</TableCell>
                     <TableCell>{student.year}</TableCell>
                     <TableCell className="text-right">
@@ -188,7 +188,7 @@ export function StudentsTable({ searchQuery = '', filters = {} }: StudentsTableP
       </div>
       <div className="flex justify-between items-center">
         <div className="text-sm text-muted-foreground">
-          Showing {students.length} of {total} students
+          Showing {Math.min(students.length, total)} of {total} students
         </div>
         <div className="space-x-2">
           <Button

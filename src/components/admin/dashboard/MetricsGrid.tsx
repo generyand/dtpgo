@@ -153,7 +153,7 @@ export function MetricsGrid({
 }: MetricsGridProps) {
   // Generate responsive grid classes based on columns prop
   const gridClasses = cn(
-    'grid gap-4',
+    'grid gap-6',
     columns.sm && `grid-cols-${columns.sm}`,
     columns.md && `md:grid-cols-${columns.md}`,
     columns.lg && `lg:grid-cols-${columns.lg}`,
@@ -214,7 +214,7 @@ export function MetricsGrid({
               <div
                 className={cn(
                   'transition-transform duration-200',
-                  'cursor-pointer hover:scale-105'
+                  'cursor-pointer hover:translate-y-[-2px]'
                 )}
                 onClick={handleClick}
               >

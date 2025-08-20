@@ -21,12 +21,13 @@ const ChartFilters: React.FC<ChartFiltersProps> = ({
   onPeriodChange,
 }) => {
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex flex-wrap items-center gap-2 max-w-full">
       {filterOptions.map(option => (
         <Button
           key={option.value}
           variant={activePeriod === option.value ? 'default' : 'outline'}
           size="sm"
+          className="whitespace-nowrap"
           onClick={() => onPeriodChange(option.value)}
         >
           {option.label}

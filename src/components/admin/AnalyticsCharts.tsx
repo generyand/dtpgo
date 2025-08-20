@@ -16,33 +16,33 @@ interface AnalyticsChartsProps {
 
 export function AnalyticsCharts({ studentsByProgram, studentsBySource }: AnalyticsChartsProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-6 md:grid-cols-2">
       <Card>
-        <CardHeader>
-          <CardTitle>Students by Program</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Students by Program</CardTitle>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={studentsByProgram}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="#8884d8" />
+        <CardContent className="pt-0">
+          <ResponsiveContainer width="100%" height={320}>
+            <BarChart data={studentsByProgram} barCategoryGap={24}>
+              <XAxis dataKey="name" tickMargin={8} />
+              <YAxis width={36} />
+              <Tooltip cursor={{ fill: 'rgba(250, 204, 21, 0.12)' }} />
+              <Bar dataKey="count" radius={[8, 8, 0, 0]} fill="#facc15" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
       <Card>
-        <CardHeader>
-          <CardTitle>Students by Registration Source</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Students by Registration Source</CardTitle>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={studentsBySource}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="#82ca9d" />
+        <CardContent className="pt-0">
+          <ResponsiveContainer width="100%" height={320}>
+            <BarChart data={studentsBySource} barCategoryGap={24}>
+              <XAxis dataKey="name" tickMargin={8} />
+              <YAxis width={36} />
+              <Tooltip cursor={{ fill: 'rgba(250, 204, 21, 0.12)' }} />
+              <Bar dataKey="count" radius={[8, 8, 0, 0]} fill="#86efac" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

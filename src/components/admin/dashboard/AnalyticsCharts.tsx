@@ -34,15 +34,15 @@ const AnalyticsCharts = () => {
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="overflow-hidden">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>Registration Trends</CardTitle>
           <ChartFilters
             activePeriod={timePeriod}
             onPeriodChange={setTimePeriod}
           />
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           {trendsLoading && <p>Loading...</p>}
           {trendsError && <p>Error loading trends data: {JSON.stringify(trendsError)}</p>}
           {trendsData && trendsData.length > 0 ? (

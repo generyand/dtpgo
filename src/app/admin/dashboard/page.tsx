@@ -147,10 +147,10 @@ export default async function DashboardPage() {
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden lg:flex min-h-screen w-full">
-        <main className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto">
-            <div className="space-y-6 p-6 xl:p-8">
+      <div className="hidden lg:flex h-screen w-full overflow-hidden">
+        <main className="flex-1 h-screen overflow-hidden">
+          <div className="h-full overflow-y-auto pr-0">
+            <div className="space-y-6 p-4 sm:p-6 xl:p-8">
               {/* Header */}
               <div className="flex flex-col gap-2">
                 <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
@@ -192,7 +192,7 @@ export default async function DashboardPage() {
         </main>
 
         {/* Right Sidebar for Activity Feed - Desktop */}
-        <aside className="w-80 border-l bg-background h-screen">
+        <aside className="w-80 border-l bg-background h-screen sticky top-0 overflow-y-auto">
           <SimplifiedActivityContainer />
         </aside>
       </div>
