@@ -78,7 +78,12 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
         const response = await fetch('/api/admin/programs');
         if (!response.ok) throw new Error('Failed to load programs');
         const data = await response.json();
-        setPrograms(data.programs);
+        const list: Program[] = Array.isArray(data)
+          ? data
+          : Array.isArray((data as { programs?: Program[] })?.programs)
+          ? (data as { programs: Program[] }).programs
+          : [];
+        setPrograms(list);
       } catch (error) {
         console.error('Failed to load programs:', error);
         toast.error('Could not load programs. Please try again later.');
