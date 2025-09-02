@@ -1,5 +1,5 @@
 export const ORG = {
-  name: "Department of Technology Programs",
+  name: "Department of Technical Program",
   college: "University of Mindanao Digos College",
   logoSrc: "/img/dtp.webp",
 };
@@ -123,7 +123,7 @@ export const FOOTER = {
   contactPhone: "Department Phone Number",
   legal: ["Privacy Policy", "Terms of Service"],
   address: [
-    "Department of Technology Programs",
+    "Department of Technical Program",
     "University of Mindanao Digos College",
     "Digos City, Philippines",
   ],
