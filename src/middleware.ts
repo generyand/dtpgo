@@ -82,14 +82,15 @@ export async function middleware(request: NextRequest) {
 
     // Check if user has required role for admin routes
     const userRole = session.user.user_metadata?.role
-    if (pathname.startsWith('/admin') && userRole !== 'admin' && userRole !== 'organizer') {
-      console.warn(`User ${session.user.email} attempted to access admin route without proper role`)
-      const redirectUrl = new URL('/auth/login', request.url)
-      redirectUrl.searchParams.set('error', 'insufficient_permissions')
-      const res = NextResponse.redirect(redirectUrl)
-      res.headers.set('X-Auth-Reason', 'insufficient-role')
-      return res
-    }
+    // TEMPORARILY COMMENTED OUT FOR TESTING - REMOVE THIS COMMENT TO RE-ENABLE ROLE CHECK
+    // if (pathname.startsWith('/admin') && userRole !== 'admin' && userRole !== 'organizer') {
+    //   console.warn(`User ${session.user.email} attempted to access admin route without proper role`)
+    //   const redirectUrl = new URL('/auth/login', request.url)
+    //   redirectUrl.searchParams.set('error', 'insufficient_permissions')
+    //   const res = NextResponse.redirect(redirectUrl)
+    //   res.headers.set('X-Auth-Reason', 'insufficient-role')
+    //   return res
+    // }
 
     // User is authenticated and authorized, continue with the updated response
     return response

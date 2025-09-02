@@ -12,7 +12,7 @@ export interface ActivityInput {
   action: string;
   description: string;
   studentId?: string;
-  adminId?: string;
+  userId?: string; // Supabase user ID
   programId?: string;
   metadata?: Record<string, unknown>;
   source?: ActivitySource;
@@ -29,7 +29,7 @@ export interface ActivityFilter {
   source?: ActivitySource | ActivitySource[];
   severity?: ActivitySeverity | ActivitySeverity[];
   studentId?: string;
-  adminId?: string;
+  userId?: string; // Supabase user ID
   programId?: string;
   dateFrom?: Date;
   dateTo?: Date;
@@ -43,7 +43,7 @@ export interface ActivityWithRelations {
   action: string;
   description: string;
   studentId: string | null;
-  adminId: string | null;
+  userId: string | null; // Supabase user ID
   programId: string | null;
   metadata: unknown;
   source: string;
@@ -60,10 +60,7 @@ export interface ActivityWithRelations {
     studentIdNumber: string;
     email: string;
   } | null;
-  admin: {
-    id: string;
-    email: string;
-  } | null;
+
   program: {
     id: string;
     name: string;
@@ -119,7 +116,7 @@ export async function logActivity(input: ActivityInput) {
         action: input.action,
         description: input.description,
         studentId: input.studentId || null,
-        adminId: input.adminId || null,
+        userId: input.userId || null,
         programId: input.programId || null,
         metadata: input.metadata as Prisma.InputJsonValue,
         source: input.source || 'system',
@@ -139,12 +136,7 @@ export async function logActivity(input: ActivityInput) {
             email: true,
           },
         },
-        admin: {
-          select: {
-            id: true,
-            email: true,
-          },
-        },
+
         program: {
           select: {
             id: true,
@@ -176,7 +168,7 @@ export async function getRecentActivities(filter: ActivityFilter = {}): Promise<
       source,
       severity,
       studentId,
-      adminId,
+      userId,
       programId,
       dateFrom,
       dateTo,
@@ -207,8 +199,8 @@ export async function getRecentActivities(filter: ActivityFilter = {}): Promise<
       where.studentId = studentId;
     }
 
-    if (adminId) {
-      where.adminId = adminId;
+    if (userId) {
+      where.userId = userId;
     }
 
     if (programId) {
@@ -237,12 +229,7 @@ export async function getRecentActivities(filter: ActivityFilter = {}): Promise<
             email: true,
           },
         },
-        admin: {
-          select: {
-            id: true,
-            email: true,
-          },
-        },
+
         program: {
           select: {
             id: true,
@@ -282,17 +269,17 @@ export async function getStudentActivities(
 }
 
 /**
- * Get activities performed by a specific admin
- * @param adminId - Admin ID
+ * Get activities performed by a specific user
+ * @param userId - User ID
  * @param limit - Maximum number of activities to return
  * @returns Promise<ActivityWithRelations[]>
  */
-export async function getAdminActivities(
-  adminId: string,
+export async function getUserActivities(
+  userId: string,
   limit: number = 20
 ): Promise<ActivityWithRelations[]> {
   return getRecentActivities({
-    adminId,
+    userId,
     limit,
   });
 }
@@ -506,7 +493,7 @@ export async function getTotalActivityCount(filter: Omit<ActivityFilter, 'limit'
       source,
       severity,
       studentId,
-      adminId,
+      userId,
       programId,
       dateFrom,
       dateTo,
@@ -535,8 +522,8 @@ export async function getTotalActivityCount(filter: Omit<ActivityFilter, 'limit'
       where.studentId = studentId;
     }
 
-    if (adminId) {
-      where.adminId = adminId;
+    if (userId) {
+      where.userId = userId;
     }
 
     if (programId) {
@@ -568,7 +555,7 @@ export async function getTotalActivityCount(filter: Omit<ActivityFilter, 'limit'
 export async function logStudentRegistration(
   studentId: string,
   source: 'admin' | 'public',
-  adminId?: string,
+  userId?: string,
   metadata?: Record<string, unknown>,
   ipAddress?: string,
   userAgent?: string
@@ -578,7 +565,7 @@ export async function logStudentRegistration(
     action: 'register',
     description: `Student registered via ${source} interface`,
     studentId,
-    adminId,
+    userId,
     metadata,
     source,
     severity: 'success',
@@ -612,10 +599,10 @@ export async function logQRGeneration(
 }
 
 /**
- * Log admin login activity
+ * Log user login activity
  */
-export async function logAdminLogin(
-  adminId: string,
+export async function logUserLogin(
+  userId: string,
   success: boolean,
   ipAddress?: string,
   userAgent?: string,
@@ -624,8 +611,8 @@ export async function logAdminLogin(
   return logActivity({
     type: 'authentication',
     action: success ? 'login_success' : 'login_failed',
-    description: `Admin ${success ? 'successfully logged in' : 'failed to log in'}`,
-    adminId,
+    description: `User ${success ? 'successfully logged in' : 'failed to log in'}`,
+    userId,
     metadata,
     source: 'admin',
     severity: success ? 'success' : 'warning',
@@ -639,7 +626,7 @@ export async function logAdminLogin(
  * Log data export activity
  */
 export async function logDataExport(
-  adminId: string,
+  userId: string,
   exportType: string,
   recordCount: number,
   metadata?: Record<string, unknown>,
@@ -650,7 +637,7 @@ export async function logDataExport(
     type: 'data_export',
     action: 'export',
     description: `Exported ${recordCount} ${exportType} records`,
-    adminId,
+    userId,
     metadata: { exportType, recordCount, ...metadata },
     source: 'admin',
     severity: 'info',

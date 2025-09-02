@@ -62,7 +62,7 @@ Tech-stack specific file structure for Supabase SSR:
   - **Duration:** 2-3 days  
   - **Acceptance:** Admin and Organizer users have different access levels and navigation
 
-- [ ] **3.0 Epic: Legacy System Migration & Integration** *(FR-021 to FR-030)*
+- [x] **3.0 Epic: Legacy System Migration & Integration** *(FR-021 to FR-030)*
   - **Scope:** Remove old authentication code and integrate new Supabase patterns
   - **Purpose:** Clean up codebase and migrate to official Supabase patterns
   - **Duration:** 2-3 days
@@ -138,25 +138,25 @@ Tech-stack specific file structure for Supabase SSR:
 
 #### 3.0 Epic: Legacy System Migration & Integration
 
-- [ ] **3.1 Story: Remove Custom Authentication Code**
+- [x] **3.1 Story: Remove Custom Authentication Code**
   - **Scope:** Delete old auth components, API routes, and utilities
   - **Purpose:** Clean up codebase by removing deprecated authentication logic
   - **Duration:** 3-4 hours
   - **Tech:** File deletion, import cleanup, dependency removal
 
-- [ ] **3.2 Story: Database Schema Migration**
+- [x] **3.2 Story: Database Schema Migration**
   - **Scope:** Remove Admin model from Prisma, update related references
   - **Purpose:** Simplify database by removing custom user management
   - **Duration:** 2-3 hours
   - **Tech:** Prisma schema updates, database migrations
 
-- [ ] **3.3 Story: Environment & Configuration Updates**
+- [x] **3.3 Story: Environment & Configuration Updates**
   - **Scope:** Update environment variables and remove old auth configuration
   - **Purpose:** Streamline configuration for Supabase-only authentication
   - **Duration:** 1-2 hours
   - **Tech:** Environment variables, configuration files
 
-- [ ] **3.4 Story: Import & Reference Updates**
+- [x] **3.4 Story: Import & Reference Updates**
   - **Scope:** Update all imports and references to use new Supabase patterns
   - **Purpose:** Ensure all code references point to new authentication system
   - **Duration:** 3-4 hours

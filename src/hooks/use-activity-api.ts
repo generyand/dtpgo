@@ -53,7 +53,12 @@ export function useActivityApi(options: UseActivityApiOptions = {}): UseActivity
     try {
       setError(null);
       
-      const response = await fetch(`/api/admin/activity?limit=${limit}`);
+      const response = await fetch(`/api/admin/activity?limit=${limit}`, {
+        credentials: 'include', // Include cookies for authentication
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

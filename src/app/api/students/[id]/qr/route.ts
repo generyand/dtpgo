@@ -2,8 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStudentById } from '@/lib/db/queries/students';
 import { createBrandedQRCode } from '@/lib/qr/branding';
 import { logQRGeneration, logSystemEvent } from '@/lib/db/queries/activity';
+import { authenticatePermissionApi } from '@/lib/auth/api-auth';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  // Authenticate the request
+  const authResult = await authenticatePermissionApi(request, 'canManageStudents');
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   const startTime = Date.now();
   let studentId: string | undefined;
   

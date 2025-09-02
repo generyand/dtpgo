@@ -5,7 +5,12 @@ import { TimePeriod } from '@/components/admin/dashboard/ChartFilters';
 import { RegistrationTrendData } from '@/lib/utils/chart-data';
 import { ProgramDistributionData } from '@/lib/db/queries/analytics';
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = (url: string) => fetch(url, {
+  credentials: 'include', // Include cookies for authentication
+  headers: {
+    'Content-Type': 'application/json',
+  },
+}).then(res => res.json());
 
 export const useRegistrationTrends = (period: TimePeriod) => {
   const { data, error, isLoading } = useSWR<RegistrationTrendData[]>(
