@@ -3,9 +3,16 @@ import { ZodError } from 'zod'
 import { studentSchema } from '@/lib/validations/student'
 import { createStudent } from '@/lib/db/queries/students'
 import { logStudentRegistration, logSystemEvent } from '@/lib/db/queries/activity'
+import { authenticatePermissionApi, createAuthErrorResponse } from '@/lib/auth/api-auth'
 import { Prisma } from '@prisma/client'
 
 export async function POST(request: NextRequest) {
+  // Check if user has permission to register students (admin or organizer)
+  const authResult = await authenticatePermissionApi(request, 'canRegisterStudents');
+  
+  if (!authResult.success) {
+    return createAuthErrorResponse(authResult);
+  }
   const startTime = Date.now()
   let studentId: string | undefined
   

@@ -1,5 +1,5 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { createSupabaseMiddlewareClient } from '@/lib/auth/supabase-server'
 
 // Protected admin routes that require authentication
 const ADMIN_ROUTES = ['/admin', '/dashboard']
@@ -24,28 +24,22 @@ function isAdminRoute(pathname: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: { headers: request.headers },
-  })
-
   const { pathname } = request.nextUrl
 
   // Skip middleware for public routes and API routes that don't need protection
   if (!isAdminRoute(pathname)) {
-    return response
+    return NextResponse.next()
+  }
+
+  // Skip auth checks for login page to prevent redirect loops
+  if (pathname.startsWith('/auth/')) {
+    return NextResponse.next()
   }
 
   // Debug bypass: allow disabling auth checks entirely for admin routes
   if (process.env.DISABLE_AUTH === 'true') {
     console.warn('DISABLE_AUTH is enabled - skipping admin auth checks in middleware')
-    return response
-  }
-
-  // Simple Auth Fallback: allow access if our simple auth cookie is present
-  const simpleAuthCookie = request.cookies.get('APP_AUTH')?.value
-  if (simpleAuthCookie) {
-    console.log('[Auth] Simple auth cookie detected, allowing access to', pathname)
-    return response
+    return NextResponse.next()
   }
 
   // Validate Supabase env vars early to avoid redirect loops when misconfigured
@@ -53,69 +47,59 @@ export async function middleware(request: NextRequest) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('Supabase env vars missing in middleware. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY')
-    // Add debug header to help in network tab
-    const dbg = NextResponse.next()
-    dbg.headers.set('X-Auth-Reason', 'missing-supabase-env')
-    return dbg
+    const redirectUrl = new URL('/auth/login', request.url)
+    redirectUrl.searchParams.set('error', 'configuration_error')
+    const res = NextResponse.redirect(redirectUrl)
+    res.headers.set('X-Auth-Reason', 'missing-supabase-env')
+    return res
   }
 
-  // IP whitelist checks removed
-
   try {
-    const supabase = createServerClient(
-      supabaseUrl!,
-      supabaseAnonKey!,
-      {
-        cookies: {
-          get(name: string) {
-            return request.cookies.get(name)?.value
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            request.cookies.set({ name, value, ...options })
-            response = NextResponse.next({ request: { headers: request.headers } })
-            response.cookies.set({ name, value, ...options })
-          },
-          remove(name: string, options: CookieOptions) {
-            request.cookies.set({ name, value: '', ...options })
-            response = NextResponse.next({ request: { headers: request.headers } })
-            response.cookies.set({ name, value: '', ...options })
-          },
-        },
-      }
-    )
+    // Use our centralized Supabase middleware client
+    const { supabase, response } = createSupabaseMiddlewareClient(request)
 
-    // Refresh session if expired - required for Server Components
+    // Get session and refresh if needed
     const { data: { session }, error } = await supabase.auth.getSession()
 
     if (error) {
-      console.error('Middleware auth error:', error)
+      console.error('Middleware auth error:', error.message)
       const redirectUrl = new URL('/auth/login', request.url)
       redirectUrl.searchParams.set('redirectTo', pathname)
+      redirectUrl.searchParams.set('error', 'auth_error')
       const res = NextResponse.redirect(redirectUrl)
       res.headers.set('X-Auth-Reason', 'supabase-error')
+      res.headers.set('X-Auth-Error', error.message)
       return res
     }
 
-    if (!session || !session.user) {
+    if (!session?.user) {
       const redirectUrl = new URL('/auth/login', request.url)
       redirectUrl.searchParams.set('redirectTo', pathname)
       const res = NextResponse.redirect(redirectUrl)
       res.headers.set('X-Auth-Reason', 'no-session')
-      try {
-        const names = request.cookies.getAll().map(c => c.name).join(',')
-        res.headers.set('X-Auth-Cookies', names || 'none')
-      } catch {}
       return res
     }
 
-    // User is authenticated, allow access
+    // Check if user has required role for admin routes
+    const userRole = session.user.user_metadata?.role
+    if (pathname.startsWith('/admin') && userRole !== 'admin' && userRole !== 'organizer') {
+      console.warn(`User ${session.user.email} attempted to access admin route without proper role`)
+      const redirectUrl = new URL('/auth/login', request.url)
+      redirectUrl.searchParams.set('error', 'insufficient_permissions')
+      const res = NextResponse.redirect(redirectUrl)
+      res.headers.set('X-Auth-Reason', 'insufficient-role')
+      return res
+    }
+
+    // User is authenticated and authorized, continue with the updated response
     return response
 
   } catch (error) {
-    console.error('Middleware error:', error)
+    console.error('Middleware exception:', error)
 
     const redirectUrl = new URL('/auth/login', request.url)
     redirectUrl.searchParams.set('redirectTo', pathname)
+    redirectUrl.searchParams.set('error', 'middleware_error')
     const res = NextResponse.redirect(redirectUrl)
     res.headers.set('X-Auth-Reason', 'middleware-exception')
     return res

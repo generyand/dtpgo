@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/components/providers/AuthProvider";
+import { AuthProvider } from "@/components/providers/AuthProvider"; // Supabase SSR Auth Provider
 import { initializeDatabase } from "@/lib/db/connection-check";
 
 const inter = Inter({ subsets: ["latin"] });

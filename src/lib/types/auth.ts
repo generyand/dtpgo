@@ -1,8 +1,20 @@
 import type { User, Session } from '@supabase/supabase-js'
 
+// User role types
+export type UserRole = 'admin' | 'organizer'
+
+// Extended user interface with role information
+export interface UserWithRole extends User {
+  user_metadata: {
+    role?: UserRole
+    full_name?: string
+    avatar_url?: string
+  } & User['user_metadata']
+}
+
 // Auth state interface
 export interface AuthState {
-  user: User | null
+  user: UserWithRole | null
   session: Session | null
   loading: boolean
   error: string | null
@@ -28,11 +40,15 @@ export interface AuthContextType extends AuthState {
   signUp: (credentials: RegisterCredentials) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error: string | null }>
+  hasRole: (role: UserRole) => boolean
+  isAdmin: () => boolean
+  isOrganizer: () => boolean
+  refreshSession: () => Promise<void>
 }
 
 // Session check result
 export interface SessionCheckResult {
-  user: User | null
+  user: UserWithRole | null
   session: Session | null
   error: string | null
 }
@@ -53,9 +69,25 @@ export interface AuthErrorDetail {
   message: string
 }
 
-// Custom admin user type (if needed for frontend)
-export interface AdminUser {
-  id: string;
-  email: string;
-  role: 'admin';
+// Role-based permission helpers
+export interface RolePermissions {
+  canAccessAdminPanel: boolean
+  canManageStudents: boolean
+  canViewAnalytics: boolean
+  canRegisterStudents: boolean
+  canEditSettings: boolean
+}
+
+// Authentication action results
+export interface AuthActionResult {
+  success: boolean
+  error?: string
+  data?: unknown
+}
+
+// Password reset types
+export interface PasswordResetData {
+  email: string
+  newPassword?: string
+  token?: string
 }

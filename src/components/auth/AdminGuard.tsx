@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/components/providers/AuthProvider'
+import { useAuth, useIsAuthenticated } from '@/hooks/use-auth'
+import { UserRole } from '@/lib/types/auth'
 
 // Loading component
 function LoadingSpinner() {
@@ -98,6 +99,8 @@ interface AdminGuardProps {
   fallback?: React.ComponentType
   redirectTo?: string
   requireAuth?: boolean
+  requiredRole?: UserRole | 'any'
+  allowedRoles?: UserRole[]
 }
 
 /**
@@ -107,42 +110,41 @@ export function AdminGuard({
   children, 
   fallback: FallbackComponent,
   redirectTo = '/auth/login',
-  requireAuth = true
+  requireAuth = true,
+  requiredRole,
+  allowedRoles
 }: AdminGuardProps) {
-  const { user, session, loading, error } = useAuth()
+  const { user, loading, error, hasRole, refreshSession } = useAuth()
+  const isAuthenticated = useIsAuthenticated()
   const router = useRouter()
   const [isInitialized, setIsInitialized] = useState(false)
-  const [hasSimpleAuth, setHasSimpleAuth] = useState(false)
 
   useEffect(() => {
     // Add a small delay to ensure auth context is properly initialized
     const timer = setTimeout(() => {
       setIsInitialized(true)
-      // Detect simple auth cookie on client
-      try {
-        if (typeof document !== 'undefined') {
-          const hasCookie = document.cookie.split(';').some(c => c.trim().startsWith('APP_AUTH='))
-          setHasSimpleAuth(hasCookie)
-        }
-      } catch {}
     }, 100)
 
     return () => clearTimeout(timer)
   }, [])
 
   // Handle retry for auth errors
-  const handleRetry = () => {
-    window.location.reload()
+  const handleRetry = async () => {
+    try {
+      await refreshSession()
+    } catch {
+      window.location.reload()
+    }
   }
 
-  // Handle redirect for unauthorized access (skip when simple auth is active)
+  // Handle redirect for unauthorized access
   useEffect(() => {
-    if (isInitialized && !loading && requireAuth && !hasSimpleAuth && !user && !error) {
+    if (isInitialized && !loading && requireAuth && !isAuthenticated && !error) {
       const currentPath = window.location.pathname
       const redirectUrl = `${redirectTo}?redirectTo=${encodeURIComponent(currentPath)}`
       router.push(redirectUrl)
     }
-  }, [isInitialized, loading, user, error, requireAuth, redirectTo, router, hasSimpleAuth])
+  }, [isInitialized, loading, isAuthenticated, error, requireAuth, redirectTo, router])
 
   // Show loading state while auth is being checked
   if (!isInitialized || loading) {
@@ -154,28 +156,69 @@ export function AdminGuard({
     return <ErrorMessage error={error} onRetry={handleRetry} />
   }
 
-  // If simple auth is present, allow access
-  if (hasSimpleAuth) {
-    return <>{children}</>
-  }
-
   // Show unauthorized state if authentication is required but user is not authenticated
-  if (requireAuth && !user) {
+  if (requireAuth && !isAuthenticated) {
     if (FallbackComponent) {
       return <FallbackComponent />
     }
     return <UnauthorizedMessage />
   }
 
-  // Show unauthorized state if user exists but no valid session
-  if (requireAuth && user && !session) {
-    if (FallbackComponent) {
-      return <FallbackComponent />
+  // Check role-based access if roles are specified
+  if (isAuthenticated && user) {
+    // Check specific required role
+    if (requiredRole && requiredRole !== 'any') {
+      if (!hasRole(requiredRole)) {
+        if (FallbackComponent) {
+          return <FallbackComponent />
+        }
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6 text-center">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Insufficient Permissions</h2>
+              <p className="text-gray-600 mb-6">
+                You need {requiredRole} role to access this area.
+              </p>
+              <button
+                onClick={() => router.push('/auth/login')}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
+              >
+                Go to Login
+              </button>
+            </div>
+          </div>
+        )
+      }
     }
-    return <UnauthorizedMessage />
+
+    // Check allowed roles list
+    if (allowedRoles && allowedRoles.length > 0) {
+      const hasAllowedRole = allowedRoles.some(role => hasRole(role))
+      if (!hasAllowedRole) {
+        if (FallbackComponent) {
+          return <FallbackComponent />
+        }
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6 text-center">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Access Restricted</h2>
+              <p className="text-gray-600 mb-6">
+                Your current role doesn&apos;t have permission to access this area.
+              </p>
+              <button
+                onClick={() => router.push('/admin/dashboard')}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
+              >
+                Go to Dashboard
+              </button>
+            </div>
+          </div>
+        )
+      }
+    }
   }
 
-  // User is authenticated, render children
+  // User is authenticated and authorized, render children
   return <>{children}</>
 }
 

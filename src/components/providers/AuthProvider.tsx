@@ -1,18 +1,11 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import type { AuthContextType, AuthState, LoginCredentials, RegisterCredentials } from '@/lib/types/auth'
-import {
-  signInWithCredentials,
-  signUpWithCredentials,
-  signOut as authSignOut,
-  resetPassword as authResetPassword,
-  getCurrentSession,
-  onAuthStateChange,
-} from '@/lib/auth/utils'
+import type { AuthContextType, AuthState, LoginCredentials, RegisterCredentials, UserWithRole, UserRole } from '@/lib/types/auth'
+import { createSupabaseBrowserClient } from '@/lib/auth/supabase'
 
 // Create the authentication context
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 // Custom hook to use the auth context
 export function useAuth(): AuthContextType {
@@ -37,30 +30,47 @@ export function AuthProvider({ children }: AuthProviderProps) {
     error: null,
   })
 
+  const supabase = createSupabaseBrowserClient()
+
   // Initialize auth state on component mount
   useEffect(() => {
     let mounted = true
 
     // Get initial session
-    getCurrentSession().then((result) => {
-      if (mounted) {
-        setAuthState({
-          user: result.user,
-          session: result.session,
-          loading: false,
-          error: result.error,
-        })
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (mounted) {
+          setAuthState({
+            user: session?.user as UserWithRole | null,
+            session: session,
+            loading: false,
+            error: error?.message || null,
+          })
+        }
+      } catch (error) {
+        if (mounted) {
+          setAuthState({
+            user: null,
+            session: null,
+            loading: false,
+            error: error instanceof Error ? error.message : 'Failed to get session',
+          })
+        }
       }
-    })
+    }
+
+    getInitialSession()
 
     // Subscribe to auth state changes
     const {
       data: { subscription },
-    } = onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (mounted) {
         setAuthState((prev) => ({
           ...prev,
-          user: session?.user || null,
+          user: session?.user as UserWithRole | null,
           session: session,
           loading: false,
           error: null,
@@ -73,47 +83,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
       mounted = false
       subscription.unsubscribe()
     }
-  }, [])
+  }, [supabase.auth])
 
   // Sign in function
   const signIn = async (credentials: LoginCredentials): Promise<{ error: string | null }> => {
     setAuthState((prev) => ({ ...prev, loading: true, error: null }))
     
     try {
-      const result = await signInWithCredentials(credentials)
+      const { error } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password,
+      })
       
-      if (result.error) {
+      if (error) {
         setAuthState((prev) => ({
           ...prev,
           loading: false,
-          error: result.error,
+          error: error.message,
         }))
-      } else if (result.user) {
-        // Manually set auth state for admin user from API response
-        const adminUser = {
-            id: result.user.id,
-            email: result.user.email,
-            aud: 'authenticated',
-            role: 'admin',
-            app_metadata: {},
-            user_metadata: {},
-            created_at: new Date().toISOString(),
-        };
-        setAuthState({
-            user: adminUser,
-            session: {
-                access_token: 'admin-token',
-                user: adminUser,
-                refresh_token: 'admin-refresh-token',
-                expires_in: 3600,
-                token_type: 'bearer',
-            },
-            loading: false,
-            error: null,
-        });
+        return { error: error.message }
       }
       
-      return { error: result.error }
+      // Success - auth state will be updated by onAuthStateChange listener
+      return { error: null }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
       setAuthState((prev) => ({
@@ -130,17 +122,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setAuthState((prev) => ({ ...prev, loading: true, error: null }))
     
     try {
-      const result = await signUpWithCredentials(credentials)
+      const { error } = await supabase.auth.signUp({
+        email: credentials.email,
+        password: credentials.password,
+        options: {
+          data: {
+            full_name: credentials.firstName && credentials.lastName 
+              ? `${credentials.firstName} ${credentials.lastName}`
+              : undefined,
+            first_name: credentials.firstName,
+            last_name: credentials.lastName,
+          }
+        }
+      })
       
-      if (result.error) {
+      if (error) {
         setAuthState((prev) => ({
           ...prev,
           loading: false,
-          error: result.error,
+          error: error.message,
         }))
+        return { error: error.message }
       }
       
-      return result
+      // Success - check if email confirmation is required
+      setAuthState((prev) => ({ ...prev, loading: false }))
+      return { error: null }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
       setAuthState((prev) => ({
@@ -157,11 +164,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setAuthState((prev) => ({ ...prev, loading: true, error: null }))
     
     try {
-        if (authState.user?.role === 'admin') {
-            setAuthState({ user: null, session: null, loading: false, error: null });
-        } else {
-            await authSignOut()
-        }
+      const { error } = await supabase.auth.signOut()
+      
+      if (error) {
+        setAuthState((prev) => ({
+          ...prev,
+          loading: false,
+          error: error.message,
+        }))
+      }
       // The auth state will be updated by the onAuthStateChange listener
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
@@ -178,15 +189,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setAuthState((prev) => ({ ...prev, loading: true, error: null }))
     
     try {
-      const result = await authResetPassword(email)
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/update-password`,
+      })
       
       setAuthState((prev) => ({
         ...prev,
         loading: false,
-        error: result.error,
+        error: error?.message || null,
       }))
       
-      return result
+      return { error: error?.message || null }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
       setAuthState((prev) => ({
@@ -198,6 +211,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Role helper functions
+  const hasRole = (role: UserRole): boolean => {
+    return authState.user?.user_metadata?.role === role
+  }
+
+  const isAdmin = (): boolean => {
+    return hasRole('admin')
+  }
+
+  const isOrganizer = (): boolean => {
+    return hasRole('organizer')
+  }
+
+  // Refresh session function
+  const refreshSession = async (): Promise<void> => {
+    try {
+      const { error } = await supabase.auth.refreshSession()
+      if (error) {
+        console.error('Failed to refresh session:', error)
+      }
+    } catch (error) {
+      console.error('Error refreshing session:', error)
+    }
+  }
+
   // Context value
   const value: AuthContextType = {
     ...authState,
@@ -205,6 +243,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signUp,
     signOut,
     resetPassword,
+    hasRole,
+    isAdmin,
+    isOrganizer,
+    refreshSession,
   }
 
   return (
