@@ -1,6 +1,6 @@
 export const ORG = {
-  name: "Department of Technical Programs",
-  college: "UM Digos College",
+  name: "Department of Technology Programs",
+  college: "University of Mindanao Digos College",
   logoSrc: "/img/dtp.webp",
 };
 
@@ -10,11 +10,11 @@ export const NAV_LINKS = [
   { href: "#how-it-works-user", label: "How It Works" },
   { href: "#faq", label: "FAQ" },
 ] as const;
+
 export const HERO = {
-  headline: "Modernizing Assembly Attendance, Effortlessly.",
-  subheadline:
-    "Launch events, scan arrivals, and see attendance update in real‑time — all in one modern dashboard.",
-  ctaText: "Join Now ->",
+  headline: "DTP Attendance System",
+  subheadline: "University of Mindanao Digos College",
+  ctaText: "Get Started",
   ctaHref: "/join",
   imageSrc: "/img/Hero.webp",
 };
@@ -85,6 +85,7 @@ export const HOW_IT_WORKS_ADMIN = [
     body: "Monitor real-time attendance data and generate detailed reports when needed.",
   },
 ];
+
 export const FAQ = [
   {
     q: "Is the system difficult to set up?",
@@ -96,7 +97,7 @@ export const FAQ = [
   },
   {
     q: "Can this be used for events other than assemblies?",
-    a: "Absolutely. It’s perfect for seminars, workshops, training sessions, and any event where you need to track attendance accurately.",
+    a: "Absolutely. It's perfect for seminars, workshops, training sessions, and any event where you need to track attendance accurately.",
   },
   {
     q: "How secure is the attendance data?",
@@ -122,8 +123,8 @@ export const FOOTER = {
   contactPhone: "Department Phone Number",
   legal: ["Privacy Policy", "Terms of Service"],
   address: [
-    "Department of Technical Programs",
-    "UM Digos College",
+    "Department of Technology Programs",
+    "University of Mindanao Digos College",
     "Digos City, Philippines",
   ],
   socials: [

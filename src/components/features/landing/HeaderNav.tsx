@@ -4,7 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { NAV_LINKS, ORG } from "@/lib/content/landing"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Shield, Users } from "lucide-react"
 import { useState } from "react"
 
 export function HeaderNav() {
@@ -46,18 +46,30 @@ export function HeaderNav() {
             ))}
           </nav>
 
-          {/* Enhanced CTA Section */}
+          {/* Enhanced CTA Section - Two Clear Buttons */}
           <div className="flex items-center gap-3">
-            {/* Sign In Button - Hidden on mobile */}
+            {/* Join Button - For Students */}
             <Button 
               variant="ghost" 
               className="hidden md:inline-flex text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               asChild
             >
-              <Link href="/join">Join</Link>
+              <Link href="/join" className="flex items-center gap-2">
+                <Users className="size-4" />
+                Join Event
+              </Link>
             </Button>
             
-            {/* Removed demo button */}
+            {/* Sign In Button - For Staff */}
+            <Button 
+              className="hidden md:inline-flex bg-yellow-500 text-black hover:bg-yellow-600 shadow-sm"
+              asChild
+            >
+              <Link href="/auth/login" className="flex items-center gap-2">
+                <Shield className="size-4" />
+                Sign In
+              </Link>
+            </Button>
 
             {/* Mobile Menu Button */}
             <Button
@@ -85,13 +97,24 @@ export function HeaderNav() {
                   {l.label}
                 </Link>
               ))}
-              <div className="pt-3 mt-3 border-t border-gray-100">
+              
+              {/* Mobile CTA Buttons */}
+              <div className="pt-3 mt-3 border-t border-gray-100 space-y-2">
                 <Link 
                   href="/join"
-                  className="block text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-medium py-3 px-4 rounded-lg transition-colors"
+                  className="flex items-center gap-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-medium py-3 px-4 rounded-lg transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Join
+                  <Users className="size-4" />
+                  Join Event
+                </Link>
+                <Link 
+                  href="/auth/login"
+                  className="flex items-center gap-2 bg-yellow-500 text-black hover:bg-yellow-600 font-medium py-3 px-4 rounded-lg transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Shield className="size-4" />
+                  Sign In
                 </Link>
               </div>
             </nav>
