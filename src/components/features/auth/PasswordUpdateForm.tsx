@@ -33,7 +33,7 @@ export function PasswordUpdateForm({ showBackToDashboard = true }: PasswordUpdat
     defaultValues: {
       currentPassword: '',
       newPassword: '',
-      confirmPassword: '',
+      confirmNewPassword: '',
     },
   });
 
@@ -214,7 +214,7 @@ export function PasswordUpdateForm({ showBackToDashboard = true }: PasswordUpdat
 
             <FormField
               control={form.control}
-              name="confirmPassword"
+              name="confirmNewPassword"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Confirm New Password</FormLabel>

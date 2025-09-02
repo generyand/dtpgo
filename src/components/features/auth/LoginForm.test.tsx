@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LoginForm } from './LoginForm';
 import { AuthProvider } from '@/components/providers/AuthProvider';
@@ -241,7 +241,7 @@ describe('LoginForm', () => {
       expect(screen.getByText(/an unexpected error occurred/i)).toBeInTheDocument();
     });
 
-    const { toast } = require('sonner');
+    const { toast } = await import('sonner');
     expect(toast.error).toHaveBeenCalledWith('Login Failed', {
       description: 'An unexpected error occurred. Please try again.',
     });
@@ -265,8 +265,8 @@ describe('LoginForm', () => {
     await user.type(passwordInput, 'password123');
     await user.click(submitButton);
 
-    await waitFor(() => {
-      const { toast } = require('sonner');
+    await waitFor(async () => {
+      const { toast } = await import('sonner');
       expect(toast.success).toHaveBeenCalledWith('Login Successful', {
         description: 'Welcome back!',
       });

@@ -81,7 +81,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Check if user has required role for admin routes
-    const userRole = session.user.user_metadata?.role
+    // const userRole = session.user.user_metadata?.role
     // TEMPORARILY COMMENTED OUT FOR TESTING - REMOVE THIS COMMENT TO RE-ENABLE ROLE CHECK
     // if (pathname.startsWith('/admin') && userRole !== 'admin' && userRole !== 'organizer') {
     //   console.warn(`User ${session.user.email} attempted to access admin route without proper role`)

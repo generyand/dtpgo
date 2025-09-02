@@ -17,7 +17,10 @@ export async function GET(request: NextRequest) {
     // Authenticate the request
     const authResult = await authenticatePermissionApi(request, 'canViewAnalytics');
     if (!authResult.success) {
-      return authResult.response;
+      return Response.json(
+        { error: authResult.error || 'Authentication failed' },
+        { status: authResult.statusCode || 401 }
+      );
     }
 
     const searchParams = request.nextUrl.searchParams;

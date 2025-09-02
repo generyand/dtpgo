@@ -71,7 +71,10 @@ export async function GET(request: NextRequest) {
     // Authenticate the request
     const authResult = await authenticatePermissionApi(request, 'canViewAnalytics');
     if (!authResult.success) {
-      return authResult.response;
+      return Response.json(
+        { error: authResult.error || 'Authentication failed' },
+        { status: authResult.statusCode || 401 }
+      );
     }
 
     // Extract query parameters
@@ -271,7 +274,10 @@ export async function POST(request: NextRequest) {
     // Authenticate the request
     const authResult = await authenticatePermissionApi(request, 'canManageSystem');
     if (!authResult.success) {
-      return authResult.response;
+      return Response.json(
+        { error: authResult.error || 'Authentication failed' },
+        { status: authResult.statusCode || 401 }
+      );
     }
 
     const body = await request.json();

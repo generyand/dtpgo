@@ -8,7 +8,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   // Authenticate the request
   const authResult = await authenticatePermissionApi(request, 'canManageStudents');
   if (!authResult.success) {
-    return authResult.response;
+    return Response.json(
+      { error: authResult.error || 'Authentication failed' },
+      { status: authResult.statusCode || 401 }
+    );
   }
 
   const startTime = Date.now();

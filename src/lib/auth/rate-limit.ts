@@ -1,11 +1,11 @@
 import { NextRequest } from 'next/server';
 
 // Rate limiting configuration
-interface RateLimitConfig {
-  windowMs: number; // Time window in milliseconds
-  maxAttempts: number; // Maximum attempts per window
-  blockDurationMs: number; // How long to block after exceeding limit
-}
+// interface RateLimitConfig {
+//   windowMs: number; // Time window in milliseconds
+//   maxAttempts: number; // Maximum attempts per window
+//   blockDurationMs: number; // How long to block after exceeding limit
+// }
 
 // Default rate limiting configurations
 const RATE_LIMIT_CONFIGS = {
@@ -78,8 +78,8 @@ function getClientIP(request: NextRequest): string {
     return realIP;
   }
   
-  // Fallback to connection IP (may not be available in all environments)
-  return request.ip || 'unknown';
+  // Fallback to unknown IP (NextRequest doesn't have ip property)
+  return 'unknown';
 }
 
 /**
@@ -231,10 +231,10 @@ export function getRateLimitStatus(ip: string, action: keyof typeof RATE_LIMIT_C
  * Rate limit decorator for API routes
  */
 export function rateLimit(action: keyof typeof RATE_LIMIT_CONFIGS) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (target: unknown, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
     
-    descriptor.value = async function (request: NextRequest, ...args: any[]) {
+    descriptor.value = async function (request: NextRequest, ...args: unknown[]) {
       const rateLimitResult = checkRateLimit(request, action);
       
       if (!rateLimitResult.allowed) {
