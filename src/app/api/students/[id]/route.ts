@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStudentById } from '@/lib/db/queries/students';
+import { authenticatePermissionApi } from '@/lib/auth/api-auth';
 
 interface RouteContext {
   params: Promise<{
@@ -9,6 +10,15 @@ interface RouteContext {
 
 export async function GET(req: NextRequest, { params }: RouteContext) {
   try {
+    // Authenticate the request
+    const authResult = await authenticatePermissionApi(req, 'canManageStudents');
+    if (!authResult.success) {
+      return Response.json(
+        { error: authResult.error || 'Authentication failed' },
+        { status: authResult.statusCode || 401 }
+      );
+    }
+
     const { id } = await params;
     
     // Validate the ID format

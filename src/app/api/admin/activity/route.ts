@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRecentActivities } from '@/lib/db/queries/activity';
 import { z } from 'zod';
+import { authenticatePermissionApi } from '@/lib/auth/api-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,15 @@ const querySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
+    // Authenticate the request
+    const authResult = await authenticatePermissionApi(request, 'canViewAnalytics');
+    if (!authResult.success) {
+      return Response.json(
+        { error: authResult.error || 'Authentication failed' },
+        { status: authResult.statusCode || 401 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const queryParams = Object.fromEntries(searchParams.entries());
 

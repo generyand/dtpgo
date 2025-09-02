@@ -4,8 +4,9 @@ import { Prisma } from '@prisma/client';
 import { studentSchema } from '@/lib/validations/student';
 import { createStudent } from '@/lib/db/queries/students';
 import { logStudentRegistration, logSystemEvent } from '@/lib/db/queries/activity';
+import { withRateLimit } from '@/lib/auth/rate-limit';
 
-export async function POST(request: NextRequest) {
+export const POST = withRateLimit('registration', async (request: NextRequest) => {
   const startTime = Date.now();
   let studentId: string | undefined;
   
@@ -107,4 +108,4 @@ export async function POST(request: NextRequest) {
     console.error('Registration Error:', error);
     return NextResponse.json({ error: 'An unexpected error occurred.' }, { status: 500 });
   }
-} 
+}); 

@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
 import { subDays } from 'date-fns';
 
 const prisma = new PrismaClient();
@@ -89,35 +88,9 @@ async function main() {
     );
   }
 
-  // Seed Admin User for development
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Seeding admin user for development...');
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const plainPassword = process.env.ADMIN_PASSWORD;
-    
-    if (!adminEmail || !plainPassword) {
-      console.warn('⚠️ ADMIN_EMAIL or ADMIN_PASSWORD not set. Skipping admin seeding.');
-      return;
-    }
-    
-    const hashedPassword = await bcrypt.hash(plainPassword, 10);
-
-    const existingAdmin = await prisma.admin.findUnique({
-      where: { email: adminEmail },
-    });
-
-    if (!existingAdmin) {
-      await prisma.admin.create({
-        data: {
-          email: adminEmail,
-          password: hashedPassword,
-        },
-      });
-      console.log('✅ Admin user seeded successfully.');
-    } else {
-      console.log('ℹ️ Admin user already exists.');
-    }
-  }
+  // Note: Admin users are now managed through Supabase Auth
+  // No need to seed admin users in the database
+  console.log('ℹ️ Admin users are managed through Supabase Auth.');
 
   console.log('🏁 Database seeding finished.');
 }

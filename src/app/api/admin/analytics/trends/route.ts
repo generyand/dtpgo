@@ -4,6 +4,7 @@ import { subDays, endOfDay, startOfDay } from 'date-fns';
 import { getStudentRegistrationsByDateRange } from '@/lib/db/queries/analytics';
 import { processRegistrationTrends } from '@/lib/utils/chart-data';
 import { TimePeriod } from '@/components/admin/dashboard/ChartFilters';
+import { authenticatePermissionApi } from '@/lib/auth/api-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +13,15 @@ const schema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  // Authenticate the request
+  const authResult = await authenticatePermissionApi(request, 'canViewAnalytics');
+  if (!authResult.success) {
+    return Response.json(
+      { error: authResult.error || 'Authentication failed' },
+      { status: authResult.statusCode || 401 }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
   const period = (searchParams.get('period') as TimePeriod) || '30d';
 

@@ -11,6 +11,7 @@ import {
   TimePeriod,
   AnalyticsSummary 
 } from '@/lib/types/dashboard';
+import { authenticatePermissionApi } from '@/lib/auth/api-auth';
 
 /**
  * Dashboard API endpoint for real-time data
@@ -67,6 +68,15 @@ function periodToDays(period: TimePeriod): number {
  */
 export async function GET(request: NextRequest) {
   try {
+    // Authenticate the request
+    const authResult = await authenticatePermissionApi(request, 'canViewAnalytics');
+    if (!authResult.success) {
+      return Response.json(
+        { error: authResult.error || 'Authentication failed' },
+        { status: authResult.statusCode || 401 }
+      );
+    }
+
     // Extract query parameters
     const { searchParams } = new URL(request.url);
     const periodParam = searchParams.get('period');
@@ -261,6 +271,15 @@ export async function OPTIONS() {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Authenticate the request
+    const authResult = await authenticatePermissionApi(request, 'canManageSystem');
+    if (!authResult.success) {
+      return Response.json(
+        { error: authResult.error || 'Authentication failed' },
+        { status: authResult.statusCode || 401 }
+      );
+    }
+
     const body = await request.json();
     
     if (body.action === 'invalidate-cache') {

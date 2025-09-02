@@ -2,9 +2,10 @@
  * Admin Dashboard Page
  *
  * Displays key metrics and an overview of recent activity.
+ * Content varies based on user role (Admin vs Organizer).
  */
 import React from 'react'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Shield, UserPlus } from 'lucide-react'
 import { countStudents } from '@/lib/db/queries/students'
 import { getPrograms } from '@/lib/db/queries/programs'
 import { countStudentsByProgram, countStudentsByRegistrationSource } from '@/lib/db/queries/analytics'
@@ -14,6 +15,7 @@ import {
 } from '@/components/admin/dashboard/MetricsGrid';
 import SimplifiedActivityContainer from '@/components/admin/dashboard/SimplifiedActivityContainer';
 import AnalyticsCharts from '@/components/admin/dashboard/AnalyticsCharts';
+import { AdminOnly, OrganizerOrAdmin, PermissionGuard } from '@/components/auth/RoleGuard';
 
 export default async function DashboardPage() {
   let metrics: MetricData[] = [];
@@ -185,8 +187,65 @@ export default async function DashboardPage() {
                 }}
               />
 
-              {/* Analytics Section */}
-              <AnalyticsCharts />
+              {/* Role-Based Sections */}
+              <div className="grid gap-6 lg:grid-cols-2">
+                {/* Admin-Only Quick Actions */}
+                <AdminOnly showError={false}>
+                  <div className="bg-white rounded-lg border shadow-sm p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100">
+                        <Shield className="h-5 w-5 text-red-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Admin Controls</h3>
+                        <p className="text-sm text-gray-600">Administrative functions</p>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="text-sm text-gray-600">
+                        • Manage user roles and permissions
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        • Access system settings and configuration
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        • View detailed user activity logs
+                      </div>
+                    </div>
+                  </div>
+                </AdminOnly>
+
+                {/* Organizer-Accessible Section */}
+                <OrganizerOrAdmin showError={false}>
+                  <div className="bg-white rounded-lg border shadow-sm p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+                        <UserPlus className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Registration Tools</h3>
+                        <p className="text-sm text-gray-600">Student management access</p>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="text-sm text-gray-600">
+                        • Register new students
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        • Generate QR codes for attendance
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        • View registration analytics
+                      </div>
+                    </div>
+                  </div>
+                </OrganizerOrAdmin>
+              </div>
+
+              {/* Analytics Section - Permission-Based */}
+              <PermissionGuard permission="canViewAnalytics" showError={false}>
+                <AnalyticsCharts />
+              </PermissionGuard>
             </div>
           </div>
         </main>

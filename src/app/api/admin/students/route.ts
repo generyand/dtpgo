@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStudents, countStudents } from '@/lib/db/queries/students';
+import { authenticatePermissionApi, createAuthErrorResponse } from '@/lib/auth/api-auth';
 
 export async function GET(request: NextRequest) {
+  // Check if user has permission to manage students (admin only)
+  const authResult = await authenticatePermissionApi(request, 'canManageStudents');
+  
+  if (!authResult.success) {
+    return createAuthErrorResponse(authResult);
+  }
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1', 10);

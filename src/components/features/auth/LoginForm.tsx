@@ -3,14 +3,27 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { loginSchema, LoginInput } from '@/lib/validations/auth';
+import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
+import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { getAuthErrorMessage, logAuthError } from '@/lib/auth/error-handling';
 
-export function LoginForm() {
+interface LoginFormProps {
+  redirectTo?: string;
+  showPasswordReset?: boolean;
+}
+
+export function LoginForm({ redirectTo = '/admin/dashboard', showPasswordReset = true }: LoginFormProps) {
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { signIn, loading: authLoading } = useAuth();
+  const router = useRouter();
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -21,54 +34,83 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: LoginInput) {
+    if (submitting || authLoading) return;
+
     try {
       setSubmitting(true);
+      setError(null);
 
-      // Simple auth: accept any non-empty credentials (dev-only)
-      if (!values.email || !values.password) {
-        toast.error('Login Failed', { description: 'Email and password are required' });
-        setSubmitting(false);
+      const result = await signIn({
+        email: values.email,
+        password: values.password,
+      });
+
+      if (result.error) {
+        const errorMessage = getAuthErrorMessage(result.error);
+        setError(errorMessage);
+        
+        // Log the error for monitoring
+        logAuthError(result.error, {
+          action: 'login_attempt',
+          ipAddress: 'client-side',
+        });
+        
+        toast.error('Login Failed', { 
+          description: errorMessage
+        });
         return;
       }
 
-      // Optionally enforce a specific admin credential via env (if provided)
-      const requiredEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-      const requiredPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
-      if (requiredEmail && requiredPassword) {
-        if (values.email !== requiredEmail || values.password !== requiredPassword) {
-          toast.error('Login Failed', { description: 'Invalid admin credentials' });
-          setSubmitting(false);
-          return;
-        }
-      }
+      toast.success('Login Successful', { 
+        description: 'Welcome back!'
+      });
 
-      // Set simple auth cookie (1 week) - read by middleware
-      const oneWeekSeconds = 60 * 60 * 24 * 7;
-      document.cookie = `APP_AUTH=1; Max-Age=${oneWeekSeconds}; Path=/; SameSite=Lax`;
-
-      // Debug logs
-      console.log('[Auth Debug] Set APP_AUTH cookie. document.cookie:', document.cookie);
-
-      toast.success('Login Successful', { description: 'Redirecting to your dashboard...' });
-
-      // Hard redirect to ensure fresh server state
-      window.location.assign('/admin/dashboard');
+      // Redirect to the intended page
+      router.push(redirectTo);
+    } catch (error) {
+      const errorMessage = getAuthErrorMessage(error);
+      setError(errorMessage);
+      
+      // Log the error for monitoring
+      logAuthError(error, {
+        action: 'login_attempt',
+        ipAddress: 'client-side',
+      });
+      
+      toast.error('Login Failed', { 
+        description: errorMessage
+      });
     } finally {
-      // keep submitting true until navigation to avoid double submit
+      setSubmitting(false);
     }
   }
+
+  const isLoading = submitting || authLoading;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Error Display */}
+        {error && (
+          <div className="flex items-center space-x-2 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Email Address</FormLabel>
               <FormControl>
-                <Input placeholder="you@example.com" {...field} />
+                <Input 
+                  type="email"
+                  placeholder="admin@dtp.edu.my"
+                  autoComplete="email"
+                  disabled={isLoading}
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -81,14 +123,61 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
+                <div className="relative">
+                  <Input 
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    autoComplete="current-password"
+                    disabled={isLoading}
+                    {...field} 
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isLoading}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                    <span className="sr-only">
+                      {showPassword ? "Hide password" : "Show password"}
+                    </span>
+                  </Button>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={submitting}>
-          {submitting ? 'Signing In...' : 'Sign In'}
+        
+        {showPasswordReset && (
+          <div className="text-center">
+            <Button
+              type="button"
+              variant="link"
+              className="text-sm px-0"
+              onClick={() => router.push('/auth/reset-password')}
+              disabled={isLoading}
+            >
+              Forgot your password?
+            </Button>
+          </div>
+        )}
+
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Signing In...
+            </>
+          ) : (
+            'Sign In'
+          )}
         </Button>
       </form>
     </Form>

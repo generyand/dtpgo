@@ -101,18 +101,7 @@ model EmailStatus {
   @@map("email_status")
 }
 
-model Admin {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  // Relationships
-  activities Activity[]
-
-  @@map("admins")
-}
 
 // Activity model - comprehensive activity logging for dashboard feed
 model Activity {
@@ -123,8 +112,8 @@ model Activity {
   
   // Entity references (nullable to support different activity types)
   studentId   String?  // Reference to student if activity involves a student
-  adminId     String?  // Reference to admin if activity performed by admin
   programId   String?  // Reference to program if activity involves a program
+  userId      String?  // Reference to Supabase user if activity performed by authenticated user
   
   // Activity metadata
   metadata    Json?    // Additional structured data about the activity
@@ -142,8 +131,8 @@ model Activity {
   
   // Relationships
   student     Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
-  admin       Admin?   @relation(fields: [adminId], references: [id], onDelete: SetNull)
   program     Program? @relation(fields: [programId], references: [id], onDelete: SetNull)
+  // Note: userId references Supabase auth.users (not a Prisma relationship)
   
   // Indexes for performance and querying
   @@index([type])
@@ -152,7 +141,7 @@ model Activity {
   @@index([source])
   @@index([severity])
   @@index([studentId])
-  @@index([adminId])
+  @@index([userId])
   @@index([programId])
   @@index([createdAt])
   @@index([type, createdAt]) // Composite index for activity feed queries

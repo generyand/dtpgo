@@ -1,18 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/client';
-import { authenticatePermissionApi } from '@/lib/auth/api-auth';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    // Authenticate the request
-    const authResult = await authenticatePermissionApi(request, 'canViewAnalytics');
-    if (!authResult.success) {
-      return Response.json(
-        { error: authResult.error || 'Authentication failed' },
-        { status: authResult.statusCode || 401 }
-      );
-    }
-
     const programs = await prisma.program.findMany({
       where: {
         isActive: true, // Only return active programs

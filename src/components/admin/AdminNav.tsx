@@ -2,17 +2,20 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, UserPlus, Users, BarChart3, Menu } from 'lucide-react';
+import { LayoutDashboard, UserPlus, Users, BarChart3, Menu, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
+import { useAuth, useUser } from '@/hooks/use-auth';
+import { getRoleDisplayName, hasPermission } from '@/lib/utils/role-utils';
+import { toast } from 'sonner';
 
-const navItems = [
-  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/register', label: 'Register', icon: UserPlus },
-  { href: '/admin/students', label: 'Students', icon: Users },
-  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+const allNavItems = [
+  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, permission: 'canAccessAdminPanel' },
+  { href: '/admin/register', label: 'Register Students', icon: UserPlus, permission: 'canRegisterStudents' },
+  { href: '/admin/students', label: 'Manage Students', icon: Users, permission: 'canManageStudents' },
+  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3, permission: 'canViewAnalytics' },
 ];
 
 function NavLink({ 
@@ -53,9 +56,34 @@ function NavLink({
 
 export function AdminNav() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { signOut } = useAuth();
+  const user = useUser();
+  const router = useRouter();
+
+  // Filter navigation items based on user permissions
+  const navItems = allNavItems.filter(item => 
+    hasPermission(user, item.permission as keyof import('@/lib/types/auth').RolePermissions)
+  );
 
   const handleNavClick = () => {
     setIsOpen(false);
+  };
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+
+    try {
+      setIsLoggingOut(true);
+      await signOut();
+      toast.success('Logged out successfully');
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Failed to logout. Please try again.');
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -86,9 +114,37 @@ export function AdminNav() {
           </div>
 
           {/* Desktop Footer */}
-          <div className="border-t p-4 bg-gray-50/50 dark:bg-gray-800/50">
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              DTP Attendance System
+          <div className="border-t bg-gray-50/50 dark:bg-gray-800/50">
+            {/* User Info */}
+            <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                  <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                    {user?.email || 'Admin User'}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {getRoleDisplayName(user?.user_metadata?.role || null)}
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                variant="outline"
+                size="sm"
+                className="w-full justify-start gap-2 text-gray-600 hover:text-red-600 hover:border-red-200 dark:text-gray-400 dark:hover:text-red-400"
+              >
+                <LogOut className="h-4 w-4" />
+                {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
+              </Button>
+            </div>
+            <div className="p-3">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                DTP Attendance System
+              </div>
             </div>
           </div>
         </div>
@@ -151,9 +207,40 @@ export function AdminNav() {
             </nav>
 
             {/* Mobile Sheet Footer */}
-            <div className="border-t p-4 bg-gray-50/50 dark:bg-gray-800/50">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                DTP Attendance System
+            <div className="border-t bg-gray-50/50 dark:bg-gray-800/50">
+              {/* Mobile User Info */}
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                    <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                      {user?.email || 'Admin User'}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {getRoleDisplayName(user?.user_metadata?.role || null)}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => {
+                    handleLogout();
+                    handleNavClick();
+                  }}
+                  disabled={isLoggingOut}
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start gap-2 text-gray-600 hover:text-red-600 hover:border-red-200 dark:text-gray-400 dark:hover:text-red-400"
+                >
+                  <LogOut className="h-4 w-4" />
+                  {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
+                </Button>
+              </div>
+              <div className="p-4">
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  DTP Attendance System
+                </div>
               </div>
             </div>
           </SheetContent>

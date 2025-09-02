@@ -3,9 +3,17 @@ import { ZodError } from 'zod'
 import { studentSchema } from '@/lib/validations/student'
 import { createStudent } from '@/lib/db/queries/students'
 import { logStudentRegistration, logSystemEvent } from '@/lib/db/queries/activity'
+import { authenticatePermissionApi, createAuthErrorResponse } from '@/lib/auth/api-auth'
+import { withRateLimit } from '@/lib/auth/rate-limit'
 import { Prisma } from '@prisma/client'
 
-export async function POST(request: NextRequest) {
+export const POST = withRateLimit('registration', async (request: NextRequest) => {
+  // Check if user has permission to register students (admin or organizer)
+  const authResult = await authenticatePermissionApi(request, 'canRegisterStudents');
+  
+  if (!authResult.success) {
+    return createAuthErrorResponse(authResult);
+  }
   const startTime = Date.now()
   let studentId: string | undefined
   
@@ -120,4 +128,4 @@ export async function POST(request: NextRequest) {
     console.error('Admin register API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-} 
+}); 
