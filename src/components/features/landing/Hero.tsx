@@ -10,166 +10,174 @@ import {
   Clock,
   BarChart3,
   Zap,
-  GraduationCap,
-  Shield,
 } from "lucide-react";
 
 export function Hero() {
   return (
     <section
-      className="relative bg-white min-h-[calc(100vh-4rem)] flex items-center overflow-hidden"
+      className="relative overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-amber-50 min-h-[calc(100vh-4rem)] flex items-center"
       id="home"
     >
-      {/* Subtle background accents */}
-      <div className="pointer-events-none absolute -top-24 -left-24 h-80 w-80 rounded-full bg-yellow-300/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-amber-300/10 blur-3xl" />
+      {/* Background Elements */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl" />
 
-      {/* Mobile sticky CTA bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 bg-white/95 backdrop-blur border-t sm:hidden">
-        <div className="mx-auto max-w-7xl px-4 py-3 flex items-center gap-3">
-          <Button className="flex-1 h-12 bg-blue-700 text-white hover:bg-blue-800 shadow" asChild>
-            <Link href="/join" aria-label="Start registration" prefetch>
-              Get My QR Code
-              <ArrowRight className="ml-2 size-4" />
-            </Link>
-          </Button>
-          <Link
-            href="/auth/login"
-            className="text-sm text-gray-600 hover:text-gray-900 whitespace-nowrap"
-            aria-label="Staff login"
-            prefetch={false}
-          >
-            Staff Login
-          </Link>
-        </div>
-      </div>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center w-full">
+        {/* Left Content */}
+        <Reveal delayMs={80}>
+          <div className="space-y-4 sm:space-y-6">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-100 border border-yellow-200 text-yellow-800 text-sm font-medium">
+              <Zap className="size-4" />
+              <span>Trusted by UM Digos College</span>
+            </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 w-full relative">
-        {/* Header Section - Centered title and description only */}
-        <div className="mb-10 text-center">
-          <Reveal delayMs={60}>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-3">
-              DTP Attendance System
+            {/* Main Headline */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
+              <span className="text-gray-900">Modernizing Event</span>
+              <br />
+              <span className="text-gray-900">Attendance, </span>
+              <span className="text-yellow-500">Effortlessly.</span>
             </h1>
-          </Reveal>
-          <Reveal delayMs={100}>
-            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-              Register here to get your QR code for event attendance.
+
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
+              Launch events, scan arrivals, and see attendance update in real‑time — all in one modern dashboard.
             </p>
-          </Reveal>
-        </div>
 
-        {/* Main Content - Two Column Layout */}
-        <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
-          {/* Light divider between columns on desktop */}
-          <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gray-200 to-transparent" />
-
-          {/* Left Content - Student Registration (Primary CTA) */}
-          <Reveal delayMs={160}>
-            <div className="space-y-5 pb-16 sm:pb-0">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 border border-blue-200 text-blue-800 text-xs font-medium">
-                <Users className="size-4" />
-                <span>For Students & Attendees</span>
-              </div>
-
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Join Events with
-                <span className="text-blue-600"> One Scan</span>
-              </h2>
-
-              <p className="text-base text-gray-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
-                Register for events and get your unique QR code. Simply present it at check-in for instant attendance recording.
-              </p>
-
-              {/* Key Benefits */}
-              <div className="space-y-2.5">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="size-4 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700 text-sm">No app installation required</span>
+            {/* Feature List - Hidden on mobile */}
+            <ul className="hidden sm:grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <li className="flex items-center gap-3 p-3 rounded-lg bg-yellow-50 border border-yellow-100">
+                <div className="size-6 rounded-full bg-yellow-400 flex items-center justify-center">
+                  <Clock className="size-3 text-black" />
                 </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="size-4 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700 text-sm">Instant QR code generation</span>
+                <span className="text-sm text-gray-700 font-medium">
+                  Real‑time attendance tracking
+                </span>
+              </li>
+              <li className="flex items-center gap-3 p-3 rounded-lg bg-yellow-50 border border-yellow-100">
+                <div className="size-6 rounded-full bg-yellow-400 flex items-center justify-center">
+                  <CheckCircle className="size-3 text-black" />
                 </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="size-4 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700 text-sm">Real-time attendance tracking</span>
+                <span className="text-sm text-gray-700 font-medium">
+                  QR code check‑ins
+                </span>
+              </li>
+              <li className="flex items-center gap-3 p-3 rounded-lg bg-yellow-50 border border-yellow-100">
+                <div className="size-6 rounded-full bg-yellow-400 flex items-center justify-center">
+                  <Users className="size-3 text-black" />
                 </div>
-              </div>
+                <span className="text-sm text-gray-700 font-medium">
+                  One dashboard for every event
+                </span>
+              </li>
+              <li className="flex items-center gap-3 p-3 rounded-lg bg-yellow-50 border border-yellow-100">
+                <div className="size-6 rounded-full bg-yellow-400 flex items-center justify-center">
+                  <BarChart3 className="size-3 text-black" />
+                </div>
+                <span className="text-sm text-gray-700 font-medium">
+                  Exportable reports
+                </span>
+              </li>
+            </ul>
 
-              {/* Primary Student CTA */}
-              <div className="pt-2">
-                <Button
-                  className="h-12 px-6 text-base bg-blue-700 text-white hover:bg-blue-800 shadow"
-                  asChild
-                >
-                  <Link href="/join" aria-label="Get my QR code" prefetch>
-                    Get My QR Code
-                    <ArrowRight className="ml-2 size-4" />
-                  </Link>
-                </Button>
-                {/* Inline admin link for quick access on mobile */}
-                <div className="mt-2 sm:hidden">
-                  <Link
-                    href="/auth/login"
-                    className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 underline-offset-4 hover:underline"
-                    aria-label="Staff login"
-                    prefetch={false}
-                  >
-                    <Shield className="size-4 mr-1" /> Staff Login
-                  </Link>
-                </div>
-              </div>
+            {/* Simplified mobile feature list */}
+            <div className="sm:hidden flex flex-wrap gap-2 text-sm text-gray-600">
+              <span className="inline-flex items-center gap-1">
+                <CheckCircle className="size-3 text-yellow-500" />
+                QR Check-ins
+              </span>
+              <span className="text-gray-400">•</span>
+              <span className="inline-flex items-center gap-1">
+                <Clock className="size-3 text-yellow-500" />
+                Real-time
+              </span>
+              <span className="text-gray-400">•</span>
+              <span className="inline-flex items-center gap-1">
+                <BarChart3 className="size-3 text-yellow-500" />
+                Reports
+              </span>
             </div>
-          </Reveal>
 
-          {/* Right Content - Staff Login (Secondary link) */}
-          <Reveal direction="left" delayMs={240}>
-            <div className="space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-100 border border-yellow-200 text-yellow-800 text-xs font-medium">
-                <Shield className="size-4" />
-                <span>For Staff & Organizers</span>
-              </div>
-
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Manage Events
-                <span className="text-yellow-600"> Seamlessly</span>
-              </h2>
-
-              <p className="text-base text-gray-600 leading-relaxed max-w-xl">
-                Access your admin dashboard to create events, track attendance, and generate reports in real-time.
-              </p>
-
-              {/* Key Benefits */}
-              <div className="space-y-2.5">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="size-4 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700 text-sm">Create and manage events</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="size-4 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700 text-sm">Real-time attendance monitoring</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="size-4 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700 text-sm">Export detailed reports</span>
-                </div>
-              </div>
-
-              {/* Subtle Admin Link */}
-              <div className="hidden sm:block">
-                <Link
-                  href="/auth/login"
-                  className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 underline-offset-4 hover:underline"
-                  aria-label="Staff login"
-                  prefetch={false}
-                >
-                  <Shield className="size-4 mr-1" /> Staff Login
+            {/* CTA Button */}
+            <div className="pt-2">
+              <Button
+                className="h-12 px-6 text-base bg-yellow-400 text-black hover:bg-yellow-500 shadow-lg hover:shadow-xl transition-all duration-200 group"
+                asChild
+              >
+                <Link href="/join">
+                  Get My QR Code
+                  <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform duration-200" />
                 </Link>
+              </Button>
+            </div>
+          </div>
+        </Reveal>
+
+        {/* Right Content - Image with floating elements */}
+        <Reveal direction="left" delayMs={160} className="relative">
+          <div className="relative">
+            {/* Preview Image */}
+            <div className="relative aspect-[4/3] w-full rounded-xl border bg-neutral-50 overflow-hidden shadow-xl">
+              <Image
+                src={HERO.imageSrc}
+                alt="Attendance dashboard preview"
+                fill
+                priority
+                className="object-cover object-bottom"
+              />
+            </div>
+
+            {/* Floating Stats Cards */}
+            <div
+              className="hidden sm:block absolute -top-4 -left-6 bg-white rounded-lg p-3 shadow-lg border animate-bounce z-10"
+              style={{ animationDuration: "3s" }}
+            >
+              <div className="flex items-center gap-2">
+                <div className="size-8 rounded-full bg-green-100 flex items-center justify-center">
+                  <CheckCircle className="size-4 text-green-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-gray-900">98%</div>
+                  <div className="text-xs text-gray-500">Accuracy</div>
+                </div>
               </div>
             </div>
-          </Reveal>
-        </div>
+
+            <div
+              className="hidden sm:block absolute -bottom-4 -right-6 bg-white rounded-lg p-3 shadow-lg border animate-bounce z-10"
+              style={{ animationDuration: "4s", animationDelay: "1s" }}
+            >
+              <div className="flex items-center gap-2">
+                <div className="size-8 rounded-full bg-yellow-100 flex items-center justify-center">
+                  <Clock className="size-4 text-yellow-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-gray-900">&lt;5s</div>
+                  <div className="text-xs text-gray-500">Check-in</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="hidden md:block absolute top-1/4 -right-8 bg-white rounded-lg p-2 shadow-lg border animate-pulse z-10">
+              <div className="flex items-center gap-2">
+                <div className="size-6 rounded-full bg-blue-100 flex items-center justify-center">
+                  <Users className="size-3 text-blue-600" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-gray-900">500+</div>
+                  <div className="text-xs text-gray-500">Users</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Background Floating Elements */}
+            <div className="absolute -top-6 -right-6 w-16 h-16 bg-yellow-400/20 rounded-full blur-xl animate-pulse" />
+            <div
+              className="absolute -bottom-6 -left-6 w-12 h-12 bg-amber-400/20 rounded-full blur-lg animate-pulse"
+              style={{ animationDelay: "2s" }}
+            />
+          </div>
+        </Reveal>
       </div>
     </section>
   );

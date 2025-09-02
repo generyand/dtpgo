@@ -48,9 +48,9 @@ export function HeaderNav() {
           </nav>
 
           {/* CTA Section: Primary = Join Event; Secondary = Admin Sign In link */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <Button 
-              className="hidden md:inline-flex bg-blue-700 text-white hover:bg-blue-800 shadow"
+              className="hidden md:inline-flex bg-yellow-500 text-black hover:bg-yellow-600 shadow"
               asChild
             >
               <Link href="/join" aria-label="Join event registration" prefetch>
@@ -98,7 +98,7 @@ export function HeaderNav() {
               <div className="pt-3 mt-3 border-t border-gray-100 space-y-2">
                 <Link 
                   href="/join"
-                  className="flex items-center gap-2 bg-blue-700 text-white hover:bg-blue-800 font-medium py-3 px-4 rounded-lg transition-colors shadow"
+                  className="flex items-center gap-2 bg-yellow-500 text-black hover:bg-yellow-600 font-medium py-3 px-4 rounded-lg transition-colors shadow"
                   aria-label="Join event registration"
                   onClick={() => setIsMenuOpen(false)}
                 >
