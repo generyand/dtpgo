@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="fixed inset-0 w-screen h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-white to-amber-50">
+    <div className="relative fixed inset-0 w-screen h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-white to-amber-50">
       {/* Background Elements - Matching landing page exactly */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl" />
@@ -45,8 +45,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center text-sm text-gray-500">
-          <p>© 2024 University of Mindanao Digos College - Department of Technology Programs</p>
-          <p className="mt-1">Secure authentication powered by Supabase</p>
+          <p>© 2025 University of Mindanao Digos College - DTP</p>
         </div>
       </div>
       <Toaster richColors />

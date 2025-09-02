@@ -5,7 +5,7 @@
  * Content varies based on user role (Admin vs Organizer).
  */
 import React from 'react'
-import { AlertTriangle, Shield, UserPlus } from 'lucide-react'
+import { AlertTriangle, Shield, UserPlus, BarChart3 } from 'lucide-react'
 import { countStudents } from '@/lib/db/queries/students'
 import { getPrograms } from '@/lib/db/queries/programs'
 import { countStudentsByProgram, countStudentsByRegistrationSource } from '@/lib/db/queries/analytics'
@@ -16,6 +16,8 @@ import {
 import SimplifiedActivityContainer from '@/components/admin/dashboard/SimplifiedActivityContainer';
 import AnalyticsCharts from '@/components/admin/dashboard/AnalyticsCharts';
 import { AdminOnly, OrganizerOrAdmin, PermissionGuard } from '@/components/auth/RoleGuard';
+import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 
 export default async function DashboardPage() {
   let metrics: MetricData[] = [];
@@ -105,9 +107,9 @@ export default async function DashboardPage() {
     <div className="min-h-screen w-full">
       {/* Mobile Layout */}
       <div className="lg:hidden">
-        <div className="space-y-6 p-4">
+        <div className="space-y-5 p-4 pb-24">
           {/* Header */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-sm text-muted-foreground">
               Overview of metrics and activity
@@ -138,13 +140,28 @@ export default async function DashboardPage() {
             }}
           />
 
-          {/* Recent Activity - Mobile */}
-          <div className="bg-white rounded-lg border shadow-sm">
-            <SimplifiedActivityContainer />
-          </div>
-
           {/* Analytics Section - Mobile */}
           <AnalyticsCharts />
+        </div>
+
+        {/* Floating Recent Activity button (mobile only) */}
+        <div className="fixed bottom-20 right-4 z-40 sm:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button aria-label="Open recent activity" className="h-12 w-12 rounded-full p-0 bg-yellow-500 text-black hover:bg-yellow-600 shadow-lg">
+                <BarChart3 className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[75vh] p-0 overflow-y-auto">
+              <SheetTitle className="sr-only">Recent Activity</SheetTitle>
+              <div className="p-4">
+                <div className="text-sm font-semibold mb-3">Recent Activity</div>
+                <div className="bg-white rounded-lg border shadow-sm">
+                  <SimplifiedActivityContainer />
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
 
@@ -251,7 +268,7 @@ export default async function DashboardPage() {
         </main>
 
         {/* Right Sidebar for Activity Feed - Desktop */}
-        <aside className="w-80 border-l bg-background h-screen sticky top-0 overflow-y-auto">
+        <aside className="w-80 max-w-[22rem] border-l bg-background h-screen sticky top-0 overflow-y-auto">
           <SimplifiedActivityContainer />
         </aside>
       </div>
