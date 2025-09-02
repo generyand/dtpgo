@@ -11,7 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { ArrowLeft, Loader2, Mail } from 'lucide-react';
+import { ArrowLeft, Loader2, Mail, AlertCircle } from 'lucide-react';
+import { getAuthErrorMessage, logAuthError } from '@/lib/auth/error-handling';
 
 interface PasswordResetFormProps {
   showBackToLogin?: boolean;
@@ -20,6 +21,7 @@ interface PasswordResetFormProps {
 export function PasswordResetForm({ showBackToLogin = true }: PasswordResetFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { resetPassword, loading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -35,12 +37,22 @@ export function PasswordResetForm({ showBackToLogin = true }: PasswordResetFormP
 
     try {
       setSubmitting(true);
+      setError(null);
 
       const result = await resetPassword(values.email);
 
       if (result.error) {
+        const errorMessage = getAuthErrorMessage(result.error);
+        setError(errorMessage);
+        
+        // Log the error for monitoring
+        logAuthError(result.error, {
+          action: 'password_reset_attempt',
+          ipAddress: 'client-side',
+        });
+        
         toast.error('Reset Failed', { 
-          description: result.error || 'Failed to send reset email'
+          description: errorMessage
         });
         return;
       }
@@ -53,9 +65,17 @@ export function PasswordResetForm({ showBackToLogin = true }: PasswordResetFormP
       // Reset form
       form.reset();
     } catch (error) {
-      console.error('Password reset error:', error);
+      const errorMessage = getAuthErrorMessage(error);
+      setError(errorMessage);
+      
+      // Log the error for monitoring
+      logAuthError(error, {
+        action: 'password_reset_attempt',
+        ipAddress: 'client-side',
+      });
+      
       toast.error('Reset Failed', { 
-        description: 'An unexpected error occurred. Please try again.'
+        description: errorMessage
       });
     } finally {
       setSubmitting(false);
@@ -116,6 +136,13 @@ export function PasswordResetForm({ showBackToLogin = true }: PasswordResetFormP
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Error Display */}
+            {error && (
+              <div className="flex items-center space-x-2 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
             <FormField
               control={form.control}
               name="email"

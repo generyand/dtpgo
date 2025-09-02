@@ -75,7 +75,7 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        const response = await fetch('/api/admin/programs');
+        const response = await fetch('/api/public/programs');
         if (!response.ok) throw new Error('Failed to load programs');
         const data = await response.json();
         const list: Program[] = Array.isArray(data)

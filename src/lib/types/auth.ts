@@ -40,6 +40,7 @@ export interface AuthContextType extends AuthState {
   signUp: (credentials: RegisterCredentials) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error: string | null }>
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<{ error: string | null }>
   hasRole: (role: UserRole) => boolean
   isAdmin: () => boolean
   isOrganizer: () => boolean

@@ -10,7 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { getAuthErrorMessage, logAuthError } from '@/lib/auth/error-handling';
 
 interface LoginFormProps {
   redirectTo?: string;
@@ -20,6 +21,7 @@ interface LoginFormProps {
 export function LoginForm({ redirectTo = '/admin/dashboard', showPasswordReset = true }: LoginFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { signIn, loading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -36,6 +38,7 @@ export function LoginForm({ redirectTo = '/admin/dashboard', showPasswordReset =
 
     try {
       setSubmitting(true);
+      setError(null);
 
       const result = await signIn({
         email: values.email,
@@ -43,8 +46,17 @@ export function LoginForm({ redirectTo = '/admin/dashboard', showPasswordReset =
       });
 
       if (result.error) {
+        const errorMessage = getAuthErrorMessage(result.error);
+        setError(errorMessage);
+        
+        // Log the error for monitoring
+        logAuthError(result.error, {
+          action: 'login_attempt',
+          ipAddress: 'client-side',
+        });
+        
         toast.error('Login Failed', { 
-          description: result.error || 'Invalid email or password'
+          description: errorMessage
         });
         return;
       }
@@ -56,9 +68,17 @@ export function LoginForm({ redirectTo = '/admin/dashboard', showPasswordReset =
       // Redirect to the intended page
       router.push(redirectTo);
     } catch (error) {
-      console.error('Login error:', error);
+      const errorMessage = getAuthErrorMessage(error);
+      setError(errorMessage);
+      
+      // Log the error for monitoring
+      logAuthError(error, {
+        action: 'login_attempt',
+        ipAddress: 'client-side',
+      });
+      
       toast.error('Login Failed', { 
-        description: 'An unexpected error occurred. Please try again.'
+        description: errorMessage
       });
     } finally {
       setSubmitting(false);
@@ -70,6 +90,13 @@ export function LoginForm({ redirectTo = '/admin/dashboard', showPasswordReset =
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Error Display */}
+        {error && (
+          <div className="flex items-center space-x-2 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
         <FormField
           control={form.control}
           name="email"

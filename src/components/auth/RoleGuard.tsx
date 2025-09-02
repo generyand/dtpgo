@@ -13,7 +13,7 @@ interface RoleGuardProps {
   requiredRole?: UserRole
   allowedRoles?: UserRole[]
   requiredPermission?: string
-  fallback?: React.ComponentType
+  fallback?: React.ReactNode
   redirectTo?: string
   showError?: boolean
 }
@@ -26,7 +26,7 @@ export function RoleGuard({
   requiredRole,
   allowedRoles,
   requiredPermission,
-  fallback: FallbackComponent,
+  fallback,
   redirectTo = '/admin/dashboard',
   showError = true,
 }: RoleGuardProps) {
@@ -46,9 +46,34 @@ export function RoleGuard({
     )
   }
 
-  // If user is not logged in, don't show anything (let AuthGuard handle this)
+  // If user is not logged in, show authentication required message
   if (!user) {
-    return null
+    if (fallback) {
+      return <>{fallback}</>
+    }
+    
+    if (!showError) {
+      return null
+    }
+    
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6 text-center border border-yellow-200">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100">
+            <AlertTriangle className="h-6 w-6 text-yellow-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Authentication Required</h3>
+          <p className="text-gray-600 mb-6">Please sign in to access this content</p>
+          
+          <Button
+            onClick={() => router.push('/auth/login')}
+            className="w-full"
+          >
+            Sign In
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   let hasAccess = false
@@ -90,8 +115,8 @@ export function RoleGuard({
   }
 
   // If custom fallback is provided, use it
-  if (FallbackComponent) {
-    return <FallbackComponent />
+  if (fallback) {
+    return <>{fallback}</>
   }
 
   // If showError is false, render nothing
@@ -152,6 +177,17 @@ export function withRoleGuard<P extends object>(
 export function AdminOnly({ children, ...props }: Omit<RoleGuardProps, 'requiredRole'>) {
   return (
     <RoleGuard requiredRole="admin" {...props}>
+      {children}
+    </RoleGuard>
+  )
+}
+
+/**
+ * OrganizerOnly component - shorthand for organizer-only access
+ */
+export function OrganizerOnly({ children, ...props }: Omit<RoleGuardProps, 'requiredRole'>) {
+  return (
+    <RoleGuard requiredRole="organizer" {...props}>
       {children}
     </RoleGuard>
   )

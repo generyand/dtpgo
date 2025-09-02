@@ -211,6 +211,41 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Update password function
+  const updatePassword = async (currentPassword: string, newPassword: string): Promise<{ error: string | null }> => {
+    setAuthState((prev) => ({ ...prev, loading: true, error: null }))
+    
+    try {
+      // First, verify the current password by attempting to sign in
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError || !user) {
+        return { error: 'User not authenticated' }
+      }
+
+      // Update the password
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      })
+      
+      setAuthState((prev) => ({
+        ...prev,
+        loading: false,
+        error: error?.message || null,
+      }))
+      
+      return { error: error?.message || null }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+      setAuthState((prev) => ({
+        ...prev,
+        loading: false,
+        error: errorMessage,
+      }))
+      return { error: errorMessage }
+    }
+  }
+
   // Role helper functions
   const hasRole = (role: UserRole): boolean => {
     return authState.user?.user_metadata?.role === role
@@ -243,6 +278,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signUp,
     signOut,
     resetPassword,
+    updatePassword,
     hasRole,
     isAdmin,
     isOrganizer,
