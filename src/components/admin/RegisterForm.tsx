@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { QRCodeDisplay } from '@/components/ui/QRCodeDisplay';
 import { toast } from 'sonner';
 import { User, Mail, GraduationCap, Calendar, CheckCircle, UserPlus } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
 
 type Program = {
   id: string;
@@ -40,20 +41,25 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
   const [registeredStudentId, setRegisteredStudentId] = useState<string | null>(null);
   const [showEmailSuggestions, setShowEmailSuggestions] = useState(false);
   const [emailSuggestions, setEmailSuggestions] = useState<string[]>([]);
+  const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
     async function fetchPrograms() {
+      // Only fetch programs if user is authenticated
+      if (!user || authLoading) return;
+      
       try {
         const res = await fetch('/api/admin/programs');
         if (!res.ok) throw new Error('Failed to fetch programs');
         const data = await res.json();
         setPrograms(data.programs ?? []);
-      } catch {
+      } catch (error) {
+        console.error('Failed to load programs:', error);
         toast.error('Failed to load programs');
       }
     }
     fetchPrograms();
-  }, []);
+  }, [user, authLoading]);
 
   const form = useForm<StudentFormInput>({
     resolver: zodResolver(studentSchema),
@@ -148,6 +154,29 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
   // Show QR code if registration was successful
   if (registrationSuccess && registeredStudentId) {
     return <QRCodeDisplay studentId={registeredStudentId} />;
+  }
+
+  // Show loading state while programs are being fetched
+  if (authLoading || (user && programs.length === 0)) {
+    return (
+      <div className="py-2 sm:py-4">
+        <div className="relative">
+          <div className="mb-6">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium mb-3">
+              <UserPlus className="size-3.5" />
+              <span>Admin Registration</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Register New Student</h1>
+            <p className="mt-1 text-sm text-gray-600 max-w-prose">
+              Loading programs...
+            </p>
+          </div>
+          <div className="flex items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-600"></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
