@@ -15,15 +15,15 @@ import {
 export function Hero() {
   return (
     <section
-      className="relative overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-amber-50"
+      className="relative overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-amber-50 min-h-[calc(100vh-4rem)] flex items-center"
       id="home"
     >
       {/* Background Elements */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl" />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
-        {/* Left Content - Enhanced with Yellow Theme */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center w-full">
+        {/* Left Content */}
         <Reveal delayMs={80}>
           <div className="space-y-4 sm:space-y-6">
             {/* Badge */}
@@ -32,19 +32,19 @@ export function Hero() {
               <span>Trusted by UM Digos College</span>
             </div>
 
-            {/* Main Headline with Yellow "Effortlessly" */}
+            {/* Main Headline */}
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
-              <span className="text-gray-900">Modernizing Assembly</span>
+              <span className="text-gray-900">Modernizing Event</span>
               <br />
               <span className="text-gray-900">Attendance, </span>
               <span className="text-yellow-500">Effortlessly.</span>
             </h1>
 
             <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-              {HERO.subheadline}
+              Launch events, scan arrivals, and see attendance update in real‑time — all in one modern dashboard.
             </p>
 
-            {/* Enhanced Feature List - Hidden on mobile */}
+            {/* Feature List - Hidden on mobile */}
             <ul className="hidden sm:grid grid-cols-1 sm:grid-cols-2 gap-3">
               <li className="flex items-center gap-3 p-3 rounded-lg bg-yellow-50 border border-yellow-100">
                 <div className="size-6 rounded-full bg-yellow-400 flex items-center justify-center">
@@ -97,14 +97,15 @@ export function Hero() {
                 Reports
               </span>
             </div>
-            {/* Enhanced CTA Button with Real Arrow */}
+
+            {/* CTA Button */}
             <div className="pt-2">
               <Button
                 className="h-12 px-6 text-base bg-yellow-400 text-black hover:bg-yellow-500 shadow-lg hover:shadow-xl transition-all duration-200 group"
                 asChild
               >
-                <Link href={HERO.ctaHref}>
-                  Join Now
+                <Link href="/join">
+                  Get My QR Code
                   <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform duration-200" />
                 </Link>
               </Button>
@@ -112,10 +113,10 @@ export function Hero() {
           </div>
         </Reveal>
 
-        {/* Right Content - Original Image with Floating Elements */}
+        {/* Right Content - Image with floating elements */}
         <Reveal direction="left" delayMs={160} className="relative">
           <div className="relative">
-            {/* Original Image Container */}
+            {/* Preview Image */}
             <div className="relative aspect-[4/3] w-full rounded-xl border bg-neutral-50 overflow-hidden shadow-xl">
               <Image
                 src={HERO.imageSrc}
@@ -126,7 +127,7 @@ export function Hero() {
               />
             </div>
 
-            {/* Floating Stats Cards - Hidden on mobile */}
+            {/* Floating Stats Cards */}
             <div
               className="hidden sm:block absolute -top-4 -left-6 bg-white rounded-lg p-3 shadow-lg border animate-bounce z-10"
               style={{ animationDuration: "3s" }}

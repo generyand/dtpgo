@@ -18,10 +18,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <AdminGuard requireAuth={true}>
       <OrganizerOrAdmin>
-        <div className="grid h-screen w-full lg:grid-cols-[280px_1fr] overflow-hidden">
+        <div className="grid w-full lg:grid-cols-[280px_1fr] overflow-hidden">
           <AdminNav />
-          <div className="flex flex-col h-screen">
-            <main className="flex-1 h-screen overflow-y-auto bg-gradient-to-br from-yellow-50/40 via-white to-amber-50/40 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+          <div className="flex flex-col">
+            <main className="min-h-[calc(100vh-4rem)] lg:min-h-screen pt-16 lg:pt-0 overflow-y-auto bg-gradient-to-br from-yellow-50/40 via-white to-amber-50/40 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
               {children}
             </main>
           </div>

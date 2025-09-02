@@ -4,7 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { NAV_LINKS, ORG } from "@/lib/content/landing"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Shield, Users } from "lucide-react"
 import { useState } from "react"
 
 export function HeaderNav() {
@@ -15,12 +15,12 @@ export function HeaderNav() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Enhanced Logo */}
-          <Link href="#" className="flex items-center gap-3 group">
+          <Link href="#top" className="flex items-center gap-3 group" aria-label="Go to top">
             <div className="relative">
               <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <Image 
                 src={ORG.logoSrc} 
-                alt="DTP" 
+                alt="Department logo" 
                 width={44} 
                 height={44} 
                 className="relative rounded-full border-2 border-gray-100 shadow-sm group-hover:border-yellow-200 transition-colors" 
@@ -32,12 +32,13 @@ export function HeaderNav() {
             </div>
           </Link>
 
-          {/* Enhanced Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-8" aria-label="Primary">
             {NAV_LINKS.map((l) => (
               <Link 
                 key={l.href} 
-                href={l.href} 
+                href={l.href}
+                prefetch={false}
                 className="relative text-gray-600 hover:text-gray-900 font-medium transition-colors group py-2"
               >
                 {l.label}
@@ -46,18 +47,25 @@ export function HeaderNav() {
             ))}
           </nav>
 
-          {/* Enhanced CTA Section */}
-          <div className="flex items-center gap-3">
-            {/* Sign In Button - Hidden on mobile */}
+          {/* CTA Section: Primary = Join Event; Secondary = Admin Sign In link */}
+          <div className="flex items-center gap-4">
             <Button 
-              variant="ghost" 
-              className="hidden md:inline-flex text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              className="hidden md:inline-flex bg-yellow-500 text-black hover:bg-yellow-600 shadow"
               asChild
             >
-              <Link href="/join">Join</Link>
+              <Link href="/join" aria-label="Join event registration" prefetch>
+                <Users className="size-4 mr-2" />
+                Join Event
+              </Link>
             </Button>
-            
-            {/* Removed demo button */}
+            <Link
+              href="/auth/login"
+              className="hidden md:inline-flex items-center text-gray-600 hover:text-gray-900 underline-offset-4 hover:underline"
+              aria-label="Admin and organizers sign in"
+              prefetch={false}
+            >
+              <Shield className="size-4 mr-1" /> Sign In
+            </Link>
 
             {/* Mobile Menu Button */}
             <Button
@@ -65,33 +73,47 @@ export function HeaderNav() {
               size="sm"
               className="lg:hidden p-2"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle navigation"
             >
               {isMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
             </Button>
           </div>
         </div>
 
-        {/* Enhanced Mobile Navigation */}
+        {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="lg:hidden border-t border-gray-100 py-4 bg-white/95 backdrop-blur-xl">
-            <nav className="flex flex-col gap-1">
+            <nav className="flex flex-col gap-1" aria-label="Mobile">
               {NAV_LINKS.map((l) => (
                 <Link 
                   key={l.href} 
-                  href={l.href} 
+                  href={l.href}
+                  prefetch={false}
                   className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-medium py-3 px-4 rounded-lg transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {l.label}
                 </Link>
               ))}
-              <div className="pt-3 mt-3 border-t border-gray-100">
+              <div className="pt-3 mt-3 border-t border-gray-100 space-y-2">
                 <Link 
                   href="/join"
-                  className="block text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-medium py-3 px-4 rounded-lg transition-colors"
+                  className="flex items-center gap-2 bg-yellow-500 text-black hover:bg-yellow-600 font-medium py-3 px-4 rounded-lg transition-colors shadow"
+                  aria-label="Join event registration"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Join
+                  <Users className="size-4" />
+                  Join Event
+                </Link>
+                <Link 
+                  href="/auth/login"
+                  className="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors"
+                  aria-label="Admin and organizers sign in"
+                  prefetch={false}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Shield className="size-4" />
+                  Sign In
                 </Link>
               </div>
             </nav>
