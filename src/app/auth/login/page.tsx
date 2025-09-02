@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoginForm } from '@/components/features/auth/LoginForm';
 import { Toaster } from '@/components/ui/sonner';
-import { Shield, GraduationCap } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Login - DTP Attendance System',
@@ -13,23 +13,24 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="fixed inset-0 w-screen h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-white to-amber-50">
+      {/* Background Elements - Matching landing page exactly */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl" />
+      
+      <div className="w-full max-w-md px-4 space-y-6 relative z-10">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
-            <GraduationCap className="h-8 w-8 text-blue-600" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 border border-yellow-200">
+            <GraduationCap className="h-8 w-8 text-yellow-600" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">DTP Attendance</h1>
-          <p className="text-gray-600 mt-2">Department of Technology Programs</p>
+          <p className="text-gray-600 mt-2">University of Mindanao Digos College</p>
         </div>
 
         {/* Login Card */}
-        <Card className="shadow-lg">
+        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
-            <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
-              <Shield className="h-5 w-5 text-blue-600" />
-            </div>
             <CardTitle className="text-2xl font-semibold">Welcome Back</CardTitle>
             <CardDescription className="text-base">
               Sign in to your admin account to access the attendance system
@@ -44,7 +45,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center text-sm text-gray-500">
-          <p>© 2024 University of Malaya - Department of Technology Programs</p>
+          <p>© 2024 University of Mindanao Digos College - Department of Technology Programs</p>
           <p className="mt-1">Secure authentication powered by Supabase</p>
         </div>
       </div>
