@@ -121,18 +121,18 @@ Tech-stack specific file structure for QR Scanning System:
       - **Acceptance:** Zod schemas for event/session validation, TypeScript types
       - **Tech:** Zod validation, TypeScript type inference
 
-  - [ ] **2.2 Story: Session Configuration System**
-    - [ ] **2.2.1 Atomic:** Implement session CRUD API endpoints
+  - [x] **2.2 Story: Session Configuration System**
+    - [x] **2.2.1 Atomic:** Implement session CRUD API endpoints
       - **Files:** `src/app/api/admin/sessions/route.ts`, `src/app/api/admin/sessions/[id]/route.ts`
       - **Dependencies:** Session database model
       - **Acceptance:** Session management endpoints, time window configuration, organizer assignment
       - **Tech:** Next.js API routes, Prisma client, time validation
-    - [ ] **2.2.2 Atomic:** Create session time window logic
+    - [x] **2.2.2 Atomic:** Create session time window logic
       - **Files:** `src/lib/events/session-utils.ts`, `src/lib/types/session.ts`
       - **Dependencies:** Session validation schemas
       - **Acceptance:** Time window calculation, active session detection, scan type determination
       - **Tech:** Date/time utilities, TypeScript, business logic
-    - [ ] **2.2.3 Atomic:** Build organizer assignment system
+    - [x] **2.2.3 Atomic:** Build organizer assignment system
       - **Files:** `src/app/api/admin/events/[id]/organizers/route.ts`
       - **Dependencies:** Organizer model, Event model
       - **Acceptance:** Assign/remove organizers from events, permission validation
