@@ -41,34 +41,34 @@ Tech-stack specific file structure:
 ### Three-Tier Structure: Epic → Story → Atomic
 
 - [ ] **1.0 Epic: Master-Detail Layout Implementation** *(FR-01)*
-  - [ ] **1.1 Story: Master View (Events List)**
-    - [ ] **1.1.1 Atomic:** Create responsive events list component with selection state
+  - [x] **1.1 Story: Master View (Events List)**
+    - [x] **1.1.1 Atomic:** Create responsive events list component with selection state
       - **Files:** `src/components/admin/EventsList.tsx`
       - **Dependencies:** Event type definitions, selection state management
       - **Acceptance:** List displays events with selection highlighting, responsive design
       - **Tech:** Tailwind CSS, TypeScript, React state management
-    - [ ] **1.1.2 Atomic:** Implement event status badges and visual indicators
+    - [x] **1.1.2 Atomic:** Implement event status badges and visual indicators
       - **Files:** `src/components/admin/EventStatusBadge.tsx`
       - **Dependencies:** Event status types, Badge component
       - **Acceptance:** Color-coded status badges, session count indicators
       - **Tech:** shadcn/ui Badge, CVA variants, Lucide icons
-    - [ ] **1.1.3 Atomic:** Add event search and filtering functionality
+    - [x] **1.1.3 Atomic:** Add event search and filtering functionality
       - **Files:** `src/components/admin/EventFilters.tsx`
       - **Dependencies:** Search utilities, filter state management
       - **Acceptance:** Real-time search, filter by status/date, clear filters
       - **Tech:** React Hook Form, debounced search, filter state
-  - [ ] **1.2 Story: Detail View (Event Information)**
-    - [ ] **1.2.1 Atomic:** Build event detail header with actions
+  - [x] **1.2 Story: Detail View (Event Information)**
+    - [x] **1.2.1 Atomic:** Build event detail header with actions
       - **Files:** `src/components/admin/EventDetailHeader.tsx`
       - **Dependencies:** Event data, action handlers
       - **Acceptance:** Event name, dates, status, primary actions (Edit, Create Session)
       - **Tech:** Card component, Button variants, date formatting
-    - [ ] **1.2.2 Atomic:** Create tabbed interface for Sessions/Organizers/Statistics
+    - [x] **1.2.2 Atomic:** Create tabbed interface for Sessions/Organizers/Statistics
       - **Files:** `src/components/admin/EventDetailTabs.tsx`
       - **Dependencies:** Tabs component, tab content components
       - **Acceptance:** Three tabs with proper content, active state management
       - **Tech:** shadcn/ui Tabs, conditional rendering, state management
-    - [ ] **1.2.3 Atomic:** Implement empty state for unselected events
+    - [x] **1.2.3 Atomic:** Implement empty state for unselected events
       - **Files:** `src/components/admin/EventEmptyState.tsx`
       - **Dependencies:** Empty state design, icon components
       - **Acceptance:** Clear message, visual icon, call-to-action

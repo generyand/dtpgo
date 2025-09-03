@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -13,11 +13,9 @@ import { Label } from '@/components/ui/label';
 // Helper function to format time for display
 const formatTimeForDisplay = (timeValue: string): string => {
   if (!timeValue) return '12:00 AM';
-  
   const [hours, minutes] = timeValue.split(':').map(Number);
   const period = hours >= 12 ? 'PM' : 'AM';
   const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-  
   return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
 };
 
@@ -46,9 +44,7 @@ export function DateTimePicker({
 }: DateTimePickerProps) {
   const [open, setOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(value);
-  const [timeValue, setTimeValue] = React.useState<string>(
-    value ? format(value, 'HH:mm') : ''
-  );
+  const [timeValue, setTimeValue] = React.useState<string>(value ? format(value, 'HH:mm') : '');
 
   React.useEffect(() => {
     setSelectedDate(value);
@@ -57,18 +53,11 @@ export function DateTimePicker({
 
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
-    
-    if (date && timeValue) {
-      const [hours, minutes] = timeValue.split(':').map(Number);
+    if (date) {
+      const now = new Date();
+      const [hours, minutes] = (timeValue || format(now, 'HH:mm')).split(':').map(Number);
       const newDateTime = new Date(date);
       newDateTime.setHours(hours, minutes, 0, 0);
-      onChange?.(newDateTime);
-    } else if (date) {
-      // If no time is selected, use current time or 00:00
-      const newDateTime = new Date(date);
-      if (!timeValue) {
-        newDateTime.setHours(0, 0, 0, 0);
-      }
       onChange?.(newDateTime);
     } else {
       onChange?.(undefined);
@@ -77,7 +66,6 @@ export function DateTimePicker({
 
   const handleTimeChange = (time: string) => {
     setTimeValue(time);
-    
     if (selectedDate && time) {
       const [hours, minutes] = time.split(':').map(Number);
       const newDateTime = new Date(selectedDate);
@@ -88,7 +76,6 @@ export function DateTimePicker({
 
   const displayValue = React.useMemo(() => {
     if (!selectedDate) return '';
-    
     const dateStr = format(selectedDate, 'MMM dd, yyyy');
     const timeStr = timeValue || '00:00';
     return `${dateStr} at ${timeStr}`;
@@ -101,8 +88,6 @@ export function DateTimePicker({
           {label}
         </Label>
       )}
-      
-      {/* Main DateTime Input */}
       <div className="relative">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -122,26 +107,20 @@ export function DateTimePicker({
                 <div className="flex-1 min-w-0">
                   {selectedDate ? (
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">
-                        {format(selectedDate, 'MMM dd, yyyy')}
-                      </span>
+                      <span className="font-medium">{format(selectedDate, 'MMM dd, yyyy')}</span>
                       <span className="text-gray-400">•</span>
-                      <span className="text-gray-600">
-                        {formatTimeForDisplay(timeValue)}
-                      </span>
+                      <span className="text-gray-600">{formatTimeForDisplay(timeValue)}</span>
                     </div>
                   ) : (
                     <span className="text-muted-foreground">Select date and time</span>
                   )}
                 </div>
-                <Clock className="h-4 w-4 text-gray-400 flex-shrink-0" />
               </div>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start" side="bottom">
+          <PopoverContent className="z-50 w-auto p-0" align="start" side="bottom" sideOffset={8}>
             <div className="p-4">
               <div className="space-y-4">
-                {/* Calendar Section */}
                 <div>
                   <h4 className="text-sm font-medium text-gray-900 mb-2">Select Date</h4>
                   <Calendar
@@ -155,45 +134,21 @@ export function DateTimePicker({
                       return false;
                     }}
                     initialFocus
-                    className="rounded-md border"
+                    className="rounded-md border bg-white"
                   />
                 </div>
-                
-                {/* Time Section */}
                 <div className="border-t pt-4">
                   <h4 className="text-sm font-medium text-gray-900 mb-2">Select Time</h4>
                   <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       type="time"
+                      step={60}
                       value={timeValue}
                       onChange={(e) => handleTimeChange(e.target.value)}
-                      className={cn(
-                        'pl-10 h-10',
-                        error && 'border-red-500 focus:border-red-500'
-                      )}
+                      className={cn('h-10', error && 'border-red-500 focus:border-red-500')}
                       disabled={disabled}
                       placeholder="HH:MM"
                     />
-                  </div>
-                </div>
-                
-                {/* Quick Time Presets */}
-                <div className="border-t pt-4">
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">Quick Times</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    {['09:00', '12:00', '14:00', '16:00', '18:00', '20:00'].map((time) => (
-                      <Button
-                        key={time}
-                        variant="outline"
-                        size="sm"
-                        className="h-8 text-xs"
-                        onClick={() => handleTimeChange(time)}
-                        disabled={disabled}
-                      >
-                        {time}
-                      </Button>
-                    ))}
                   </div>
                 </div>
               </div>
@@ -201,7 +156,6 @@ export function DateTimePicker({
           </PopoverContent>
         </Popover>
       </div>
-
       {error && (
         <p className="text-sm text-red-500 flex items-center gap-1">
           <span className="text-red-500">⚠</span>
