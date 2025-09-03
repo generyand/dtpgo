@@ -143,15 +143,15 @@ Tech-stack specific file structure:
 - [ ] **3.0 Epic: Visual Design System Enhancement** *(FR-03)*
   - [ ] **3.1 Story: Typography & Spacing**
     - [ ] **3.1.1 Atomic:** Implement consistent typography hierarchy
-      - **Files:** `src/lib/styles/typography.ts`, `tailwind.config.js`
-      - **Dependencies:** Tailwind CSS configuration, design tokens
+      - **Files:** `src/lib/styles/typography.ts`, `src/app/globals.css` (add @theme directive)
+      - **Dependencies:** Tailwind CSS v4 configuration, design tokens
       - **Acceptance:** Consistent font sizes, weights, line heights across components
-      - **Tech:** Tailwind typography plugin, custom font scales, CSS variables
+      - **Tech:** Tailwind CSS v4 @theme directive, custom font scales, CSS custom properties
     - [ ] **3.1.2 Atomic:** Apply standardized spacing system
-      - **Files:** `src/lib/styles/spacing.ts`, `tailwind.config.js`
+      - **Files:** `src/lib/styles/spacing.ts`, `src/app/globals.css` (add @theme directive)
       - **Dependencies:** Design system tokens, spacing utilities
       - **Acceptance:** Consistent spacing scale, proper component spacing
-      - **Tech:** Tailwind spacing scale, custom spacing tokens, utility classes
+      - **Tech:** Tailwind CSS v4 @theme directive, custom spacing tokens, utility classes
     - [ ] **3.1.3 Atomic:** Create visual grouping with cards and dividers
       - **Files:** `src/components/ui/card.tsx` (enhance), `src/components/ui/separator.tsx`
       - **Dependencies:** Card component, separator component
@@ -159,10 +159,10 @@ Tech-stack specific file structure:
       - **Tech:** shadcn/ui components, consistent border radius, shadow system
   - [ ] **3.2 Story: Color System & Theming**
     - [ ] **3.2.1 Atomic:** Implement consistent color palette
-      - **Files:** `src/lib/styles/colors.ts`, `tailwind.config.js`
+      - **Files:** `src/lib/styles/colors.ts`, `src/app/globals.css` (add @theme directive)
       - **Dependencies:** Color system design, CSS variables
       - **Acceptance:** Consistent color tokens, semantic color naming
-      - **Tech:** CSS custom properties, Tailwind color configuration
+      - **Tech:** CSS custom properties, Tailwind CSS v4 @theme directive for color configuration
     - [ ] **3.2.2 Atomic:** Add status-based color coding
       - **Files:** `src/lib/styles/status-colors.ts`, `src/components/ui/badge.tsx`
       - **Dependencies:** Status color definitions, Badge component
