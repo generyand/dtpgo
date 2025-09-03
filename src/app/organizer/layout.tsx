@@ -1,5 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
+import { OrganizerOnly } from '@/components/auth/RoleGuard';
 
 export const metadata: Metadata = {
   title: 'Organizer Portal - DTP Attendance System',
@@ -12,8 +13,10 @@ export default function OrganizerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {children}
-    </div>
+    <OrganizerOnly redirectTo="/admin/dashboard">
+      <div className="min-h-screen bg-gray-50">
+        {children}
+      </div>
+    </OrganizerOnly>
   );
 }
