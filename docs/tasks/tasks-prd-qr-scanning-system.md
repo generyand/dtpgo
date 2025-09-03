@@ -91,13 +91,13 @@ Tech-stack specific file structure for QR Scanning System:
       - **Acceptance:** Components display QR codes with proper branding and information, scanner interface
       - **Tech:** React components, image display, download functionality, camera integration
 
-  - [ ] **1.4 Story: Multi-Organizer Support**
-    - [ ] **1.4.1 Atomic:** Create organizer session management
-      - **Files:** `src/lib/auth/organizer-session.ts`, `src/hooks/use-organizer-session.ts`
+  - [x] **1.4 Story: Multi-Organizer Support**
+    - [x] **1.4.1 Atomic:** Create organizer session management
+      - **Files:** `src/lib/auth/organizer-session.ts`, `src/hooks/use-organizer-session.ts`, `src/app/api/organizer/session/route.ts`, `src/app/api/organizer/activity/route.ts`
       - **Dependencies:** Organizer auth utilities
       - **Acceptance:** Session state management, concurrent session support, event assignment tracking
       - **Tech:** React hooks, session storage, state management
-    - [ ] **1.4.2 Atomic:** Implement organizer middleware
+    - [x] **1.4.2 Atomic:** Implement organizer middleware
       - **Files:** `src/middleware.ts` (extend existing)
       - **Dependencies:** Organizer role guard
       - **Acceptance:** Middleware protects organizer routes, handles role-based redirects
