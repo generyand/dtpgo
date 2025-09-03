@@ -393,10 +393,10 @@ Tech-stack specific file structure for QR Scanning System:
       - **Acceptance:** Scanning-specific variants of existing components, consistent styling
       - **Tech:** Component variants, CVA (Class Variance Authority), Tailwind CSS
     - [ ] **7.2.3 Atomic:** Implement design system compliance
-      - **Files:** `src/lib/design/scanning-theme.ts`, `src/lib/design/component-standards.ts`
+      - **Files:** `src/lib/design/scanning-theme.ts`, `src/lib/design/component-standards.ts`, `src/app/globals.css` (add @theme directive)
       - **Dependencies:** Existing design system
       - **Acceptance:** Consistent colors, typography, spacing, component standards
-      - **Tech:** Design tokens, Tailwind configuration, design system compliance
+      - **Tech:** Design tokens, Tailwind CSS v4 @theme directive, design system compliance
 
   - [ ] **7.3 Story: Browser Compatibility & Performance**
     - [ ] **7.3.1 Atomic:** Implement cross-browser compatibility
@@ -410,10 +410,10 @@ Tech-stack specific file structure for QR Scanning System:
       - **Acceptance:** Optimized camera performance, reduced battery usage, smooth mobile experience
       - **Tech:** Performance optimization, mobile-specific optimizations, camera API optimization
     - [ ] **7.3.3 Atomic:** Implement responsive design system
-      - **Files:** `src/lib/responsive/breakpoints.ts`, `src/lib/responsive/mobile-first.ts`
-      - **Dependencies:** Tailwind CSS configuration
+      - **Files:** `src/lib/responsive/breakpoints.ts`, `src/lib/responsive/mobile-first.ts`, `src/app/globals.css` (add @theme directive)
+      - **Dependencies:** Tailwind CSS v4 configuration
       - **Acceptance:** Mobile-first responsive design, consistent breakpoints, touch-friendly interfaces
-      - **Tech:** Responsive design, Tailwind CSS, mobile-first approach, touch optimization
+      - **Tech:** Responsive design, Tailwind CSS v4 @theme directive, mobile-first approach, touch optimization
 
 ---
 
