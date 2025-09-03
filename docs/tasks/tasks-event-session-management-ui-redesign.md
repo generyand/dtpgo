@@ -40,7 +40,7 @@ Tech-stack specific file structure:
 
 ### Three-Tier Structure: Epic → Story → Atomic
 
-- [ ] **1.0 Epic: Master-Detail Layout Implementation** *(FR-01)*
+- [x] **1.0 Epic: Master-Detail Layout Implementation** *(FR-01)*
   - [x] **1.1 Story: Master View (Events List)**
     - [x] **1.1.1 Atomic:** Create responsive events list component with selection state
       - **Files:** `src/components/admin/EventsList.tsx`
@@ -73,18 +73,18 @@ Tech-stack specific file structure:
       - **Dependencies:** Empty state design, icon components
       - **Acceptance:** Clear message, visual icon, call-to-action
       - **Tech:** Lucide icons, centered layout, typography hierarchy
-  - [ ] **1.3 Story: Layout Integration**
-    - [ ] **1.3.1 Atomic:** Implement split-pane layout with proper responsive behavior
-      - **Files:** `src/app/admin/events/page.tsx`, `src/components/admin/EventManagementLayout.tsx`
+  - [x] **1.3 Story: Layout Integration**
+    - [x] **1.3.1 Atomic:** Implement split-pane layout with proper responsive behavior
+      - **Files:** `src/app/admin/events/page.tsx`, `src/components/admin/EventManagementSplitPane.tsx`
       - **Dependencies:** Responsive design utilities, layout components
       - **Acceptance:** Desktop split-pane, mobile stacked layout, proper breakpoints
       - **Tech:** Tailwind responsive classes, CSS Grid/Flexbox, mobile-first design
-    - [ ] **1.3.2 Atomic:** Add loading states and error handling
+    - [x] **1.3.2 Atomic:** Add loading states and error handling
       - **Files:** `src/components/admin/EventLoadingStates.tsx`
       - **Dependencies:** Loading components, error boundary
       - **Acceptance:** Skeleton loaders, error messages, retry functionality
       - **Tech:** Skeleton components, error boundaries, toast notifications
-    - [ ] **1.3.3 Atomic:** Integrate with existing event management logic
+    - [x] **1.3.3 Atomic:** Integrate with existing event management logic
       - **Files:** `src/components/admin/EventManagement.tsx` (refactor)
       - **Dependencies:** Existing event API, state management
       - **Acceptance:** Seamless integration, no breaking changes, improved UX
