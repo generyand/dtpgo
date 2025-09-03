@@ -104,18 +104,18 @@ Tech-stack specific file structure for QR Scanning System:
       - **Tech:** Next.js middleware, route protection, role validation
 
 - [ ] **2.0 Epic: Event & Session Management System** *(FR-2.1-2.5)*
-  - [ ] **2.1 Story: Event Management Backend**
-    - [ ] **2.1.1 Atomic:** Create Event and Session database models
-      - **Files:** `prisma/schema.prisma` (add Event, Session models), `prisma/migrations/`
+  - [x] **2.1 Story: Event Management Backend**
+    - [x] **2.1.1 Atomic:** Create Event and Session database models
+      - **Files:** `prisma/schema.prisma` (Event, Session models already exist), `prisma/migrations/`
       - **Dependencies:** None
       - **Acceptance:** Event model with name/description, Session model with time windows, organizer assignments
       - **Tech:** Prisma ORM, PostgreSQL, database migrations
-    - [ ] **2.1.2 Atomic:** Implement event CRUD API endpoints
+    - [x] **2.1.2 Atomic:** Implement event CRUD API endpoints
       - **Files:** `src/app/api/admin/events/route.ts`, `src/app/api/admin/events/[id]/route.ts`
       - **Dependencies:** Event database model
       - **Acceptance:** GET, POST, PUT, DELETE endpoints for events, proper validation, error handling
       - **Tech:** Next.js API routes, TypeScript, Prisma client, input validation
-    - [ ] **2.1.3 Atomic:** Create event validation schemas
+    - [x] **2.1.3 Atomic:** Create event validation schemas
       - **Files:** `src/lib/validations/event.ts`, `src/lib/validations/session.ts`
       - **Dependencies:** None
       - **Acceptance:** Zod schemas for event/session validation, TypeScript types
