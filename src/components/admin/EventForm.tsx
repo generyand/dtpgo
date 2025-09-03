@@ -78,6 +78,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
         endDate: data.endDate.toISOString(),
       };
 
+      console.log('Submitting event form data:', formData);
       await onSubmit(formData as any);
     } catch (error) {
       console.error('Error submitting form:', error);

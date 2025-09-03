@@ -8,8 +8,12 @@ import { logActivity } from '@/lib/db/queries/activity';
 const createEventSchema = z.object({
   name: z.string().min(1, 'Event name is required').max(255, 'Event name too long'),
   description: z.string().optional(),
-  startDate: z.string().datetime('Invalid start date format'),
-  endDate: z.string().datetime('Invalid end date format'),
+  startDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: 'Invalid start date format'
+  }),
+  endDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: 'Invalid end date format'
+  }),
   location: z.string().optional(),
 });
 
@@ -168,6 +172,10 @@ export async function POST(request: NextRequest) {
     // Validate request body
     const validationResult = createEventSchema.safeParse(body);
     if (!validationResult.success) {
+      console.error('Event creation validation failed:', {
+        body,
+        errors: validationResult.error.issues
+      });
       return NextResponse.json(
         {
           error: 'Validation failed',
