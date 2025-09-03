@@ -40,7 +40,7 @@ Tech-stack specific file structure for QR Scanning System:
 ### Three-Tier Structure: Epic → Story → Atomic
 
 - [ ] **1.0 Epic: Organizer Authentication & Access Control** *(FR-1.1-1.6)*
-  - [ ] **1.1 Story: Organizer Authentication System**
+  - [x] **1.1 Story: Organizer Authentication System**
     - [x] **1.1.1 Atomic:** Create organizer login page and form
       - **Files:** `src/app/organizer/login/page.tsx`, `src/components/organizer/OrganizerLoginForm.tsx`
       - **Dependencies:** Existing Supabase Auth setup
@@ -58,17 +58,17 @@ Tech-stack specific file structure for QR Scanning System:
       - **Tech:** Supabase Auth client, TypeScript interfaces, cookie handling
 
   - [ ] **1.2 Story: Role-Based Access Control**
-    - [ ] **1.2.1 Atomic:** Extend database schema for organizer roles
+    - [x] **1.2.1 Atomic:** Extend database schema for organizer roles
       - **Files:** `prisma/schema.prisma` (add Organizer model), `prisma/migrations/`
       - **Dependencies:** None
       - **Acceptance:** Organizer model with role field, event assignments, migration created
       - **Tech:** Prisma ORM, PostgreSQL, database migrations
-    - [ ] **1.2.2 Atomic:** Create organizer role guard component
-      - **Files:** `src/components/auth/OrganizerGuard.tsx`
+    - [x] **1.2.2 Atomic:** Create organizer role guard component
+      - **Files:** `src/components/auth/RoleGuard.tsx` (existing component with organizer support)
       - **Dependencies:** Organizer auth utilities, database schema
       - **Acceptance:** Component checks organizer role, restricts access to assigned events
       - **Tech:** React component, conditional rendering, role-based access control
-    - [ ] **1.2.3 Atomic:** Implement admin invitation system
+    - [x] **1.2.3 Atomic:** Implement admin invitation system
       - **Files:** `src/app/api/admin/invite-organizer/route.ts`, `src/components/admin/InviteOrganizerForm.tsx`
       - **Dependencies:** Organizer database model
       - **Acceptance:** Admin can invite organizers, email invitations sent, role assignment
