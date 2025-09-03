@@ -10,6 +10,17 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+// Helper function to format time for display
+const formatTimeForDisplay = (timeValue: string): string => {
+  if (!timeValue) return '12:00 AM';
+  
+  const [hours, minutes] = timeValue.split(':').map(Number);
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+  
+  return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+};
+
 interface DateTimePickerProps {
   value?: Date;
   onChange?: (date: Date | undefined) => void;
@@ -84,64 +95,118 @@ export function DateTimePicker({
   }, [selectedDate, timeValue]);
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn('space-y-3', className)}>
       {label && (
         <Label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {label}
         </Label>
       )}
       
-      <div className="flex gap-2">
+      {/* Main DateTime Input */}
+      <div className="relative">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               className={cn(
-                'w-full justify-start text-left font-normal',
+                'w-full h-12 justify-start text-left font-normal px-4 py-3',
                 !selectedDate && 'text-muted-foreground',
-                error && 'border-red-500 focus:border-red-500',
-                disabled && 'cursor-not-allowed opacity-50'
+                error && 'border-red-500 focus:border-red-500 focus:ring-red-500/20',
+                disabled && 'cursor-not-allowed opacity-50',
+                'hover:bg-gray-50 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'
               )}
               disabled={disabled}
             >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {selectedDate ? format(selectedDate, 'MMM dd, yyyy') : 'Pick a date'}
+              <div className="flex items-center gap-3 w-full">
+                <CalendarIcon className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  {selectedDate ? (
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">
+                        {format(selectedDate, 'MMM dd, yyyy')}
+                      </span>
+                      <span className="text-gray-400">•</span>
+                      <span className="text-gray-600">
+                        {formatTimeForDisplay(timeValue)}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">Select date and time</span>
+                  )}
+                </div>
+                <Clock className="h-4 w-4 text-gray-400 flex-shrink-0" />
+              </div>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={handleDateSelect}
-              disabled={(date) => {
-                if (disabled) return true;
-                if (minDate && date < minDate) return true;
-                if (maxDate && date > maxDate) return true;
-                return false;
-              }}
-              initialFocus
-            />
+          <PopoverContent className="w-auto p-0" align="start" side="bottom">
+            <div className="p-4">
+              <div className="space-y-4">
+                {/* Calendar Section */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">Select Date</h4>
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={handleDateSelect}
+                    disabled={(date) => {
+                      if (disabled) return true;
+                      if (minDate && date < minDate) return true;
+                      if (maxDate && date > maxDate) return true;
+                      return false;
+                    }}
+                    initialFocus
+                    className="rounded-md border"
+                  />
+                </div>
+                
+                {/* Time Section */}
+                <div className="border-t pt-4">
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">Select Time</h4>
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      type="time"
+                      value={timeValue}
+                      onChange={(e) => handleTimeChange(e.target.value)}
+                      className={cn(
+                        'pl-10 h-10',
+                        error && 'border-red-500 focus:border-red-500'
+                      )}
+                      disabled={disabled}
+                      placeholder="HH:MM"
+                    />
+                  </div>
+                </div>
+                
+                {/* Quick Time Presets */}
+                <div className="border-t pt-4">
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">Quick Times</h4>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['09:00', '12:00', '14:00', '16:00', '18:00', '20:00'].map((time) => (
+                      <Button
+                        key={time}
+                        variant="outline"
+                        size="sm"
+                        className="h-8 text-xs"
+                        onClick={() => handleTimeChange(time)}
+                        disabled={disabled}
+                      >
+                        {time}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </PopoverContent>
         </Popover>
-
-        <div className="relative">
-          <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            type="time"
-            value={timeValue}
-            onChange={(e) => handleTimeChange(e.target.value)}
-            className={cn(
-              'pl-10 w-32',
-              error && 'border-red-500 focus:border-red-500'
-            )}
-            disabled={disabled}
-            placeholder="HH:MM"
-          />
-        </div>
       </div>
 
       {error && (
-        <p className="text-sm text-red-500">{error}</p>
+        <p className="text-sm text-red-500 flex items-center gap-1">
+          <span className="text-red-500">⚠</span>
+          {error}
+        </p>
       )}
     </div>
   );
@@ -173,7 +238,7 @@ export function DatePicker({
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn('space-y-3', className)}>
       {label && (
         <Label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {label}
@@ -185,18 +250,21 @@ export function DatePicker({
           <Button
             variant="outline"
             className={cn(
-              'w-full justify-start text-left font-normal',
+              'w-full h-12 justify-start text-left font-normal px-4 py-3',
               !value && 'text-muted-foreground',
-              error && 'border-red-500 focus:border-red-500',
-              disabled && 'cursor-not-allowed opacity-50'
+              error && 'border-red-500 focus:border-red-500 focus:ring-red-500/20',
+              disabled && 'cursor-not-allowed opacity-50',
+              'hover:bg-gray-50 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'
             )}
             disabled={disabled}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {value ? format(value, 'MMM dd, yyyy') : placeholder}
+            <CalendarIcon className="mr-3 h-4 w-4 text-gray-500" />
+            <span className="font-medium">
+              {value ? format(value, 'MMM dd, yyyy') : placeholder}
+            </span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0" align="start" side="bottom">
           <Calendar
             mode="single"
             selected={value}
@@ -208,12 +276,16 @@ export function DatePicker({
               return false;
             }}
             initialFocus
+            className="rounded-md border"
           />
         </PopoverContent>
       </Popover>
 
       {error && (
-        <p className="text-sm text-red-500">{error}</p>
+        <p className="text-sm text-red-500 flex items-center gap-1">
+          <span className="text-red-500">⚠</span>
+          {error}
+        </p>
       )}
     </div>
   );
