@@ -21,10 +21,10 @@ const sessionConfigSchema = z.object({
   name: z.string().min(1, 'Session name is required').max(100, 'Session name must be less than 100 characters'),
   description: z.string().max(500, 'Description must be less than 500 characters').optional(),
   eventId: z.string().min(1, 'Event selection is required'),
-  timeInStart: z.string().min(1, 'Time-in start time is required'),
-  timeInEnd: z.string().min(1, 'Time-in end time is required'),
-  timeOutStart: z.string().optional(),
-  timeOutEnd: z.string().optional(),
+  timeInStart: z.date({ message: 'Time-in start time is required' }),
+  timeInEnd: z.date({ message: 'Time-in end time is required' }),
+  timeOutStart: z.date().optional(),
+  timeOutEnd: z.date().optional(),
   assignedOrganizers: z.array(z.string()).optional(),
 });
 
@@ -67,10 +67,10 @@ export function SessionConfig({ eventId, sessionId, onSuccess, onCancel }: Sessi
       name: '',
       description: '',
       eventId: eventId || '',
-      timeInStart: '',
-      timeInEnd: '',
-      timeOutStart: '',
-      timeOutEnd: '',
+      timeInStart: new Date(),
+      timeInEnd: new Date(Date.now() + 60 * 60 * 1000), // 1 hour later
+      timeOutStart: undefined,
+      timeOutEnd: undefined,
       assignedOrganizers: [],
     },
   });
@@ -103,10 +103,10 @@ export function SessionConfig({ eventId, sessionId, onSuccess, onCancel }: Sessi
               name: sessionData.name,
               description: sessionData.description || '',
               eventId: sessionData.eventId,
-              timeInStart: sessionData.timeInStart ? new Date(sessionData.timeInStart).toISOString().slice(0, 16) : '',
-              timeInEnd: sessionData.timeInEnd ? new Date(sessionData.timeInEnd).toISOString().slice(0, 16) : '',
-              timeOutStart: sessionData.timeOutStart ? new Date(sessionData.timeOutStart).toISOString().slice(0, 16) : '',
-              timeOutEnd: sessionData.timeOutEnd ? new Date(sessionData.timeOutEnd).toISOString().slice(0, 16) : '',
+              timeInStart: sessionData.timeInStart ? new Date(sessionData.timeInStart) : new Date(),
+              timeInEnd: sessionData.timeInEnd ? new Date(sessionData.timeInEnd) : new Date(Date.now() + 60 * 60 * 1000),
+              timeOutStart: sessionData.timeOutStart ? new Date(sessionData.timeOutStart) : undefined,
+              timeOutEnd: sessionData.timeOutEnd ? new Date(sessionData.timeOutEnd) : undefined,
               assignedOrganizers: sessionData.assignedOrganizers || [],
             });
             setAssignedOrganizers(sessionData.assignedOrganizers || []);
@@ -126,6 +126,10 @@ export function SessionConfig({ eventId, sessionId, onSuccess, onCancel }: Sessi
     try {
       const sessionData = {
         ...data,
+        timeInStart: data.timeInStart.toISOString(),
+        timeInEnd: data.timeInEnd.toISOString(),
+        timeOutStart: data.timeOutStart?.toISOString(),
+        timeOutEnd: data.timeOutEnd?.toISOString(),
         assignedOrganizers,
       };
 

@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { Clock, Calendar } from 'lucide-react';
 
 interface TimeWindowConfigProps {
@@ -12,53 +13,43 @@ interface TimeWindowConfigProps {
 }
 
 interface TimeWindowFormData {
-    timeInStart: string;
-    timeInEnd: string;
-    timeOutStart?: string;
-    timeOutEnd?: string;
+    timeInStart: Date;
+    timeInEnd: Date;
+    timeOutStart?: Date;
+    timeOutEnd?: Date;
 }
 
 export function TimeWindowConfig({ className }: TimeWindowConfigProps) {
-    const { register, watch, formState: { errors } } = useFormContext<TimeWindowFormData>();
+    const { control, watch, formState: { errors } } = useFormContext<TimeWindowFormData>();
 
     const timeInStart = watch('timeInStart');
     const timeInEnd = watch('timeInEnd');
     const timeOutStart = watch('timeOutStart');
     const timeOutEnd = watch('timeOutEnd');
 
-    // Helper function to format datetime-local input value
-    const formatDateTimeLocal = (date: Date) => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
-    };
-
     // Helper function to get default values
     const getDefaultTimeInStart = () => {
         const now = new Date();
         now.setHours(8, 0, 0, 0); // Default to 8:00 AM
-        return formatDateTimeLocal(now);
+        return now;
     };
 
     const getDefaultTimeInEnd = () => {
         const now = new Date();
         now.setHours(9, 0, 0, 0); // Default to 9:00 AM
-        return formatDateTimeLocal(now);
+        return now;
     };
 
     const getDefaultTimeOutStart = () => {
         const now = new Date();
         now.setHours(16, 0, 0, 0); // Default to 4:00 PM
-        return formatDateTimeLocal(now);
+        return now;
     };
 
     const getDefaultTimeOutEnd = () => {
         const now = new Date();
         now.setHours(17, 0, 0, 0); // Default to 5:00 PM
-        return formatDateTimeLocal(now);
+        return now;
     };
 
     return (
@@ -86,63 +77,57 @@ export function TimeWindowConfig({ className }: TimeWindowConfigProps) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="timeInStart" className="text-sm font-medium">
-                                    Start Time *
-                                </Label>
-                                <div className="relative">
-                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                    <Input
-                                        id="timeInStart"
-                                        type="datetime-local"
-                                        className="pl-10"
-                                        {...register('timeInStart', {
-                                            required: 'Time-in start time is required',
-                                            validate: (value) => {
-                                                if (!value) return 'Time-in start time is required';
-                                                const start = new Date(value);
-                                                const end = new Date(timeInEnd);
-                                                if (start >= end) {
-                                                    return 'Start time must be before end time';
-                                                }
-                                                return true;
+                                <Controller
+                                    name="timeInStart"
+                                    control={control}
+                                    rules={{
+                                        required: 'Time-in start time is required',
+                                        validate: (value) => {
+                                            if (!value) return 'Time-in start time is required';
+                                            if (timeInEnd && value >= timeInEnd) {
+                                                return 'Start time must be before end time';
                                             }
-                                        })}
-                                        defaultValue={getDefaultTimeInStart()}
-                                    />
-                                </div>
-                                {errors.timeInStart && (
-                                    <p className="text-sm text-red-600">{errors.timeInStart.message}</p>
-                                )}
+                                            return true;
+                                        }
+                                    }}
+                                    defaultValue={getDefaultTimeInStart()}
+                                    render={({ field }) => (
+                                        <DateTimePicker
+                                            label="Start Time *"
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            error={errors.timeInStart?.message}
+                                            minDate={new Date()}
+                                        />
+                                    )}
+                                />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="timeInEnd" className="text-sm font-medium">
-                                    End Time *
-                                </Label>
-                                <div className="relative">
-                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                    <Input
-                                        id="timeInEnd"
-                                        type="datetime-local"
-                                        className="pl-10"
-                                        {...register('timeInEnd', {
-                                            required: 'Time-in end time is required',
-                                            validate: (value) => {
-                                                if (!value) return 'Time-in end time is required';
-                                                const start = new Date(timeInStart);
-                                                const end = new Date(value);
-                                                if (start >= end) {
-                                                    return 'End time must be after start time';
-                                                }
-                                                return true;
+                                <Controller
+                                    name="timeInEnd"
+                                    control={control}
+                                    rules={{
+                                        required: 'Time-in end time is required',
+                                        validate: (value) => {
+                                            if (!value) return 'Time-in end time is required';
+                                            if (timeInStart && timeInStart >= value) {
+                                                return 'End time must be after start time';
                                             }
-                                        })}
-                                        defaultValue={getDefaultTimeInEnd()}
-                                    />
-                                </div>
-                                {errors.timeInEnd && (
-                                    <p className="text-sm text-red-600">{errors.timeInEnd.message}</p>
-                                )}
+                                            return true;
+                                        }
+                                    }}
+                                    defaultValue={getDefaultTimeInEnd()}
+                                    render={({ field }) => (
+                                        <DateTimePicker
+                                            label="End Time *"
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            error={errors.timeInEnd?.message}
+                                            minDate={timeInStart || new Date()}
+                                        />
+                                    )}
+                                />
                             </div>
                         </div>
                     </div>
@@ -159,61 +144,55 @@ export function TimeWindowConfig({ className }: TimeWindowConfigProps) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="timeOutStart" className="text-sm font-medium">
-                                    Start Time
-                                </Label>
-                                <div className="relative">
-                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                    <Input
-                                        id="timeOutStart"
-                                        type="datetime-local"
-                                        className="pl-10"
-                                        {...register('timeOutStart', {
-                                            validate: (value) => {
-                                                if (!value) return true; // Optional field
-                                                const start = new Date(value);
-                                                const end = new Date(timeOutEnd!);
-                                                if (timeOutEnd && start >= end) {
-                                                    return 'Start time must be before end time';
-                                                }
-                                                return true;
+                                <Controller
+                                    name="timeOutStart"
+                                    control={control}
+                                    rules={{
+                                        validate: (value) => {
+                                            if (!value) return true; // Optional field
+                                            if (timeOutEnd && value >= timeOutEnd) {
+                                                return 'Start time must be before end time';
                                             }
-                                        })}
-                                        defaultValue={getDefaultTimeOutStart()}
-                                    />
-                                </div>
-                                {errors.timeOutStart && (
-                                    <p className="text-sm text-red-600">{errors.timeOutStart.message}</p>
-                                )}
+                                            return true;
+                                        }
+                                    }}
+                                    defaultValue={getDefaultTimeOutStart()}
+                                    render={({ field }) => (
+                                        <DateTimePicker
+                                            label="Start Time"
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            error={errors.timeOutStart?.message}
+                                            minDate={new Date()}
+                                        />
+                                    )}
+                                />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="timeOutEnd" className="text-sm font-medium">
-                                    End Time
-                                </Label>
-                                <div className="relative">
-                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                    <Input
-                                        id="timeOutEnd"
-                                        type="datetime-local"
-                                        className="pl-10"
-                                        {...register('timeOutEnd', {
-                                            validate: (value) => {
-                                                if (!value) return true; // Optional field
-                                                const start = new Date(timeOutStart!);
-                                                const end = new Date(value);
-                                                if (timeOutStart && start >= end) {
-                                                    return 'End time must be after start time';
-                                                }
-                                                return true;
+                                <Controller
+                                    name="timeOutEnd"
+                                    control={control}
+                                    rules={{
+                                        validate: (value) => {
+                                            if (!value) return true; // Optional field
+                                            if (timeOutStart && timeOutStart >= value) {
+                                                return 'End time must be after start time';
                                             }
-                                        })}
-                                        defaultValue={getDefaultTimeOutEnd()}
-                                    />
-                                </div>
-                                {errors.timeOutEnd && (
-                                    <p className="text-sm text-red-600">{errors.timeOutEnd.message}</p>
-                                )}
+                                            return true;
+                                        }
+                                    }}
+                                    defaultValue={getDefaultTimeOutEnd()}
+                                    render={({ field }) => (
+                                        <DateTimePicker
+                                            label="End Time"
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            error={errors.timeOutEnd?.message}
+                                            minDate={timeOutStart || new Date()}
+                                        />
+                                    )}
+                                />
                             </div>
                         </div>
                     </div>
