@@ -103,7 +103,7 @@ Tech-stack specific file structure for QR Scanning System:
       - **Acceptance:** Middleware protects organizer routes, handles role-based redirects
       - **Tech:** Next.js middleware, route protection, role validation
 
-- [ ] **2.0 Epic: Event & Session Management System** *(FR-2.1-2.5)*
+- [x] **2.0 Epic: Event & Session Management System** *(FR-2.1-2.5)*
   - [x] **2.1 Story: Event Management Backend**
     - [x] **2.1.1 Atomic:** Create Event and Session database models
       - **Files:** `prisma/schema.prisma` (Event, Session models already exist), `prisma/migrations/`
@@ -138,18 +138,18 @@ Tech-stack specific file structure for QR Scanning System:
       - **Acceptance:** Assign/remove organizers from events, permission validation
       - **Tech:** Prisma relations, API endpoints, role validation
 
-  - [ ] **2.3 Story: Event Management Frontend**
-    - [ ] **2.3.1 Atomic:** Create event management admin interface
+  - [x] **2.3 Story: Event Management Frontend**
+    - [x] **2.3.1 Atomic:** Create event management admin interface
       - **Files:** `src/app/admin/events/page.tsx`, `src/components/admin/EventManagement.tsx`
       - **Dependencies:** Event API endpoints
       - **Acceptance:** Event list, create/edit forms, delete confirmation, responsive design
       - **Tech:** React components, Tailwind CSS, form handling, API integration
-    - [ ] **2.3.2 Atomic:** Build session configuration interface
+    - [x] **2.3.2 Atomic:** Build session configuration interface
       - **Files:** `src/components/admin/SessionConfig.tsx`, `src/components/admin/TimeWindowConfig.tsx`
       - **Dependencies:** Session API endpoints
       - **Acceptance:** Session creation form, time window picker, organizer assignment UI
       - **Tech:** React forms, date/time pickers, multi-select components
-    - [ ] **2.3.3 Atomic:** Create organizer session selection interface
+    - [x] **2.3.3 Atomic:** Create organizer session selection interface
       - **Files:** `src/app/organizer/sessions/page.tsx`, `src/components/organizer/SessionSelector.tsx`
       - **Dependencies:** Organizer auth, session API
       - **Acceptance:** List assigned sessions, active session indicators, session selection
