@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar, MapPin, Save, X } from 'lucide-react';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
+import { MapPin, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { createEventSchema, type CreateEventInput } from '@/lib/validations/event';
 import { EventWithDetails } from '@/lib/types/event';
@@ -17,8 +18,8 @@ import { EventWithDetails } from '@/lib/types/event';
 type EventFormData = {
   name: string;
   description?: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   location?: string;
   isActive: boolean;
 };
@@ -36,6 +37,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     setValue,
     watch,
@@ -44,8 +46,8 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
     defaultValues: {
       name: event?.name || '',
       description: event?.description || undefined,
-      startDate: event?.startDate ? new Date(event.startDate).toISOString().slice(0, 16) : '',
-      endDate: event?.endDate ? new Date(event.endDate).toISOString().slice(0, 16) : '',
+      startDate: event?.startDate ? new Date(event.startDate) : new Date(),
+      endDate: event?.endDate ? new Date(event.endDate) : new Date(Date.now() + 60 * 60 * 1000), // 1 hour later
       location: event?.location || undefined,
       isActive: event?.isActive ?? true,
     },
@@ -57,13 +59,10 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
   // Auto-adjust end date if it's before start date
   useEffect(() => {
     if (watchedStartDate && watchedEndDate) {
-      const startDate = new Date(watchedStartDate);
-      const endDate = new Date(watchedEndDate);
-      
-      if (endDate <= startDate) {
+      if (watchedEndDate <= watchedStartDate) {
         // Set end date to 1 hour after start date
-        const newEndDate = new Date(startDate.getTime() + 60 * 60 * 1000);
-        setValue('endDate', newEndDate.toISOString().slice(0, 16));
+        const newEndDate = new Date(watchedStartDate.getTime() + 60 * 60 * 1000);
+        setValue('endDate', newEndDate);
       }
     }
   }, [watchedStartDate, watchedEndDate, setValue]);
@@ -72,14 +71,14 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
     try {
       setIsSubmitting(true);
       
-      // Convert datetime-local format to ISO string
+      // Convert Date objects to ISO strings for API submission
       const formData = {
         ...data,
-        startDate: new Date(data.startDate).toISOString(),
-        endDate: new Date(data.endDate).toISOString(),
+        startDate: data.startDate.toISOString(),
+        endDate: data.endDate.toISOString(),
       };
 
-      await onSubmit(formData);
+      await onSubmit(formData as any);
     } catch (error) {
       console.error('Error submitting form:', error);
       toast.error('Failed to submit form');
@@ -93,8 +92,8 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
       reset({
         name: event.name,
         description: event.description || undefined,
-        startDate: new Date(event.startDate).toISOString().slice(0, 16),
-        endDate: new Date(event.endDate).toISOString().slice(0, 16),
+        startDate: new Date(event.startDate),
+        endDate: new Date(event.endDate),
         location: event.location || undefined,
         isActive: event.isActive,
       });
@@ -136,37 +135,44 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
 
       {/* Date and Time */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="startDate">Start Date & Time *</Label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              id="startDate"
-              type="datetime-local"
-              {...register('startDate')}
-              className={`pl-10 ${errors.startDate ? 'border-red-500' : ''}`}
+        <Controller
+          name="startDate"
+          control={control}
+          rules={{ required: 'Start date is required' }}
+          render={({ field }) => (
+            <DateTimePicker
+              label="Start Date & Time *"
+              value={field.value}
+              onChange={field.onChange}
+              error={errors.startDate?.message}
+              minDate={new Date()}
             />
-          </div>
-          {errors.startDate && (
-            <p className="text-sm text-red-500">{errors.startDate.message}</p>
           )}
-        </div>
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="endDate">End Date & Time *</Label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              id="endDate"
-              type="datetime-local"
-              {...register('endDate')}
-              className={`pl-10 ${errors.endDate ? 'border-red-500' : ''}`}
+        <Controller
+          name="endDate"
+          control={control}
+          rules={{ 
+            required: 'End date is required',
+            validate: (value) => {
+              const startDate = watch('startDate');
+              if (startDate && value <= startDate) {
+                return 'End date must be after start date';
+              }
+              return true;
+            }
+          }}
+          render={({ field }) => (
+            <DateTimePicker
+              label="End Date & Time *"
+              value={field.value}
+              onChange={field.onChange}
+              error={errors.endDate?.message}
+              minDate={watchedStartDate || new Date()}
             />
-          </div>
-          {errors.endDate && (
-            <p className="text-sm text-red-500">{errors.endDate.message}</p>
           )}
-        </div>
+        />
       </div>
 
       {/* Location */}
