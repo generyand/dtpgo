@@ -42,16 +42,17 @@ export function EventManagementSplitPane() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const limit = 10;
+  const [localSearch, setLocalSearch] = useState<string>('');
 
-  const fetchEvents = async () => {
+  const fetchEvents = async (options?: { suppressLoading?: boolean; searchOverride?: string }) => {
     try {
-      setLoading(true);
+      if (!options?.suppressLoading) setLoading(true);
       setError(null);
 
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: limit.toString(),
-        search: filters.search || '',
+        search: (options?.searchOverride ?? filters.search) || '',
         sortBy: filters.sortBy,
         sortOrder: filters.sortOrder,
       });
@@ -75,14 +76,34 @@ export function EventManagementSplitPane() {
     } catch (e: any) {
       setError(e?.message || 'Failed to load events');
     } finally {
-      setLoading(false);
+      if (!options?.suppressLoading) setLoading(false);
     }
   };
 
+  // Initial and non-search filter changes use full loading
   useEffect(() => {
     fetchEvents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.search, filters.status, filters.sortBy, filters.sortOrder]);
+  }, [filters.status, filters.sortBy, filters.sortOrder]);
+
+  // Debounce search input and suppress loading overlay for search fetches
+  useEffect(() => {
+    // If cleared, update and fetch immediately for snappy feel
+    if (localSearch.trim() === '') {
+      setFilters((prev) => (prev.search === '' ? prev : { ...prev, search: '' }));
+      fetchEvents({ suppressLoading: true, searchOverride: '' });
+      return;
+    }
+
+    const handle = setTimeout(() => {
+      // Sync debounced search into filters
+      setFilters((prev) => (prev.search === localSearch ? prev : { ...prev, search: localSearch }));
+      // Trigger fetch without overlay when search changes
+      fetchEvents({ suppressLoading: true, searchOverride: localSearch });
+    }, 150);
+    return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localSearch]);
 
   const handleEventSelect = (event: EventWithDetails) => setSelectedEvent(event);
 
@@ -179,8 +200,14 @@ export function EventManagementSplitPane() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search events..."
-                value={filters.search}
-                onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setFilters((prev) => (prev.search === localSearch ? prev : { ...prev, search: localSearch }));
+                    fetchEvents({ suppressLoading: true, searchOverride: localSearch });
+                  }
+                }}
                 className="pl-10"
               />
             </div>

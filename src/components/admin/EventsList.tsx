@@ -46,7 +46,7 @@ export function EventsList({
           onClick={() => onEventSelect(event)}
           className={cn(
             'border rounded-md p-3 cursor-pointer transition-shadow hover:shadow-sm bg-white',
-            selectedEventId === event.id && 'ring-2 ring-blue-500'
+            selectedEventId === event.id && 'ring-2 ring-primary'
           )}
         >
           <div className="flex items-start justify-between gap-3">
