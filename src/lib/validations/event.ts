@@ -27,7 +27,9 @@ export const eventBaseSchema = z.object({
 export const createEventSchema = eventBaseSchema.extend({
   startDate: z
     .string()
-    .datetime('Invalid start date format')
+    .refine((date) => !isNaN(Date.parse(date)), {
+      message: 'Invalid start date format'
+    })
     .refine(
       (date) => {
         const startDate = new Date(date);
@@ -42,7 +44,9 @@ export const createEventSchema = eventBaseSchema.extend({
     ),
   endDate: z
     .string()
-    .datetime('Invalid end date format')
+    .refine((date) => !isNaN(Date.parse(date)), {
+      message: 'Invalid end date format'
+    })
     .refine(
       (date) => {
         const endDate = new Date(date);

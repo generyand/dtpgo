@@ -83,6 +83,8 @@ export function EventManagement({ className }: EventManagementProps) {
   // Handle event creation
   const handleCreateEvent = async (eventData: any) => {
     try {
+      console.log('EventManagement: Creating event with data:', eventData);
+      
       const response = await fetch('/api/admin/events', {
         method: 'POST',
         headers: {
@@ -98,7 +100,19 @@ export function EventManagement({ className }: EventManagementProps) {
         setIsCreateDialogOpen(false);
         fetchEvents(); // Refresh the list
       } else {
-        throw new Error(data.error || 'Failed to create event');
+        // Log detailed error information
+        console.error('Event creation failed:', {
+          status: response.status,
+          data,
+          eventData
+        });
+        
+        // Show detailed error message
+        const errorMessage = data.details 
+          ? `Validation failed: ${data.details.map((d: any) => d.message).join(', ')}`
+          : data.error || 'Failed to create event';
+        
+        throw new Error(errorMessage);
       }
     } catch (err) {
       console.error('Error creating event:', err);

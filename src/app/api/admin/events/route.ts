@@ -3,19 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db/client';
 import { authenticateApiRequest } from '@/lib/auth/api-auth';
 import { logActivity } from '@/lib/db/queries/activity';
-
-// Validation schema for event creation
-const createEventSchema = z.object({
-  name: z.string().min(1, 'Event name is required').max(255, 'Event name too long'),
-  description: z.string().optional(),
-  startDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: 'Invalid start date format'
-  }),
-  endDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: 'Invalid end date format'
-  }),
-  location: z.string().optional(),
-});
+import { createEventSchema } from '@/lib/validations/event';
 
 // Validation schema for event updates
 const updateEventSchema = createEventSchema.partial().extend({
