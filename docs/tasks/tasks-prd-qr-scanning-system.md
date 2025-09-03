@@ -57,7 +57,7 @@ Tech-stack specific file structure for QR Scanning System:
       - **Acceptance:** Organizer-specific auth functions, TypeScript types, session management
       - **Tech:** Supabase Auth client, TypeScript interfaces, cookie handling
 
-  - [ ] **1.2 Story: Role-Based Access Control**
+  - [x] **1.2 Story: Role-Based Access Control**
     - [x] **1.2.1 Atomic:** Extend database schema for organizer roles
       - **Files:** `prisma/schema.prisma` (add Organizer model), `prisma/migrations/`
       - **Dependencies:** None
@@ -74,13 +74,30 @@ Tech-stack specific file structure for QR Scanning System:
       - **Acceptance:** Admin can invite organizers, email invitations sent, role assignment
       - **Tech:** Next.js API routes, email service, form validation
 
-  - [ ] **1.3 Story: Multi-Organizer Support**
-    - [ ] **1.3.1 Atomic:** Create organizer session management
+  - [x] **1.3 Story: QR Code Generation System**
+    - [x] **1.3.1 Atomic:** Create QR code generation utilities
+      - **Files:** `src/lib/qr/session-generator.ts`, `src/lib/qr/branding.ts` (extend)
+      - **Dependencies:** None
+      - **Acceptance:** Session-specific QR codes, student QR codes, validation functions
+      - **Tech:** QRCode library, Sharp for image processing, JSON data structures
+    - [x] **1.3.2 Atomic:** Implement session-specific QR codes
+      - **Files:** `src/app/api/organizer/sessions/[sessionId]/qr/route.ts`, `src/app/api/students/[id]/qr-enhanced/route.ts`
+      - **Dependencies:** QR generation utilities, organizer auth
+      - **Acceptance:** Organizers can generate QR codes for their sessions, enhanced student QR codes
+      - **Tech:** Next.js API routes, authentication, image generation
+    - [x] **1.3.3 Atomic:** Add QR code display components
+      - **Files:** `src/components/organizer/SessionQRDisplay.tsx`, `src/components/students/EnhancedQRCodeDisplay.tsx`, `src/components/organizer/QRCodeScanner.tsx`
+      - **Dependencies:** QR generation utilities
+      - **Acceptance:** Components display QR codes with proper branding and information, scanner interface
+      - **Tech:** React components, image display, download functionality, camera integration
+
+  - [ ] **1.4 Story: Multi-Organizer Support**
+    - [ ] **1.4.1 Atomic:** Create organizer session management
       - **Files:** `src/lib/auth/organizer-session.ts`, `src/hooks/use-organizer-session.ts`
       - **Dependencies:** Organizer auth utilities
       - **Acceptance:** Session state management, concurrent session support, event assignment tracking
       - **Tech:** React hooks, session storage, state management
-    - [ ] **1.3.2 Atomic:** Implement organizer middleware
+    - [ ] **1.4.2 Atomic:** Implement organizer middleware
       - **Files:** `src/middleware.ts` (extend existing)
       - **Dependencies:** Organizer role guard
       - **Acceptance:** Middleware protects organizer routes, handles role-based redirects
