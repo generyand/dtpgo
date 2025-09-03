@@ -100,15 +100,8 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!session?.user) {
-      // Determine the appropriate login page based on the route
-      let loginPath = '/auth/login'
-      if (isOrganizerRoute(pathname)) {
-        loginPath = '/organizer/login'
-      } else if (isAdminRoute(pathname)) {
-        loginPath = '/auth/login' // Admin uses the main auth login
-      }
-      
-      const redirectUrl = new URL(loginPath, request.url)
+      // Redirect to the unified login page
+      const redirectUrl = new URL('/auth/login', request.url)
       redirectUrl.searchParams.set('redirectTo', pathname)
       const res = NextResponse.redirect(redirectUrl)
       res.headers.set('X-Auth-Reason', 'no-session')
@@ -135,7 +128,7 @@ export async function middleware(request: NextRequest) {
     if (isOrganizerRoute(pathname)) {
       if (userRole !== 'organizer' && userRole !== 'admin') {
         console.warn(`User ${session.user.email} attempted to access organizer route without proper role`)
-        const redirectUrl = new URL('/organizer/login', request.url)
+        const redirectUrl = new URL('/auth/login', request.url)
         redirectUrl.searchParams.set('error', 'insufficient_permissions')
         redirectUrl.searchParams.set('message', 'Organizer access required')
         const res = NextResponse.redirect(redirectUrl)
@@ -150,15 +143,8 @@ export async function middleware(request: NextRequest) {
   } catch (error) {
     console.error('Middleware exception:', error)
 
-    // Determine the appropriate login page based on the route
-    let loginPath = '/auth/login'
-    if (isOrganizerRoute(pathname)) {
-      loginPath = '/organizer/login'
-    } else if (isAdminRoute(pathname)) {
-      loginPath = '/auth/login' // Admin uses the main auth login
-    }
-
-    const redirectUrl = new URL(loginPath, request.url)
+    // Redirect to the unified login page
+    const redirectUrl = new URL('/auth/login', request.url)
     redirectUrl.searchParams.set('redirectTo', pathname)
     redirectUrl.searchParams.set('error', 'middleware_error')
     const res = NextResponse.redirect(redirectUrl)

@@ -114,7 +114,7 @@ export function OrganizerPasswordResetForm({ showBackToLogin = true }: Organizer
               type="button"
               variant="outline"
               className="w-full"
-              onClick={() => router.push('/organizer/login')}
+              onClick={() => router.push('/auth/login')}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Organizer Login
@@ -179,7 +179,7 @@ export function OrganizerPasswordResetForm({ showBackToLogin = true }: Organizer
                 type="button"
                 variant="outline"
                 className="w-full"
-                onClick={() => router.push('/organizer/login')}
+                onClick={() => router.push('/auth/login')}
                 disabled={isLoading}
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />

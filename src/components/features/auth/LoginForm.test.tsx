@@ -268,7 +268,7 @@ describe('LoginForm', () => {
     await waitFor(async () => {
       const { toast } = await import('sonner');
       expect(toast.success).toHaveBeenCalledWith('Login Successful', {
-        description: 'Welcome back!',
+        description: 'Welcome back, Unknown Role!',
       });
       expect(mockPush).toHaveBeenCalledWith('/admin/dashboard');
     });

@@ -8,7 +8,7 @@ import { GraduationCap } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Login - DTP Attendance System',
-  description: 'Sign in to access the DTP Attendance admin panel',
+  description: 'Sign in to access the DTP Attendance system',
 };
 
 export default function LoginPage() {
@@ -33,7 +33,7 @@ export default function LoginPage() {
           <CardHeader className="text-center pb-4">
             <CardTitle className="text-2xl font-semibold">Welcome Back</CardTitle>
             <CardDescription className="text-base">
-              Sign in to your admin account to access the attendance system
+              Sign in to your account to access the attendance system
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
