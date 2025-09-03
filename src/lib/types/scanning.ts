@@ -38,6 +38,16 @@ export interface DTPStudentQR {
   data?: string;
 }
 
+export interface ScanningStudent {
+  id: string;
+  studentId: string;
+  fullName: string;
+  email: string;
+  program: string;
+  year: number;
+  isActive: boolean;
+}
+
 export interface ScanContext {
   sessionId: string;
   eventId: string;
@@ -121,15 +131,7 @@ export interface AttendanceRecord {
 
 export interface StudentValidationResult {
   isValid: boolean;
-  student?: {
-    id: string;
-    studentId: string;
-    fullName: string;
-    email: string;
-    program: string;
-    year: number;
-    isActive: boolean;
-  };
+  student?: ScanningStudent;
   error?: string;
 }
 
