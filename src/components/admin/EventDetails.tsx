@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, MapPin, Users, Clock, Edit, Trash2, Plus, Eye } from 'lucide-react';
 import { EventWithDetails } from '@/lib/types/event';
 import { SessionWithDetails } from '@/lib/types/session';
+import { SessionConfig } from './SessionConfig';
 
 interface EventDetailsProps {
   event: EventWithDetails;
@@ -19,39 +20,11 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
   const [organizers, setOrganizers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showSessionConfig, setShowSessionConfig] = useState(false);
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
 
   // Fetch additional event details
   useEffect(() => {
-    const fetchEventDetails = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Fetch sessions
-        const sessionsResponse = await fetch(`/api/admin/sessions?eventId=${event.id}&limit=100`);
-        if (sessionsResponse.ok) {
-          const sessionsData = await sessionsResponse.json();
-          if (sessionsData.success) {
-            setSessions(sessionsData.sessions);
-          }
-        }
-
-        // Fetch organizers
-        const organizersResponse = await fetch(`/api/admin/events/${event.id}/organizers`);
-        if (organizersResponse.ok) {
-          const organizersData = await organizersResponse.json();
-          if (organizersData.success) {
-            setOrganizers(organizersData.assignedOrganizers);
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching event details:', err);
-        setError('Failed to load event details');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEventDetails();
   }, [event.id]);
 
@@ -112,6 +85,60 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
         return <Badge variant="outline" className="text-gray-600">Inactive</Badge>;
       default:
         return <Badge variant="outline">Unknown</Badge>;
+    }
+  };
+
+  // Handle session configuration
+  const handleCreateSession = () => {
+    setEditingSessionId(null);
+    setShowSessionConfig(true);
+  };
+
+  const handleEditSession = (sessionId: string) => {
+    setEditingSessionId(sessionId);
+    setShowSessionConfig(true);
+  };
+
+  const handleSessionConfigSuccess = () => {
+    setShowSessionConfig(false);
+    setEditingSessionId(null);
+    // Refresh sessions data
+    fetchEventDetails();
+  };
+
+  const handleSessionConfigCancel = () => {
+    setShowSessionConfig(false);
+    setEditingSessionId(null);
+  };
+
+  // Refresh event details
+  const fetchEventDetails = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch sessions
+      const sessionsResponse = await fetch(`/api/admin/sessions?eventId=${event.id}&limit=100`);
+      if (sessionsResponse.ok) {
+        const sessionsData = await sessionsResponse.json();
+        if (sessionsData.success) {
+          setSessions(sessionsData.sessions);
+        }
+      }
+
+      // Fetch organizers
+      const organizersResponse = await fetch(`/api/admin/events/${event.id}/organizers`);
+      if (organizersResponse.ok) {
+        const organizersData = await organizersResponse.json();
+        if (organizersData.success) {
+          setOrganizers(organizersData.assignedOrganizers);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching event details:', err);
+      setError('Failed to load event details');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -201,13 +228,22 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
 
         {/* Sessions Tab */}
         <TabsContent value="sessions" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Sessions</h3>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Session
-            </Button>
-          </div>
+          {showSessionConfig ? (
+            <SessionConfig
+              eventId={event.id}
+              sessionId={editingSessionId || undefined}
+              onSuccess={handleSessionConfigSuccess}
+              onCancel={handleSessionConfigCancel}
+            />
+          ) : (
+            <>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Sessions</h3>
+                <Button size="sm" onClick={handleCreateSession}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Session
+                </Button>
+              </div>
           
           {sessions.length === 0 ? (
             <Card>
@@ -215,7 +251,7 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
                 <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h4 className="text-lg font-medium text-gray-900 mb-2">No sessions</h4>
                 <p className="text-gray-500 mb-4">This event doesn't have any sessions yet.</p>
-                <Button>
+                <Button onClick={handleCreateSession}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create First Session
                 </Button>
@@ -258,7 +294,11 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
                           <Button variant="outline" size="sm">
                             <Eye className="h-3 w-3" />
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleEditSession(session.id)}
+                          >
                             <Edit className="h-3 w-3" />
                           </Button>
                         </div>
@@ -268,6 +308,8 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
                 );
               })}
             </div>
+          )}
+            </>
           )}
         </TabsContent>
 
