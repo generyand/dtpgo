@@ -102,10 +102,13 @@ export interface SessionTimeWindows {
 export interface ScanProcessingResult {
   success: boolean;
   scanType: ScanType;
+  student?: ScanningStudent;
   attendanceRecord?: AttendanceRecord;
+  duplicateCheck?: DuplicateCheckResult;
   error?: string;
   message: string;
   timestamp: Date;
+  metadata: ScanResultMetadata;
 }
 
 export interface AttendanceRecord {
@@ -272,6 +275,7 @@ export interface ScanContextData {
 }
 
 export interface ScanResultMetadata {
+  timestamp: string;
   processingTime: number;
   validationTime: number;
   databaseTime: number;
@@ -298,16 +302,6 @@ export interface ScanProcessingPipeline {
   createAttendanceRecord: (data: Partial<AttendanceRecord>) => Promise<AttendanceRecord>;
   updateStatistics: (result: ScanProcessingResult) => Promise<void>;
   logScanHistory: (history: Partial<ScanHistory>) => Promise<void>;
-}
-
-export interface ScanProcessingResult {
-  success: boolean;
-  scanType: ScanType;
-  attendanceRecord?: AttendanceRecord;
-  error?: string;
-  message: string;
-  timestamp: Date;
-  metadata: ScanResultMetadata;
 }
 
 // Re-export for backward compatibility

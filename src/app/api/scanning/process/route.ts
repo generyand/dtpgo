@@ -316,6 +316,7 @@ export async function POST(request: NextRequest) {
       message: `Successfully processed ${scanType.type} scan`,
       timestamp: currentTime,
       metadata: {
+        timestamp: new Date().toISOString(),
         processingTime,
         validationTime: 0,
         databaseTime: 0,

@@ -481,6 +481,7 @@ export function createScanResult(
     error,
     timestamp: new Date(),
     metadata: {
+      timestamp: new Date().toISOString(),
       processingTime: 0,
       validationTime: 0,
       databaseTime: 0,
