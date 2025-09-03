@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -198,7 +198,8 @@ export function SessionConfig({ eventId, sessionId, onSuccess, onCancel }: Sessi
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormProvider {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Basic Session Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -353,6 +354,7 @@ export function SessionConfig({ eventId, sessionId, onSuccess, onCancel }: Sessi
               </Button>
             </div>
           </form>
+          </FormProvider>
         </CardContent>
       </Card>
     </div>
