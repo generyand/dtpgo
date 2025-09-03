@@ -46,6 +46,7 @@ model Student {
   // Relationships
   program Program @relation(fields: [programId], references: [id], onDelete: Restrict)
   activities Activity[]
+  attendance Attendance[]
 
   // Indexes for performance
   @@index([studentIdNumber])
@@ -114,6 +115,8 @@ model Activity {
   studentId   String?  // Reference to student if activity involves a student
   programId   String?  // Reference to program if activity involves a program
   userId      String?  // Reference to Supabase user if activity performed by authenticated user
+  organizerId String?  // Reference to organizer if activity performed by organizer
+  eventId     String?  // Reference to event if activity involves an event
   
   // Activity metadata
   metadata    Json?    // Additional structured data about the activity
@@ -132,6 +135,8 @@ model Activity {
   // Relationships
   student     Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
   program     Program? @relation(fields: [programId], references: [id], onDelete: SetNull)
+  organizer   Organizer? @relation(fields: [organizerId], references: [id], onDelete: SetNull)
+  event       Event? @relation(fields: [eventId], references: [id], onDelete: SetNull)
   // Note: userId references Supabase auth.users (not a Prisma relationship)
   
   // Indexes for performance and querying
@@ -143,10 +148,161 @@ model Activity {
   @@index([studentId])
   @@index([userId])
   @@index([programId])
+  @@index([organizerId])
+  @@index([eventId])
   @@index([createdAt])
   @@index([type, createdAt]) // Composite index for activity feed queries
   @@index([category, createdAt]) // Composite index for category-based queries
   @@index([source, createdAt]) // Composite index for source-based queries
   
   @@map("activities")
+}
+
+// Organizer model - stores event organizers and their roles
+model Organizer {
+  id          String   @id @default(cuid())
+  email       String   @unique // Must match Supabase auth.users email
+  fullName    String
+  role        String   @default("organizer") // "organizer" or "admin"
+  isActive    Boolean  @default(true)
+  invitedBy   String?  // Reference to admin who invited this organizer
+  invitedAt   DateTime?
+  lastLoginAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  eventAssignments OrganizerEventAssignment[]
+  activities       Activity[]
+
+  // Indexes for performance
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@index([invitedBy])
+  @@index([createdAt])
+  
+  @@map("organizers")
+}
+
+// Event model - stores events that can have attendance sessions
+model Event {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  location    String?
+  isActive    Boolean  @default(true)
+  createdBy   String   // Reference to admin who created the event
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  sessions            Session[]
+  organizerAssignments OrganizerEventAssignment[]
+  attendance          Attendance[]
+  activities          Activity[]
+
+  // Indexes for performance
+  @@index([name])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([isActive])
+  @@index([createdBy])
+  @@index([createdAt])
+  
+  @@map("events")
+}
+
+// Session model - stores attendance sessions within events
+model Session {
+  id          String   @id @default(cuid())
+  eventId     String   // Foreign key to Event
+  name        String   // e.g., "Morning Session", "Afternoon Session"
+  description String?
+  timeInStart DateTime // Start time for Time-In scanning
+  timeInEnd   DateTime // End time for Time-In scanning
+  timeOutStart DateTime // Start time for Time-Out scanning
+  timeOutEnd  DateTime // End time for Time-Out scanning
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  event      Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  attendance Attendance[]
+
+  // Indexes for performance
+  @@index([eventId])
+  @@index([timeInStart])
+  @@index([timeInEnd])
+  @@index([timeOutStart])
+  @@index([timeOutEnd])
+  @@index([isActive])
+  @@index([createdAt])
+  
+  @@map("sessions")
+}
+
+// OrganizerEventAssignment model - manages which organizers can access which events
+model OrganizerEventAssignment {
+  id          String   @id @default(cuid())
+  organizerId String   // Foreign key to Organizer
+  eventId     String   // Foreign key to Event
+  assignedBy  String   // Reference to admin who made the assignment
+  assignedAt  DateTime @default(now())
+  isActive    Boolean  @default(true)
+
+  // Relationships
+  organizer Organizer @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  event     Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  // Ensure unique organizer-event combinations
+  @@unique([organizerId, eventId])
+  
+  // Indexes for performance
+  @@index([organizerId])
+  @@index([eventId])
+  @@index([assignedBy])
+  @@index([assignedAt])
+  @@index([isActive])
+  
+  @@map("organizer_event_assignments")
+}
+
+// Attendance model - stores attendance records from QR scanning
+model Attendance {
+  id          String   @id @default(cuid())
+  studentId   String   // Foreign key to Student
+  eventId     String   // Foreign key to Event
+  sessionId   String   // Foreign key to Session
+  timeIn      DateTime? // When student scanned in
+  timeOut     DateTime? // When student scanned out
+  scanType    String   // "time_in" or "time_out"
+  scannedBy   String?  // Reference to organizer who performed the scan
+  ipAddress   String?  // IP address of the scanning device
+  userAgent   String?  // User agent of the scanning device
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  event   Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Ensure unique student-session combinations for time_in/time_out
+  @@unique([studentId, sessionId, scanType])
+  
+  // Indexes for performance
+  @@index([studentId])
+  @@index([eventId])
+  @@index([sessionId])
+  @@index([scanType])
+  @@index([scannedBy])
+  @@index([timeIn])
+  @@index([timeOut])
+  @@index([createdAt])
+  
+  @@map("attendance")
 }

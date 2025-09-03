@@ -12,17 +12,18 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { getAuthErrorMessage, logAuthError } from '@/lib/auth/error-handling';
+import { getRoleDisplayName } from '@/lib/utils/role-utils';
 
 interface LoginFormProps {
   redirectTo?: string;
   showPasswordReset?: boolean;
 }
 
-export function LoginForm({ redirectTo = '/admin/dashboard', showPasswordReset = true }: LoginFormProps) {
+export function LoginForm({ redirectTo, showPasswordReset = true }: LoginFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { signIn, loading: authLoading } = useAuth();
+  const { signIn, loading: authLoading, user } = useAuth();
   const router = useRouter();
 
   const form = useForm<LoginInput>({
@@ -61,12 +62,33 @@ export function LoginForm({ redirectTo = '/admin/dashboard', showPasswordReset =
         return;
       }
 
+      // Get user role for role-based redirect
+      const userRole = user?.user_metadata?.role || null;
+      const roleDisplayName = getRoleDisplayName(userRole);
+      
       toast.success('Login Successful', { 
-        description: 'Welcome back!'
+        description: `Welcome back, ${roleDisplayName}!`
       });
 
-      // Redirect to the intended page
-      router.push(redirectTo);
+      // Determine redirect based on role or provided redirectTo
+      let finalRedirect = redirectTo;
+      
+      if (!finalRedirect) {
+        // Role-based redirect if no specific redirect provided
+        switch (userRole) {
+          case 'admin':
+            finalRedirect = '/admin/dashboard';
+            break;
+          case 'organizer':
+            finalRedirect = '/organizer/sessions';
+            break;
+          default:
+            finalRedirect = '/admin/dashboard'; // Default fallback
+        }
+      }
+
+      // Redirect to the determined page
+      router.push(finalRedirect);
     } catch (error) {
       const errorMessage = getAuthErrorMessage(error);
       setError(errorMessage);

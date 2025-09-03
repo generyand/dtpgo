@@ -4,10 +4,17 @@ import { createSupabaseMiddlewareClient } from '@/lib/auth/supabase-server'
 // Protected admin routes that require authentication
 const ADMIN_ROUTES = ['/admin', '/dashboard']
 
+// Protected organizer routes that require authentication
+const ORGANIZER_ROUTES = ['/organizer']
+
 // Protected route patterns (using regex for dynamic routes)
 const ADMIN_ROUTE_PATTERNS = [
   /^\/admin(\/.*)?$/,  // /admin and all sub-routes
   /^\/dashboard(\/.*)?$/, // /dashboard and all sub-routes
+]
+
+const ORGANIZER_ROUTE_PATTERNS = [
+  /^\/organizer(\/.*)?$/,  // /organizer and all sub-routes
 ]
 
 /**
@@ -23,11 +30,31 @@ function isAdminRoute(pathname: string): boolean {
   return ADMIN_ROUTE_PATTERNS.some(pattern => pattern.test(pathname))
 }
 
+/**
+ * Check if the current path is an organizer route that requires authentication
+ */
+function isOrganizerRoute(pathname: string): boolean {
+  // Check exact matches first
+  if (ORGANIZER_ROUTES.some(route => pathname === route || pathname.startsWith(route + '/'))) {
+    return true
+  }
+  
+  // Check pattern matches
+  return ORGANIZER_ROUTE_PATTERNS.some(pattern => pattern.test(pathname))
+}
+
+/**
+ * Check if the current path is a protected route (admin or organizer)
+ */
+function isProtectedRoute(pathname: string): boolean {
+  return isAdminRoute(pathname) || isOrganizerRoute(pathname)
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Skip middleware for public routes and API routes that don't need protection
-  if (!isAdminRoute(pathname)) {
+  if (!isProtectedRoute(pathname)) {
     return NextResponse.next()
   }
 
@@ -73,6 +100,7 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!session?.user) {
+      // Redirect to the unified login page
       const redirectUrl = new URL('/auth/login', request.url)
       redirectUrl.searchParams.set('redirectTo', pathname)
       const res = NextResponse.redirect(redirectUrl)
@@ -80,17 +108,34 @@ export async function middleware(request: NextRequest) {
       return res
     }
 
-    // Check if user has required role for admin routes
-    // const userRole = session.user.user_metadata?.role
-    // TEMPORARILY COMMENTED OUT FOR TESTING - REMOVE THIS COMMENT TO RE-ENABLE ROLE CHECK
-    // if (pathname.startsWith('/admin') && userRole !== 'admin' && userRole !== 'organizer') {
-    //   console.warn(`User ${session.user.email} attempted to access admin route without proper role`)
-    //   const redirectUrl = new URL('/auth/login', request.url)
-    //   redirectUrl.searchParams.set('error', 'insufficient_permissions')
-    //   const res = NextResponse.redirect(redirectUrl)
-    //   res.headers.set('X-Auth-Reason', 'insufficient-role')
-    //   return res
-    // }
+    // Check if user has required role for protected routes
+    const userRole = session.user.user_metadata?.role
+    
+    // Admin route access control
+    if (isAdminRoute(pathname)) {
+      if (userRole !== 'admin' && userRole !== 'organizer') {
+        console.warn(`User ${session.user.email} attempted to access admin route without proper role`)
+        const redirectUrl = new URL('/auth/login', request.url)
+        redirectUrl.searchParams.set('error', 'insufficient_permissions')
+        redirectUrl.searchParams.set('message', 'Admin access required')
+        const res = NextResponse.redirect(redirectUrl)
+        res.headers.set('X-Auth-Reason', 'insufficient-role')
+        return res
+      }
+    }
+    
+    // Organizer route access control
+    if (isOrganizerRoute(pathname)) {
+      if (userRole !== 'organizer' && userRole !== 'admin') {
+        console.warn(`User ${session.user.email} attempted to access organizer route without proper role`)
+        const redirectUrl = new URL('/auth/login', request.url)
+        redirectUrl.searchParams.set('error', 'insufficient_permissions')
+        redirectUrl.searchParams.set('message', 'Organizer access required')
+        const res = NextResponse.redirect(redirectUrl)
+        res.headers.set('X-Auth-Reason', 'insufficient-role')
+        return res
+      }
+    }
 
     // User is authenticated and authorized, continue with the updated response
     return response
@@ -98,6 +143,7 @@ export async function middleware(request: NextRequest) {
   } catch (error) {
     console.error('Middleware exception:', error)
 
+    // Redirect to the unified login page
     const redirectUrl = new URL('/auth/login', request.url)
     redirectUrl.searchParams.set('redirectTo', pathname)
     redirectUrl.searchParams.set('error', 'middleware_error')

@@ -5,7 +5,7 @@ import { authenticatePermissionApi } from '@/lib/auth/api-auth';
 export async function GET(request: NextRequest) {
   try {
     // Authenticate the request
-    const authResult = await authenticatePermissionApi(request, 'canViewAnalytics');
+    const authResult = await authenticatePermissionApi(request, 'canRegisterStudents');
     if (!authResult.success) {
       return Response.json(
         { error: authResult.error || 'Authentication failed' },
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(programs, { status: 200 });
+    return NextResponse.json({ programs }, { status: 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to load programs';
     return NextResponse.json({ error: message }, { status: 500 });

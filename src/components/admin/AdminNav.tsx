@@ -4,15 +4,16 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, UserPlus, Users, BarChart3, Menu, LogOut, User } from 'lucide-react';
+import { LayoutDashboard, UserPlus, Users, BarChart3, Menu, LogOut, User, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { useAuth, useUser } from '@/hooks/use-auth';
 import { getRoleDisplayName, hasPermission } from '@/lib/utils/role-utils';
-import { toast } from 'sonner';
+import { LogoutDialog } from '@/components/auth/LogoutDialog';
 
 const allNavItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, permission: 'canAccessAdminPanel' },
+  { href: '/admin/events', label: 'Events', icon: Calendar, permission: 'canAccessAdminPanel' },
   { href: '/admin/register', label: 'Register Students', icon: UserPlus, permission: 'canRegisterStudents' },
   { href: '/admin/students', label: 'Manage Students', icon: Users, permission: 'canManageStudents' },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3, permission: 'canViewAnalytics' },
@@ -56,10 +57,8 @@ function NavLink({
 
 export function AdminNav() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { signOut } = useAuth();
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const user = useUser();
-  const router = useRouter();
 
   // Filter navigation items based on user permissions
   const navItems = allNavItems.filter(item => 
@@ -70,20 +69,8 @@ export function AdminNav() {
     setIsOpen(false);
   };
 
-  const handleLogout = async () => {
-    if (isLoggingOut) return;
-
-    try {
-      setIsLoggingOut(true);
-      await signOut();
-      toast.success('Logged out successfully');
-      router.push('/auth/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-      toast.error('Failed to logout. Please try again.');
-    } finally {
-      setIsLoggingOut(false);
-    }
+  const handleLogoutClick = () => {
+    setIsLogoutDialogOpen(true);
   };
 
   return (
@@ -131,14 +118,13 @@ export function AdminNav() {
                 </div>
               </div>
               <Button
-                onClick={handleLogout}
-                disabled={isLoggingOut}
+                onClick={handleLogoutClick}
                 variant="outline"
                 size="sm"
                 className="w-full justify-start gap-2 text-gray-600 hover:text-red-600 hover:border-red-200 dark:text-gray-400 dark:hover:text-red-400"
               >
                 <LogOut className="h-4 w-4" />
-                {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
+                Sign Out
               </Button>
             </div>
             <div className="p-3">
@@ -225,16 +211,15 @@ export function AdminNav() {
                 </div>
                 <Button
                   onClick={() => {
-                    handleLogout();
+                    handleLogoutClick();
                     handleNavClick();
                   }}
-                  disabled={isLoggingOut}
                   variant="outline"
                   size="sm"
                   className="w-full justify-start gap-2 text-gray-600 hover:text-red-600 hover:border-red-200 dark:text-gray-400 dark:hover:text-red-400"
                 >
                   <LogOut className="h-4 w-4" />
-                  {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
+                  Sign Out
                 </Button>
               </div>
               <div className="p-4">
@@ -246,6 +231,12 @@ export function AdminNav() {
           </SheetContent>
         </Sheet>
       </header>
+
+      {/* Logout Confirmation Dialog */}
+      <LogoutDialog 
+        open={isLogoutDialogOpen} 
+        onOpenChange={setIsLogoutDialogOpen} 
+      />
     </>
   );
 }

@@ -1,254 +1,799 @@
-/**
- * Student Query Functions
- *
- * This file contains all database query functions related to the Student model.
- * These functions are designed to be used by API endpoints and other services
- * to interact with the student data in a structured and type-safe manner.
- */
-
-import { Prisma } from '@prisma/client';
-import { prisma } from '../client';
-import { createBrandedQRCode } from '@/lib/qr/branding';
+import { prisma } from '@/lib/db/client';
+import { ScanningStudent } from '@/lib/types/scanning';
 
 /**
- * Type definition for the result of student queries, including the program.
+ * Student with program information type
  */
-export type StudentWithProgram = Prisma.StudentGetPayload<{
-  include: { program: true };
-}>;
-
-/**
- * Type definition for creating a new student.
- * Excludes fields that are auto-generated.
- */
-export type CreateStudentData = Omit<Prisma.StudentCreateInput, 'program'> & {
+export interface StudentWithProgram {
+  id: string;
+  studentIdNumber: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  year: number;
   programId: string;
-};
+  registrationSource: string;
+  createdAt: Date;
+  updatedAt: Date;
+  program: {
+    id: string;
+    name: string;
+    displayName: string;
+  };
+}
 
 /**
- * Fetches a list of students with pagination, sorting, and filtering.
- *
- * @param options - Options for pagination, sorting, and filtering.
- * @returns A promise that resolves to an array of students with their program details.
+ * Create a new student
+ */
+export async function createStudent(data: {
+  studentIdNumber: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  year: number;
+  programId: string;
+  registrationSource?: string;
+}): Promise<StudentWithProgram | null> {
+  try {
+    const student = await prisma.student.create({
+      data: {
+        studentIdNumber: data.studentIdNumber,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        year: data.year,
+        programId: data.programId,
+        registrationSource: data.registrationSource || 'admin',
+      },
+      include: {
+        program: {
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+          },
+        },
+      },
+    });
+
+    return {
+      id: student.id,
+      studentIdNumber: student.studentIdNumber,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      email: student.email,
+      year: student.year,
+      programId: student.programId,
+      registrationSource: student.registrationSource,
+      createdAt: student.createdAt,
+      updatedAt: student.updatedAt,
+      program: student.program,
+    };
+
+  } catch (error) {
+    console.error('Error creating student:', error);
+    return null;
+  }
+}
+
+/**
+ * Get student by ID (original function for existing codebase)
+ */
+export async function getStudentById(id: string): Promise<StudentWithProgram | null> {
+  try {
+    const student = await prisma.student.findUnique({
+      where: { id },
+      include: {
+        program: {
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+          },
+        },
+      },
+    });
+
+    if (!student) {
+      return null;
+    }
+
+    return {
+      id: student.id,
+      studentIdNumber: student.studentIdNumber,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      email: student.email,
+      year: student.year,
+      programId: student.programId,
+      registrationSource: student.registrationSource,
+      createdAt: student.createdAt,
+      updatedAt: student.updatedAt,
+      program: student.program,
+    };
+
+  } catch (error) {
+    console.error('Error getting student by ID:', error);
+    return null;
+  }
+}
+
+/**
+ * Get student by ID for scanning functionality
+ */
+export async function getScanningStudentById(id: string): Promise<ScanningStudent | null> {
+  try {
+    const student = await prisma.student.findUnique({
+      where: { id },
+      include: {
+        program: {
+          select: {
+            name: true,
+            displayName: true,
+          },
+        },
+      },
+    });
+
+    if (!student) {
+      return null;
+    }
+
+    return {
+      id: student.id,
+      studentId: student.studentIdNumber,
+      fullName: `${student.firstName} ${student.lastName}`,
+      email: student.email,
+      program: student.program.name,
+      year: student.year,
+      isActive: true, // Placeholder - assume active
+    };
+
+  } catch (error) {
+    console.error('Error getting student by ID:', error);
+    return null;
+  }
+}
+
+/**
+ * Get student by student ID number (original function for existing codebase)
+ */
+export async function getStudentByStudentId(studentIdNumber: string): Promise<StudentWithProgram | null> {
+  try {
+    const student = await prisma.student.findUnique({
+      where: { studentIdNumber },
+      include: {
+        program: {
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+          },
+        },
+      },
+    });
+
+    if (!student) {
+      return null;
+    }
+
+    return {
+      id: student.id,
+      studentIdNumber: student.studentIdNumber,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      email: student.email,
+      year: student.year,
+      programId: student.programId,
+      registrationSource: student.registrationSource,
+      createdAt: student.createdAt,
+      updatedAt: student.updatedAt,
+      program: student.program,
+    };
+
+  } catch (error) {
+    console.error('Error getting student by student ID number:', error);
+    return null;
+  }
+}
+
+/**
+ * Get student by student ID number for scanning functionality
+ */
+export async function getScanningStudentByStudentId(studentIdNumber: string): Promise<ScanningStudent | null> {
+  try {
+    const student = await prisma.student.findUnique({
+      where: { studentIdNumber },
+      include: {
+        program: {
+          select: {
+            name: true,
+            displayName: true,
+          },
+        },
+      },
+    });
+
+    if (!student) {
+      return null;
+    }
+
+    return {
+      id: student.id,
+      studentId: student.studentIdNumber,
+      fullName: `${student.firstName} ${student.lastName}`,
+      email: student.email,
+      program: student.program.name,
+      year: student.year,
+      isActive: true, // Placeholder - assume active
+    };
+
+  } catch (error) {
+    console.error('Error getting student by student ID number:', error);
+    return null;
+  }
+}
+
+/**
+ * Get all students with pagination
  */
 export async function getStudents(options: {
   page?: number;
   limit?: number;
-  sortBy?: keyof Prisma.StudentOrderByWithRelationInput;
-  sortOrder?: 'asc' | 'desc';
-  search?: string;
-  program?: string; // Changed from programId to program for consistency with API
+  programId?: string;
   year?: number;
-  registrationSource?: string;
-  dateFrom?: string;
-  dateTo?: string;
-}): Promise<StudentWithProgram[]> {
+  search?: string;
+  orderBy?: 'studentIdNumber' | 'firstName' | 'lastName' | 'email' | 'year' | 'createdAt';
+  orderDirection?: 'asc' | 'desc';
+} = {}): Promise<{
+  students: ScanningStudent[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}> {
+  try {
   const {
     page = 1,
-    limit = 10,
-    sortBy = 'createdAt',
-    sortOrder = 'desc',
+      limit = 50,
+      programId,
+      year,
     search,
-    program,
-    year,
-    registrationSource,
-    dateFrom,
-    dateTo,
+      orderBy = 'studentIdNumber',
+      orderDirection = 'asc',
   } = options;
 
-  const where: Prisma.StudentWhereInput = {};
+    const skip = (page - 1) * limit;
 
-  if (search) {
-    where.OR = [
-      { firstName: { contains: search, mode: 'insensitive' } },
-      { lastName: { contains: search, mode: 'insensitive' } },
-      { email: { contains: search, mode: 'insensitive' } },
-      { studentIdNumber: { contains: search, mode: 'insensitive' } },
-    ];
-  }
-
-  if (program) {
-    where.programId = program;
+    // Build where clause
+    const where: any = {};
+    
+    if (programId) {
+      where.programId = programId;
   }
 
   if (year) {
     where.year = year;
   }
 
-  if (registrationSource) {
-    where.registrationSource = registrationSource;
-  }
-
-  // Date range filtering
-  if (dateFrom || dateTo) {
-    where.createdAt = {};
-    if (dateFrom) {
-      where.createdAt.gte = new Date(dateFrom);
+    if (search) {
+      where.OR = [
+        {
+          studentIdNumber: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          firstName: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          lastName: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          email: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+      ];
     }
-    if (dateTo) {
-      // Add 23:59:59 to include the entire day
-      const endDate = new Date(dateTo);
-      endDate.setHours(23, 59, 59, 999);
-      where.createdAt.lte = endDate;
-    }
-  }
 
-  return prisma.student.findMany({
+    const [students, total] = await Promise.all([
+      prisma.student.findMany({
     where,
     include: {
-      program: true,
-    },
-    orderBy: {
-      [sortBy]: sortOrder,
-    },
-    skip: (page - 1) * limit,
+          program: {
+            select: {
+              name: true,
+              displayName: true,
+            },
+          },
+        },
+        orderBy: { [orderBy]: orderDirection },
+        skip,
     take: limit,
-  });
-}
+      }),
+      prisma.student.count({ where }),
+    ]);
 
-/**
- * Fetches a single student by their unique ID.
- *
- * @param id - The unique ID of the student.
- * @returns A promise that resolves to the student object or null if not found.
- */
-export async function getStudentById(id: string, options: { includeQRCode?: boolean } = {}): Promise<StudentWithProgram & { qrCodeDataUrl?: string } | null> {
-  const student = await prisma.student.findUnique({
-    where: { id },
-    include: { program: true },
-  });
-
-  if (!student) {
-    return null;
-  }
-
-  if (options.includeQRCode) {
-    const qrCodeBuffer = await createBrandedQRCode({
-      name: `${student.firstName} ${student.lastName}`,
+    const studentList: ScanningStudent[] = students.map(student => ({
+      id: student.id,
       studentId: student.studentIdNumber,
-    });
+      fullName: `${student.firstName} ${student.lastName}`,
+      email: student.email,
+      program: student.program.name,
+      year: student.year,
+      isActive: true, // Placeholder - assume active
+    }));
+
     return {
-      ...student,
-      qrCodeDataUrl: `data:image/png;base64,${qrCodeBuffer.toString('base64')}`,
+      students: studentList,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+
+  } catch (error) {
+    console.error('Error getting students:', error);
+    return {
+      students: [],
+      total: 0,
+      page: 1,
+      limit: 50,
+      totalPages: 0,
     };
   }
-
-  return student;
 }
 
 /**
- * Creates a new student in the database.
- *
- * @param data - The data for the new student.
- * @returns A promise that resolves to the newly created student object.
+ * Search students by query
  */
-export async function createStudent(data: CreateStudentData): Promise<StudentWithProgram> {
-  const { programId, ...studentData } = data;
-  return prisma.student.create({
-    data: {
-      ...studentData,
+export async function searchStudents(
+  query: string,
+  options: {
+    limit?: number;
+    programId?: string;
+    year?: number;
+  } = {}
+): Promise<ScanningStudent[]> {
+  try {
+    const { limit = 10, programId, year } = options;
+    
+    if (!query || query.trim().length < 2) {
+      return [];
+    }
+
+    const searchTerm = query.trim();
+    
+    const where: any = {
+      OR: [
+        {
+          studentIdNumber: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        },
+        {
+          firstName: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        },
+        {
+          lastName: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        },
+        {
+          email: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        },
+      ],
+    };
+
+    if (programId) {
+      where.programId = programId;
+    }
+
+    if (year) {
+      where.year = year;
+    }
+
+    const students = await prisma.student.findMany({
+      where,
+      include: {
       program: {
-        connect: { id: programId },
+          select: {
+            name: true,
+            displayName: true,
+          },
+        },
       },
-    },
-    include: {
-      program: true,
-    },
-  });
+      take: limit,
+      orderBy: [
+        {
+          studentIdNumber: 'asc',
+        },
+      ],
+    });
+
+    return students.map(student => ({
+      id: student.id,
+      studentId: student.studentIdNumber,
+      fullName: `${student.firstName} ${student.lastName}`,
+      email: student.email,
+      program: student.program.name,
+      year: student.year,
+      isActive: true, // Placeholder - assume active
+    }));
+
+  } catch (error) {
+    console.error('Error searching students:', error);
+    return [];
+  }
 }
 
 /**
- * Updates an existing student's data.
- *
- * @param id - The unique ID of the student to update.
- * @param data - The data to update.
- * @returns A promise that resolves to the updated student object.
+ * Update student
  */
 export async function updateStudent(
   id: string,
-  data: Partial<CreateStudentData>
-): Promise<StudentWithProgram> {
-  const { programId, ...studentData } = data;
-  const updatePayload: Prisma.StudentUpdateInput = { ...studentData };
-
-  if (programId) {
-    updatePayload.program = {
-      connect: { id: programId },
-    };
+  data: {
+    studentIdNumber?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    year?: number;
+    programId?: string;
   }
-
-  return prisma.student.update({
+): Promise<ScanningStudent | null> {
+  try {
+    const student = await prisma.student.update({
     where: { id },
-    data: updatePayload,
+      data: {
+        ...(data.studentIdNumber && { studentIdNumber: data.studentIdNumber }),
+        ...(data.firstName && { firstName: data.firstName }),
+        ...(data.lastName && { lastName: data.lastName }),
+        ...(data.email && { email: data.email }),
+        ...(data.year && { year: data.year }),
+        ...(data.programId && { programId: data.programId }),
+      },
     include: {
-      program: true,
+        program: {
+          select: {
+            name: true,
+            displayName: true,
+          },
+        },
     },
   });
+
+    return {
+      id: student.id,
+      studentId: student.studentIdNumber,
+      fullName: `${student.firstName} ${student.lastName}`,
+      email: student.email,
+      program: student.program.name,
+      year: student.year,
+      isActive: true, // Placeholder - assume active
+    };
+
+  } catch (error) {
+    console.error('Error updating student:', error);
+    return null;
+  }
 }
 
 /**
- * Deletes a student from the database.
- *
- * @param id - The unique ID of the student to delete.
- * @returns A promise that resolves when the student is deleted.
+ * Delete student
  */
-export async function deleteStudent(id: string): Promise<void> {
+export async function deleteStudent(id: string): Promise<boolean> {
+  try {
   await prisma.student.delete({
     where: { id },
   });
+    return true;
+
+  } catch (error) {
+    console.error('Error deleting student:', error);
+    return false;
+  }
 }
 
 /**
- * Counts the total number of students based on optional filters.
- *
- * @param options - Options for filtering.
- * @returns A promise that resolves to the total number of students.
+ * Check if student exists by student ID number
+ */
+export async function studentExists(studentIdNumber: string): Promise<boolean> {
+  try {
+    const count = await prisma.student.count({
+      where: { studentIdNumber },
+    });
+    return count > 0;
+
+  } catch (error) {
+    console.error('Error checking if student exists:', error);
+    return false;
+  }
+}
+
+/**
+ * Check if student exists by email
+ */
+export async function studentExistsByEmail(email: string): Promise<boolean> {
+  try {
+    const count = await prisma.student.count({
+      where: { email },
+    });
+    return count > 0;
+
+  } catch (error) {
+    console.error('Error checking if student exists by email:', error);
+    return false;
+  }
+}
+
+/**
+ * Get students by program
+ */
+export async function getStudentsByProgram(programId: string): Promise<ScanningStudent[]> {
+  try {
+    const students = await prisma.student.findMany({
+      where: { programId },
+      include: {
+        program: {
+          select: {
+            name: true,
+            displayName: true,
+          },
+        },
+      },
+      orderBy: { studentIdNumber: 'asc' },
+    });
+
+    return students.map(student => ({
+      id: student.id,
+      studentId: student.studentIdNumber,
+      fullName: `${student.firstName} ${student.lastName}`,
+      email: student.email,
+      program: student.program.name,
+      year: student.year,
+      isActive: true, // Placeholder - assume active
+    }));
+
+  } catch (error) {
+    console.error('Error getting students by program:', error);
+    return [];
+  }
+}
+
+/**
+ * Get students by year
+ */
+export async function getStudentsByYear(year: number): Promise<ScanningStudent[]> {
+  try {
+    const students = await prisma.student.findMany({
+      where: { year },
+      include: {
+        program: {
+          select: {
+            name: true,
+            displayName: true,
+          },
+        },
+      },
+      orderBy: { studentIdNumber: 'asc' },
+    });
+
+    return students.map(student => ({
+      id: student.id,
+      studentId: student.studentIdNumber,
+      fullName: `${student.firstName} ${student.lastName}`,
+      email: student.email,
+      program: student.program.name,
+      year: student.year,
+      isActive: true, // Placeholder - assume active
+    }));
+
+  } catch (error) {
+    console.error('Error getting students by year:', error);
+    return [];
+  }
+}
+
+/**
+ * Count students
  */
 export async function countStudents(options: {
-  search?: string;
-  program?: string; // Changed from programId to program for consistency
+  programId?: string;
   year?: number;
   registrationSource?: string;
-  dateFrom?: string;
-  dateTo?: string;
-}): Promise<number> {
-  const { search, program, year, registrationSource, dateFrom, dateTo } = options;
-  
-  const where: Prisma.StudentWhereInput = {};
-
-  if (search) {
-    where.OR = [
-      { firstName: { contains: search, mode: 'insensitive' } },
-      { lastName: { contains: search, mode: 'insensitive' } },
-      { email: { contains: search, mode: 'insensitive' } },
-      { studentIdNumber: { contains: search, mode: 'insensitive' } },
-    ];
-  }
-
-  if (program) {
-    where.programId = program;
-  }
-
-  if (year) {
-    where.year = year;
-  }
-
-  if (registrationSource) {
-    where.registrationSource = registrationSource;
-  }
-
-  // Date range filtering (same logic as getStudents)
-  if (dateFrom || dateTo) {
-    where.createdAt = {};
-    if (dateFrom) {
-      where.createdAt.gte = new Date(dateFrom);
+} = {}): Promise<number> {
+  try {
+    const where: any = {};
+    
+    if (options.programId) {
+      where.programId = options.programId;
     }
-    if (dateTo) {
-      const endDate = new Date(dateTo);
-      endDate.setHours(23, 59, 59, 999);
-      where.createdAt.lte = endDate;
+    
+    if (options.year) {
+      where.year = options.year;
     }
+    
+    if (options.registrationSource) {
+      where.registrationSource = options.registrationSource;
+    }
+
+    return await prisma.student.count({ where });
+
+  } catch (error) {
+    console.error('Error counting students:', error);
+    return 0;
   }
-  
-  return prisma.student.count({ where });
+}
+
+/**
+ * Get student statistics
+ */
+export async function getStudentStatistics(): Promise<{
+  totalStudents: number;
+  studentsByProgram: { program: string; count: number }[];
+  studentsByYear: { year: number; count: number }[];
+  recentRegistrations: number; // Last 30 days
+}> {
+  try {
+    const [
+      totalStudents,
+      studentsByProgram,
+      studentsByYear,
+      recentRegistrations,
+    ] = await Promise.all([
+      // Total students
+      prisma.student.count(),
+      
+      // Students by program
+      prisma.student.groupBy({
+        by: ['programId'],
+        _count: { programId: true },
+        orderBy: { _count: { programId: 'desc' } },
+      }).then(async (result) => {
+        const programStats = await Promise.all(
+          result.map(async (stat) => {
+            const program = await prisma.program.findUnique({
+              where: { id: stat.programId },
+              select: { name: true },
+            });
+            return {
+              program: program?.name || 'Unknown',
+              count: stat._count.programId,
+            };
+          })
+        );
+        return programStats;
+      }),
+      
+      // Students by year
+      prisma.student.groupBy({
+        by: ['year'],
+        _count: { year: true },
+        orderBy: { year: 'asc' },
+      }).then(result => result.map(stat => ({
+        year: stat.year,
+        count: stat._count.year,
+      }))),
+      
+      // Recent registrations (last 30 days)
+      prisma.student.count({
+        where: {
+          createdAt: {
+            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+          },
+        },
+      }),
+    ]);
+
+    return {
+      totalStudents,
+      studentsByProgram,
+      studentsByYear,
+      recentRegistrations,
+    };
+
+  } catch (error) {
+    console.error('Error getting student statistics:', error);
+    return {
+      totalStudents: 0,
+      studentsByProgram: [],
+      studentsByYear: [],
+      recentRegistrations: 0,
+    };
+  }
+}
+
+/**
+ * Get student attendance history
+ */
+export async function getStudentAttendanceHistory(
+  studentId: string,
+  options: {
+    limit?: number;
+    eventId?: string;
+    sessionId?: string;
+  } = {}
+): Promise<{
+  attendances: Array<{
+    id: string;
+    sessionId: string;
+    eventId: string;
+    scanType: string;
+    timestamp: Date;
+    sessionName: string;
+    eventName: string;
+  }>;
+  total: number;
+}> {
+  try {
+    const { limit = 50, eventId, sessionId } = options;
+
+    const where: any = { studentId };
+    
+    if (eventId) {
+      where.eventId = eventId;
+    }
+    
+    if (sessionId) {
+      where.sessionId = sessionId;
+    }
+
+    const [attendances, total] = await Promise.all([
+      prisma.attendance.findMany({
+        where,
+        include: {
+          session: {
+            select: {
+              name: true,
+            },
+          },
+          event: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+      }),
+      prisma.attendance.count({ where }),
+    ]);
+
+    return {
+      attendances: attendances.map(attendance => ({
+        id: attendance.id,
+        sessionId: attendance.sessionId,
+        eventId: attendance.eventId,
+        scanType: attendance.scanType,
+        timestamp: attendance.createdAt,
+        sessionName: attendance.session.name,
+        eventName: attendance.event.name,
+      })),
+      total,
+    };
+
+  } catch (error) {
+    console.error('Error getting student attendance history:', error);
+    return {
+      attendances: [],
+      total: 0,
+    };
+  }
 } 
