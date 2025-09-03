@@ -245,7 +245,7 @@ export function SessionSelector({ onSessionSelect, className }: SessionSelectorP
                   <Card 
                     key={session.id} 
                     className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                      selectedSessionId === session.id ? 'ring-2 ring-blue-500' : ''
+                      selectedSessionId === session.id ? 'ring-2 ring-primary' : ''
                     }`}
                     onClick={() => handleSessionSelect(session)}
                   >

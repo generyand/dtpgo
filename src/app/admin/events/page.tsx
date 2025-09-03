@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
-import { EventManagement } from '@/components/admin/EventManagement';
+import { EventManagementSplitPane } from '@/components/admin/EventManagementSplitPane';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, Users, Clock, Settings } from 'lucide-react';
 
@@ -81,7 +81,7 @@ export default function AdminEventsPage() {
         </Card>
       </div>
 
-      {/* Event Management Component */}
+      {/* Split Pane Management */}
       <Suspense fallback={
         <Card>
           <CardHeader>
@@ -97,7 +97,7 @@ export default function AdminEventsPage() {
           </CardContent>
         </Card>
       }>
-        <EventManagement />
+        <EventManagementSplitPane />
       </Suspense>
     </div>
   );

@@ -1,28 +1,49 @@
 import { z } from 'zod';
 
 /**
- * Base session validation schema
+ * Enhanced base session validation schema with real-time feedback
  */
 export const sessionBaseSchema = z.object({
   name: z
     .string()
     .min(1, 'Session name is required')
     .max(255, 'Session name must be less than 255 characters')
-    .trim(),
+    .trim()
+    .refine(
+      (name) => !/^\s*$/.test(name),
+      'Session name cannot be only whitespace'
+    )
+    .refine(
+      (name) => name.length >= 3,
+      'Session name must be at least 3 characters long'
+    ),
   description: z
     .string()
     .max(1000, 'Description must be less than 1000 characters')
     .optional()
-    .or(z.literal('')),
+    .or(z.literal(''))
+    .refine(
+      (desc) => !desc || desc.length >= 10 || desc.length === 0,
+      'Description must be at least 10 characters long (or empty)'
+    ),
 });
 
 /**
- * Session time window validation schema
+ * Enhanced session time window validation schema with smart cross-field validation
  */
 export const sessionTimeWindowSchema = z.object({
   timeInStart: z
     .string()
-    .datetime('Invalid time-in start format'),
+    .datetime('Invalid time-in start format')
+    .refine(
+      (date) => {
+        const inputDate = new Date(date);
+        const now = new Date();
+        const minDate = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
+        return inputDate >= minDate;
+      },
+      'Time-in start cannot be more than 24 hours in the past'
+    ),
   timeInEnd: z
     .string()
     .datetime('Invalid time-in end format'),
@@ -38,11 +59,54 @@ export const sessionTimeWindowSchema = z.object({
   (data) => {
     const timeInStart = new Date(data.timeInStart);
     const timeInEnd = new Date(data.timeInEnd);
+    const duration = timeInEnd.getTime() - timeInStart.getTime();
+    const minDuration = 15 * 60 * 1000; // 15 minutes
+    const maxDuration = 8 * 60 * 60 * 1000; // 8 hours
+    
+    if (duration < minDuration) {
+      return false;
+    }
+    if (duration > maxDuration) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: 'Time-in window must be between 15 minutes and 8 hours',
+    path: ['timeInEnd'],
+  }
+).refine(
+  (data) => {
+    const timeInStart = new Date(data.timeInStart);
+    const timeInEnd = new Date(data.timeInEnd);
     return timeInEnd > timeInStart;
   },
   {
     message: 'Time-in end must be after time-in start',
     path: ['timeInEnd'],
+  }
+).refine(
+  (data) => {
+    if (data.timeOutStart && data.timeOutEnd) {
+      const timeOutStart = new Date(data.timeOutStart);
+      const timeOutEnd = new Date(data.timeOutEnd);
+      const duration = timeOutEnd.getTime() - timeOutStart.getTime();
+      const minDuration = 15 * 60 * 1000; // 15 minutes
+      const maxDuration = 8 * 60 * 60 * 1000; // 8 hours
+      
+      if (duration < minDuration) {
+        return false;
+      }
+      if (duration > maxDuration) {
+        return false;
+      }
+      return true;
+    }
+    return true;
+  },
+  {
+    message: 'Time-out window must be between 15 minutes and 8 hours',
+    path: ['timeOutEnd'],
   }
 ).refine(
   (data) => {
@@ -62,24 +126,60 @@ export const sessionTimeWindowSchema = z.object({
     const timeInEnd = new Date(data.timeInEnd);
     if (data.timeOutStart) {
       const timeOutStart = new Date(data.timeOutStart);
-      return timeOutStart >= timeInEnd;
+      const gap = timeOutStart.getTime() - timeInEnd.getTime();
+      const minGap = 5 * 60 * 1000; // 5 minutes minimum gap
+      return gap >= minGap;
     }
     return true;
   },
   {
-    message: 'Time-out start must be after or equal to time-in end',
+    message: 'Time-out start must be at least 5 minutes after time-in end',
     path: ['timeOutStart'],
+  }
+).refine(
+  (data) => {
+    const timeInStart = new Date(data.timeInStart);
+    const now = new Date();
+    const maxFuture = new Date(now.getFullYear() + 2, now.getMonth(), now.getDate());
+    return timeInStart <= maxFuture;
+  },
+  {
+    message: 'Session cannot be scheduled more than 2 years in the future',
+    path: ['timeInStart'],
   }
 );
 
 /**
- * Session creation validation schema
+ * Enhanced session creation validation schema with organizer assignment
  */
 export const createSessionSchema = sessionBaseSchema
   .extend({
     eventId: z.string().cuid('Invalid event ID format'),
+    organizerIds: z
+      .array(z.string().cuid('Invalid organizer ID format'))
+      .min(1, 'At least one organizer must be assigned')
+      .max(10, 'Cannot assign more than 10 organizers'),
+    maxCapacity: z
+      .number()
+      .min(1, 'Maximum capacity must be at least 1')
+      .max(1000, 'Maximum capacity cannot exceed 1000')
+      .optional(),
+    allowWalkIns: z.boolean().default(true),
+    requireRegistration: z.boolean().default(false),
   })
-  .merge(sessionTimeWindowSchema);
+  .merge(sessionTimeWindowSchema)
+  .refine(
+    (data) => {
+      if (data.requireRegistration && !data.maxCapacity) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Maximum capacity is required when registration is required',
+      path: ['maxCapacity'],
+    }
+  );
 
 /**
  * Session update validation schema
@@ -182,31 +282,88 @@ export type SessionIdParams = z.infer<typeof sessionIdSchema>;
 export type SessionScanType = z.infer<typeof sessionScanTypeSchema>;
 export type SessionTimeWindowQuery = z.infer<typeof sessionTimeWindowQuerySchema>;
 
+// New validation result types
+export type ValidationResult = {
+  isValid: boolean;
+  message?: string;
+  type: 'error' | 'warning' | 'success';
+};
+
+export type ValidationSummary = {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+};
+
 /**
- * Session validation helper functions
+ * Enhanced session validation helper functions with detailed feedback
  */
 export const validateSessionTimeWindows = (data: {
   timeInStart: Date;
   timeInEnd: Date;
   timeOutStart?: Date;
   timeOutEnd?: Date;
-}): boolean => {
+}): { isValid: boolean; errors: string[]; warnings: string[] } => {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
   // Time-in window validation
   if (data.timeInEnd <= data.timeInStart) {
-    return false;
+    errors.push('Time-in end must be after time-in start');
+  }
+
+  // Check time-in window duration
+  const timeInDuration = data.timeInEnd.getTime() - data.timeInStart.getTime();
+  const timeInDurationMinutes = timeInDuration / (1000 * 60);
+  
+  if (timeInDurationMinutes < 15) {
+    errors.push('Time-in window must be at least 15 minutes long');
+  } else if (timeInDurationMinutes < 30) {
+    warnings.push('Time-in window is quite short. Consider extending it for better attendance tracking.');
+  }
+  
+  if (timeInDurationMinutes > 8 * 60) {
+    errors.push('Time-in window cannot exceed 8 hours');
   }
 
   // Time-out window validation (if provided)
   if (data.timeOutStart && data.timeOutEnd) {
     if (data.timeOutEnd <= data.timeOutStart) {
-      return false;
+      errors.push('Time-out end must be after time-out start');
     }
+    
     if (data.timeOutStart < data.timeInEnd) {
-      return false;
+      errors.push('Time-out start must be after time-in end');
+    }
+    
+    // Check time-out window duration
+    const timeOutDuration = data.timeOutEnd.getTime() - data.timeOutStart.getTime();
+    const timeOutDurationMinutes = timeOutDuration / (1000 * 60);
+    
+    if (timeOutDurationMinutes < 15) {
+      errors.push('Time-out window must be at least 15 minutes long');
+    }
+    
+    if (timeOutDurationMinutes > 8 * 60) {
+      errors.push('Time-out window cannot exceed 8 hours');
+    }
+    
+    // Check gap between time-in and time-out
+    const gap = data.timeOutStart.getTime() - data.timeInEnd.getTime();
+    const gapMinutes = gap / (1000 * 60);
+    
+    if (gapMinutes < 5) {
+      errors.push('There must be at least 5 minutes between time-in and time-out windows');
+    } else if (gapMinutes < 15) {
+      warnings.push('Consider a longer gap between time-in and time-out for better logistics');
     }
   }
 
-  return true;
+  return {
+    isValid: errors.length === 0,
+    errors,
+    warnings,
+  };
 };
 
 export const validateSessionName = (name: string): boolean => {
@@ -335,4 +492,165 @@ export const determineScanType = (data: {
   }
 
   return 'invalid';
+};
+
+/**
+ * Real-time validation functions for form feedback
+ */
+export const validateSessionNameRealTime = (name: string): { isValid: boolean; message?: string; type: 'error' | 'warning' | 'success' } => {
+  if (!name || name.trim().length === 0) {
+    return { isValid: false, message: 'Session name is required', type: 'error' };
+  }
+  
+  if (name.trim().length < 3) {
+    return { isValid: false, message: 'Session name must be at least 3 characters', type: 'error' };
+  }
+  
+  if (name.trim().length < 10) {
+    return { isValid: false, message: 'Consider a more descriptive name', type: 'warning' };
+  }
+  
+  if (name.trim().length > 255) {
+    return { isValid: false, message: 'Session name is too long', type: 'error' };
+  }
+  
+  return { isValid: true, message: 'Session name looks good!', type: 'success' };
+};
+
+export const validateSessionDescriptionRealTime = (description: string): { isValid: boolean; message?: string; type: 'error' | 'warning' | 'success' } => {
+  if (!description || description.trim().length === 0) {
+    return { isValid: true, message: 'Description is optional', type: 'success' };
+  }
+  
+  if (description.trim().length < 10) {
+    return { isValid: false, message: 'Description should be at least 10 characters for clarity', type: 'warning' };
+  }
+  
+  if (description.trim().length > 1000) {
+    return { isValid: false, message: 'Description is too long', type: 'error' };
+  }
+  
+  return { isValid: true, message: 'Description looks good!', type: 'success' };
+};
+
+export const validateTimeWindowRealTime = (startTime: string, endTime: string): { isValid: boolean; message?: string; type: 'error' | 'warning' | 'success' } => {
+  if (!startTime || !endTime) {
+    return { isValid: false, message: 'Both start and end times are required', type: 'error' };
+  }
+  
+  try {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return { isValid: false, message: 'Invalid date format', type: 'error' };
+    }
+    
+    if (end <= start) {
+      return { isValid: false, message: 'End time must be after start time', type: 'error' };
+    }
+    
+    const duration = end.getTime() - start.getTime();
+    const durationMinutes = duration / (1000 * 60);
+    
+    if (durationMinutes < 15) {
+      return { isValid: false, message: 'Time window must be at least 15 minutes', type: 'error' };
+    }
+    
+    if (durationMinutes < 30) {
+      return { isValid: false, message: 'Time window is quite short', type: 'warning' };
+    }
+    
+    if (durationMinutes > 8 * 60) {
+      return { isValid: false, message: 'Time window cannot exceed 8 hours', type: 'error' };
+    }
+    
+    return { isValid: true, message: 'Time window looks good!', type: 'success' };
+  } catch {
+    return { isValid: false, message: 'Invalid time format', type: 'error' };
+  }
+};
+
+export const validateOrganizerAssignment = (organizerIds: string[], maxCapacity?: number): { isValid: boolean; message?: string; type: 'error' | 'warning' | 'success' } => {
+  if (!organizerIds || organizerIds.length === 0) {
+    return { isValid: false, message: 'At least one organizer must be assigned', type: 'error' };
+  }
+  
+  if (organizerIds.length > 10) {
+    return { isValid: false, message: 'Cannot assign more than 10 organizers', type: 'error' };
+  }
+  
+  if (organizerIds.length === 1) {
+    return { isValid: true, message: 'Single organizer assigned', type: 'warning' };
+  }
+  
+  if (maxCapacity && organizerIds.length < 3 && maxCapacity > 100) {
+    return { isValid: true, message: 'Consider assigning more organizers for large capacity sessions', type: 'warning' };
+  }
+  
+  return { isValid: true, message: 'Organizer assignment looks good!', type: 'success' };
+};
+
+/**
+ * Cross-field validation for session configuration
+ */
+export const validateSessionConfiguration = (data: {
+  name: string;
+  description: string;
+  timeInStart: string;
+  timeInEnd: string;
+  timeOutStart?: string;
+  timeOutEnd?: string;
+  organizerIds: string[];
+  maxCapacity?: number;
+  requireRegistration: boolean;
+}): { isValid: boolean; errors: string[]; warnings: string[] } => {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  
+  // Validate name and description
+  const nameValidation = validateSessionNameRealTime(data.name);
+  if (!nameValidation.isValid && nameValidation.type === 'error') {
+    errors.push(nameValidation.message!);
+  } else if (!nameValidation.isValid && nameValidation.type === 'warning') {
+    warnings.push(nameValidation.message!);
+  }
+  
+  const descValidation = validateSessionDescriptionRealTime(data.description);
+  if (!descValidation.isValid && descValidation.type === 'error') {
+    errors.push(descValidation.message!);
+  } else if (!descValidation.isValid && descValidation.type === 'warning') {
+    warnings.push(descValidation.message!);
+  }
+  
+  // Validate time windows
+  const timeValidation = validateTimeWindowRealTime(data.timeInStart, data.timeInEnd);
+  if (!timeValidation.isValid && timeValidation.type === 'error') {
+    errors.push(timeValidation.message!);
+  } else if (!timeValidation.isValid && timeValidation.type === 'warning') {
+    warnings.push(timeValidation.message!);
+  }
+  
+  // Validate organizer assignment
+  const organizerValidation = validateOrganizerAssignment(data.organizerIds, data.maxCapacity);
+  if (!organizerValidation.isValid && organizerValidation.type === 'error') {
+    errors.push(organizerValidation.message!);
+  } else if (!organizerValidation.isValid && organizerValidation.type === 'warning') {
+    warnings.push(organizerValidation.message!);
+  }
+  
+  // Cross-field validation
+  if (data.requireRegistration && !data.maxCapacity) {
+    errors.push('Maximum capacity is required when registration is required');
+  }
+  
+  if (data.maxCapacity && data.maxCapacity > 500 && data.organizerIds.length < 3) {
+    warnings.push('Large capacity sessions should have at least 3 organizers for better management');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors,
+    warnings,
+  };
 };
