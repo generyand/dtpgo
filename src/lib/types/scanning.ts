@@ -156,9 +156,15 @@ export interface SessionValidationResult {
 
 export interface DuplicateCheckResult {
   isDuplicate: boolean;
-  existingRecord?: AttendanceRecord;
-  timeSinceLastScan?: number;
+  reason?: string;
   message?: string;
+  lastScan?: {
+    id: string;
+    scanType: ScanActionType;
+    timestamp: Date;
+  };
+  totalScans?: number;
+  timeSinceLastScan?: number;
 }
 
 export interface ScanRequest {
