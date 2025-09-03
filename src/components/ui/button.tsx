@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
+import { Loader2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -20,12 +21,24 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+        // additional semantic variants using design tokens
+        success:
+          "bg-[var(--color-status-success)] text-white shadow-xs hover:opacity-90",
+        warning:
+          "bg-[var(--color-warning-500)] text-black shadow-xs hover:bg-[var(--color-warning-500)]/90",
+        subtle:
+          "bg-[var(--color-background-muted)] text-foreground shadow-xs hover:bg-[var(--color-background-muted)]/80",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        xl: "h-11 rounded-md px-8 has-[>svg]:px-5 text-base",
         icon: "size-9",
+      },
+      fullWidth: {
+        true: "w-full",
+        false: "",
       },
     },
     defaultVariants: {
@@ -35,24 +48,53 @@ const buttonVariants = cva(
   }
 )
 
+interface EnhancedButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+  isLoading?: boolean
+  leftIcon?: React.ReactNode
+  rightIcon?: React.ReactNode
+  loadingText?: string
+}
+
 function Button({
   className,
   variant,
   size,
+  fullWidth = false,
   asChild = false,
+  isLoading = false,
+  leftIcon,
+  rightIcon,
+  loadingText,
+  children,
+  disabled,
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
+}: EnhancedButtonProps) {
   const Comp = asChild ? Slot : "button"
 
   return (
     <Comp
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size, fullWidth, className }))}
+      disabled={disabled || isLoading}
+      aria-busy={isLoading || undefined}
       {...props}
-    />
+    >
+      {isLoading ? (
+        <>
+          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+          {loadingText ? <span>{loadingText}</span> : <span className="sr-only">Loading</span>}
+        </>
+      ) : (
+        <>
+          {leftIcon}
+          {children}
+          {rightIcon}
+        </>
+      )}
+    </Comp>
   )
 }
 
