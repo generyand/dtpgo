@@ -33,12 +33,12 @@ export async function GET(request: NextRequest) {
       dateTo,
     };
 
-    const [students, total] = await Promise.all([
-      getStudents(filters),
-      countStudents(filters),
-    ]);
+    const result = await getStudents(filters);
 
-    return NextResponse.json({ students, total }, { status: 200 });
+    return NextResponse.json({ 
+      students: result.students, 
+      total: result.total 
+    }, { status: 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to load students';
     return NextResponse.json({ error: message }, { status: 500 });

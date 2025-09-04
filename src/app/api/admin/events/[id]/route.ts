@@ -14,7 +14,7 @@ const updateEventSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Authenticate admin request
     const authResult = await authenticateApiRequest(request, {
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Get event with all related data
     const event = await prisma.event.findUnique({
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const startTime = Date.now();
   const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
@@ -110,7 +110,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       await logActivity({
         type: 'system_event',
         action: 'event_update_failed',
-        description: `Unauthorized attempt to update event ${params.id}`,
+        description: `Unauthorized attempt to update event ${(await params).id}`,
         severity: 'warning',
         category: 'authentication',
         metadata: { ipAddress, userAgent, error: authResult.error },
@@ -126,7 +126,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       await logActivity({
         type: 'system_event',
         action: 'event_update_failed',
-        description: `No user found in authentication result for event ${params.id}`,
+        description: `No user found in authentication result for event ${(await params).id}`,
         severity: 'error',
         category: 'authentication',
         metadata: { ipAddress, userAgent },
@@ -138,7 +138,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     const adminUser = authResult.user;
-    const { id } = params;
+    const { id } = await params;
 
     // Check if event exists
     const existingEvent = await prisma.event.findUnique({
@@ -291,12 +291,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     await logActivity({
       type: 'system_event',
       action: 'event_update_failed',
-      description: `Failed to update event ${params.id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      description: `Failed to update event ${(await params).id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       severity: 'error',
       category: 'system',
       metadata: {
         updatedBy: authResult?.user?.id,
-        eventId: params.id,
+        eventId: (await params).id,
         updateData: body,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
         updateDuration: Date.now() - startTime,
@@ -315,7 +315,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const startTime = Date.now();
   const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
@@ -332,7 +332,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       await logActivity({
         type: 'system_event',
         action: 'event_deletion_failed',
-        description: `Unauthorized attempt to delete event ${params.id}`,
+        description: `Unauthorized attempt to delete event ${(await params).id}`,
         severity: 'warning',
         category: 'authentication',
         metadata: { ipAddress, userAgent, error: authResult.error },
@@ -348,7 +348,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       await logActivity({
         type: 'system_event',
         action: 'event_deletion_failed',
-        description: `No user found in authentication result for event ${params.id}`,
+        description: `No user found in authentication result for event ${(await params).id}`,
         severity: 'error',
         category: 'authentication',
         metadata: { ipAddress, userAgent },
@@ -360,7 +360,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     const adminUser = authResult.user;
-    const { id } = params;
+    const { id } = await params;
 
     // Check if event exists
     const existingEvent = await prisma.event.findUnique({
@@ -449,12 +449,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     await logActivity({
       type: 'system_event',
       action: 'event_deletion_failed',
-      description: `Failed to delete event ${params.id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      description: `Failed to delete event ${(await params).id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       severity: 'error',
       category: 'system',
       metadata: {
         deletedBy: authResult?.user?.id,
-        eventId: params.id,
+        eventId: (await params).id,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
         deletionDuration: Date.now() - startTime,
         ipAddress,

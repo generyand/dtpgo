@@ -337,3 +337,31 @@
     scroll-behavior: smooth;
   }
 }
+
+/* Force include yellow colors to prevent purging */
+@layer utilities {
+  .bg-yellow-400 {
+    background-color: #fbbf24 !important;
+  }
+  .bg-yellow-500 {
+    background-color: #f59e0b !important;
+  }
+  .bg-yellow-600 {
+    background-color: #d97706 !important;
+  }
+  .text-yellow-400 {
+    color: #fbbf24 !important;
+  }
+  .text-yellow-500 {
+    color: #f59e0b !important;
+  }
+  .text-yellow-600 {
+    color: #d97706 !important;
+  }
+  .hover\:bg-yellow-500:hover {
+    background-color: #f59e0b !important;
+  }
+  .hover\:bg-yellow-600:hover {
+    background-color: #d97706 !important;
+  }
+}

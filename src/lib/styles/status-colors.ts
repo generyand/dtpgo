@@ -194,7 +194,7 @@ export const statusColors = {
 export function getStatusColor(
   category: keyof typeof statusColors,
   status: string
-): typeof statusColors[keyof typeof statusColors][string] | null {
+): unknown {
   const categoryColors = statusColors[category];
   if (categoryColors && status in categoryColors) {
     return categoryColors[status as keyof typeof categoryColors];
@@ -202,7 +202,7 @@ export function getStatusColor(
   return null;
 }
 
-export function getStatusColorByKey(key: string): typeof statusColors[keyof typeof statusColors][string] | null {
+export function getStatusColorByKey(key: string): unknown {
   // Search through all categories for a matching key
   for (const category of Object.values(statusColors)) {
     if (key in category) {

@@ -23,7 +23,7 @@ const removeOrganizerSchema = z.object({
   reason: z.string().optional(),
 });
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Authenticate admin request
     const authResult = await authenticateApiRequest(request, {
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       );
     }
 
-    const { id: eventId } = params;
+    const { id: eventId } = await params;
 
     // Verify event exists
     const event = await prisma.event.findUnique({
@@ -139,7 +139,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const startTime = Date.now();
   const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       await logActivity({
         type: 'system_event',
         action: 'organizer_assignment_failed',
-        description: `Unauthorized attempt to assign organizer to event ${params.id}`,
+        description: `Unauthorized attempt to assign organizer to event ${(await params).id}`,
         severity: 'warning',
         category: 'authentication',
         metadata: { ipAddress, userAgent, error: authResult.error },
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       await logActivity({
         type: 'system_event',
         action: 'organizer_assignment_failed',
-        description: `No user found in authentication result for event ${params.id}`,
+        description: `No user found in authentication result for event ${(await params).id}`,
         severity: 'error',
         category: 'authentication',
         metadata: { ipAddress, userAgent },
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
     
     const adminUser = (authResult as ApiAuthResult & { user: UserWithRole }).user;
-    const { id: eventId } = params;
+    const { id: eventId } = await params;
 
     try {
       body = await request.json();
@@ -512,12 +512,12 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     await logActivity({
       type: 'system_event',
       action: 'organizer_assignment_failed',
-      description: `Failed to assign organizer to event ${params.id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+              description: `Failed to assign organizer to event ${(await params).id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       severity: 'error',
       category: 'system',
       metadata: {
         assignedBy: (authResult as ApiAuthResult & { user?: UserWithRole })?.user?.id,
-        eventId: params.id,
+        eventId: (await params).id,
         assignmentData: body,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
         assignmentDuration: Date.now() - startTime,
@@ -536,7 +536,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const startTime = Date.now();
   const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
@@ -554,7 +554,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       await logActivity({
         type: 'system_event',
         action: 'organizer_removal_failed',
-        description: `Unauthorized attempt to remove organizer from event ${params.id}`,
+        description: `Unauthorized attempt to remove organizer from event ${(await params).id}`,
         severity: 'warning',
         category: 'authentication',
         metadata: { ipAddress, userAgent, error: authResult.error },
@@ -567,7 +567,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     const adminUser = (authResult as ApiAuthResult & { user: UserWithRole }).user;
-    const { id: eventId } = params;
+    const { id: eventId } = await params;
 
     try {
       body = await request.json();
@@ -694,12 +694,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     await logActivity({
       type: 'system_event',
       action: 'organizer_removal_failed',
-      description: `Failed to remove organizer from event ${params.id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      description: `Failed to remove organizer from event ${(await params).id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       severity: 'error',
       category: 'system',
       metadata: {
         removedBy: (authResult as ApiAuthResult & { user?: UserWithRole })?.user?.id,
-        eventId: params.id,
+        eventId: (await params).id,
         removalData: body,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
         removalDuration: Date.now() - startTime,

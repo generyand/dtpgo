@@ -49,15 +49,26 @@ export function HeaderNav() {
 
           {/* CTA Section: Primary = Join Event; Secondary = Admin Sign In link */}
           <div className="flex items-center gap-4">
-            <Button 
-              className="hidden md:inline-flex bg-yellow-500 text-black hover:bg-yellow-600 shadow"
-              asChild
-            >
-              <Link href="/join" aria-label="Join event registration" prefetch>
+            <Link href="/join" aria-label="Join event registration" prefetch>
+              <Button 
+                variant="yellow"
+                className="hidden md:inline-flex shadow"
+                style={{ 
+                  backgroundColor: '#f59e0b', 
+                  color: '#000',
+                  transition: 'background-color 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#d97706';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f59e0b';
+                }}
+              >
                 <Users className="size-4 mr-2" />
                 Join Event
-              </Link>
-            </Button>
+              </Button>
+            </Link>
             <Link
               href="/auth/login"
               className="hidden md:inline-flex items-center text-gray-600 hover:text-gray-900 underline-offset-4 hover:underline"
@@ -98,9 +109,20 @@ export function HeaderNav() {
               <div className="pt-3 mt-3 border-t border-gray-100 space-y-2">
                 <Link 
                   href="/join"
-                  className="flex items-center gap-2 bg-yellow-500 text-black hover:bg-yellow-600 font-medium py-3 px-4 rounded-lg transition-colors shadow"
+                  className="flex items-center gap-2 font-medium py-3 px-4 rounded-lg transition-colors shadow"
+                  style={{ 
+                    backgroundColor: '#f59e0b', 
+                    color: '#000',
+                    transition: 'background-color 0.2s ease'
+                  }}
                   aria-label="Join event registration"
                   onClick={() => setIsMenuOpen(false)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#d97706';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f59e0b';
+                  }}
                 >
                   <Users className="size-4" />
                   Join Event
