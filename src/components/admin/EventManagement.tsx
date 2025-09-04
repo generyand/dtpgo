@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Plus, Search, Filter, MoreHorizontal, Edit, Trash2, Users, Clock, MapPin, Eye } from 'lucide-react';
+import { Calendar, Plus, Search, Edit, Trash2, Users, Clock, MapPin, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { EventForm } from './EventForm';
 import { EventDetails } from './EventDetails';
@@ -20,7 +19,7 @@ interface EventManagementProps {
 }
 
 export function EventManagement({ className }: EventManagementProps) {
-  const router = useRouter();
+  // const router = useRouter();
   const [events, setEvents] = useState<EventWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +41,7 @@ export function EventManagement({ className }: EventManagementProps) {
   const limit = 10;
 
   // Fetch events
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -78,10 +77,10 @@ export function EventManagement({ className }: EventManagementProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, limit, sortBy, sortOrder, searchTerm, statusFilter]);
 
   // Handle event creation
-  const handleCreateEvent = async (eventData: any) => {
+  const handleCreateEvent = async (eventData: Record<string, unknown>) => {
     try {
       console.log('EventManagement: Creating event with data:', eventData);
       
@@ -109,7 +108,7 @@ export function EventManagement({ className }: EventManagementProps) {
         
         // Show detailed error message
         const errorMessage = data.details 
-          ? `Validation failed: ${data.details.map((d: any) => d.message).join(', ')}`
+          ? `Validation failed: ${data.details.map((d: { message: string }) => d.message).join(', ')}`
           : data.error || 'Failed to create event';
         
         throw new Error(errorMessage);
@@ -121,7 +120,7 @@ export function EventManagement({ className }: EventManagementProps) {
   };
 
   // Handle event update
-  const handleUpdateEvent = async (eventData: any) => {
+  const handleUpdateEvent = async (eventData: Record<string, unknown>) => {
     if (!selectedEvent) return;
 
     try {
@@ -185,15 +184,6 @@ export function EventManagement({ className }: EventManagementProps) {
     setCurrentPage(1); // Reset to first page
   };
 
-  const handleSort = (field: 'name' | 'startDate' | 'endDate' | 'createdAt') => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortOrder('asc');
-    }
-    setCurrentPage(1); // Reset to first page
-  };
 
   // Handle pagination
   const handlePageChange = (page: number) => {
@@ -235,7 +225,7 @@ export function EventManagement({ className }: EventManagementProps) {
   // Fetch events when dependencies change
   useEffect(() => {
     fetchEvents();
-  }, [currentPage, searchTerm, statusFilter, sortBy, sortOrder]);
+  }, [fetchEvents]);
 
   if (loading && events.length === 0) {
     return (

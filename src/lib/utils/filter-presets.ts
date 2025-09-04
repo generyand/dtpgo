@@ -2,7 +2,7 @@
  * Filter presets persisted in localStorage
  */
 
-export interface FilterPreset<TState extends Record<string, any> = Record<string, any>> {
+export interface FilterPreset<TState extends Record<string, unknown> = Record<string, unknown>> {
   id: string
   name: string
   state: TState
@@ -19,7 +19,7 @@ function getKey(namespace?: string) {
   return namespace ? `${DEFAULT_NS}:${namespace}` : DEFAULT_NS
 }
 
-export function listPresets<TState = any>(options?: FilterPresetStoreOptions): FilterPreset<TState>[] {
+export function listPresets<TState = unknown>(options?: FilterPresetStoreOptions): FilterPreset<TState>[] {
   if (typeof window === 'undefined') return []
   try {
     const raw = localStorage.getItem(getKey(options?.namespace))
@@ -31,7 +31,7 @@ export function listPresets<TState = any>(options?: FilterPresetStoreOptions): F
   }
 }
 
-export function savePresets<TState = any>(presets: FilterPreset<TState>[], options?: FilterPresetStoreOptions) {
+export function savePresets<TState = unknown>(presets: FilterPreset<TState>[], options?: FilterPresetStoreOptions) {
   if (typeof window === 'undefined') return
   try {
     localStorage.setItem(getKey(options?.namespace), JSON.stringify(presets))
@@ -40,7 +40,7 @@ export function savePresets<TState = any>(presets: FilterPreset<TState>[], optio
   }
 }
 
-export function upsertPreset<TState = any>(
+export function upsertPreset<TState = unknown>(
   preset: Omit<FilterPreset<TState>, 'id' | 'updatedAt'> & { id?: string },
   options?: FilterPresetStoreOptions
 ): FilterPreset<TState> {
@@ -54,13 +54,13 @@ export function upsertPreset<TState = any>(
   return next
 }
 
-export function deletePreset<TState = any>(id: string, options?: FilterPresetStoreOptions) {
+export function deletePreset<TState = unknown>(id: string, options?: FilterPresetStoreOptions) {
   const presets = listPresets<TState>(options)
   const next = presets.filter(p => p.id !== id)
   savePresets(next, options)
 }
 
-export function renamePreset<TState = any>(id: string, name: string, options?: FilterPresetStoreOptions) {
+export function renamePreset<TState = unknown>(id: string, name: string, options?: FilterPresetStoreOptions) {
   const presets = listPresets<TState>(options)
   const idx = presets.findIndex(p => p.id === id)
   if (idx >= 0) {
@@ -70,12 +70,12 @@ export function renamePreset<TState = any>(id: string, name: string, options?: F
   }
 }
 
-export function getPreset<TState = any>(id: string, options?: FilterPresetStoreOptions): FilterPreset<TState> | undefined {
+export function getPreset<TState = unknown>(id: string, options?: FilterPresetStoreOptions): FilterPreset<TState> | undefined {
   return listPresets<TState>(options).find(p => p.id === id)
 }
 
 function cryptoId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return (crypto as any).randomUUID()
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return (crypto as { randomUUID: () => string }).randomUUID()
   return Math.random().toString(36).slice(2)
 }
 

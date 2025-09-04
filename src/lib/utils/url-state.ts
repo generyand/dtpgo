@@ -3,7 +3,7 @@
  */
 
 export type Primitive = string | number | boolean | null | undefined
-export type Serializable = Primitive | Primitive[] | Record<string, any>
+export type Serializable = Primitive | Primitive[] | Record<string, unknown>
 
 export interface UrlStateOptions {
   /** Query param key prefix to avoid collisions, e.g., 'events' → events_q, events_s[] */
@@ -15,7 +15,7 @@ function withPrefix(key: string, prefix?: string) {
 }
 
 export function writeStateToSearchParams(
-  state: Record<string, any>,
+  state: Record<string, unknown>,
   options?: UrlStateOptions,
   base?: URLSearchParams
 ): URLSearchParams {
@@ -48,14 +48,14 @@ export function writeStateToSearchParams(
   return params
 }
 
-export function readStateFromSearchParams<TState extends Record<string, any> = Record<string, any>>(
+export function readStateFromSearchParams<TState extends Record<string, unknown> = Record<string, unknown>>(
   keys: Array<keyof TState & string>,
   options?: UrlStateOptions,
   searchParams?: URLSearchParams
 ): Partial<TState> {
   const params = searchParams ?? (typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams())
   const prefix = options?.prefix
-  const result: Record<string, any> = {}
+  const result: Record<string, unknown> = {}
 
   for (const key of keys) {
     const pKey = withPrefix(key, prefix)

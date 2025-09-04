@@ -37,7 +37,7 @@ export function EventDetailTabs({
   const formatDate = (date: string | Date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   const formatTime = (date: string | Date) => new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-  const getSessionStatus = (session: any) => {
+  const getSessionStatus = (session: { timeInStart: string | Date; timeInEnd: string | Date; timeOutEnd: string | Date }) => {
     const now = new Date();
     const timeInStart = new Date(session.timeInStart);
     const timeInEnd = new Date(session.timeInEnd);
@@ -144,8 +144,8 @@ export function EventDetailTabs({
                               <p className="font-medium">{formatDate(session.timeInStart)}</p>
                             </div>
                             <div>
-                              <span className="text-gray-500">Attendance:</span>
-                              <p className="font-medium">{session._count?.attendance || 0} records</p>
+                              <span className="text-gray-500">Status:</span>
+                              <p className="font-medium">{getStatusDisplayName(status)}</p>
                             </div>
                           </div>
                         </div>

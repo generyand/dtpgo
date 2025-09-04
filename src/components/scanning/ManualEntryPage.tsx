@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ManualEntry } from './ManualEntry';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, AlertCircle, CheckCircle, ArrowLeft, QrCode } from 'lucide-react';
+import { Loader2, AlertCircle, ArrowLeft, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 import { ScanningStudent, ScanActionType } from '@/lib/types/scanning';
@@ -40,22 +40,12 @@ export function ManualEntryPage() {
   const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [recentScans, setRecentScans] = useState<any[]>([]);
+  const [recentScans, setRecentScans] = useState<Record<string, unknown>[]>([]);
 
   const sessionId = searchParams.get('sessionId');
   const organizerId = user?.id;
 
-  useEffect(() => {
-    if (!sessionId || !organizerId) {
-      setError('Missing session ID or organizer information');
-      setIsLoading(false);
-      return;
-    }
-
-    loadSessionInfo();
-  }, [sessionId, organizerId]);
-
-  const loadSessionInfo = async () => {
+  const loadSessionInfo = useCallback(async () => {
     try {
       const response = await fetch(`/api/scanning/process?sessionId=${sessionId}&organizerId=${organizerId}`);
       const data = await response.json();
@@ -72,7 +62,17 @@ export function ManualEntryPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [sessionId, organizerId]);
+
+  useEffect(() => {
+    if (!sessionId || !organizerId) {
+      setError('Missing session ID or organizer information');
+      setIsLoading(false);
+      return;
+    }
+
+    loadSessionInfo();
+  }, [sessionId, organizerId, loadSessionInfo]);
 
   const handleScanProcessed = (result: {
     success: boolean;
@@ -169,7 +169,7 @@ export function ManualEntryPage() {
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              The requested session could not be found or you don't have access to it.
+              The requested session could not be found or you don&apos;t have access to it.
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -235,21 +235,21 @@ export function ManualEntryPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 max-h-48 overflow-y-auto">
-              {recentScans.map((scan) => (
+              {recentScans.map((scan, index) => (
                 <div
-                  key={scan.id}
+                  key={scan.id as string || index}
                   className="flex items-center justify-between p-3 border rounded-lg"
                 >
                   <div>
-                    <p className="font-medium">{scan.studentName}</p>
-                    <p className="text-sm text-gray-600">{scan.studentId}</p>
+                    <p className="font-medium">{scan.studentName as string}</p>
+                    <p className="text-sm text-gray-600">{scan.studentId as string}</p>
                   </div>
                   <div className="text-right">
-                    <Badge variant={scan.scanType === 'time_in' ? 'default' : 'secondary'}>
-                      {scan.scanType === 'time_in' ? 'Time-In' : 'Time-Out'}
+                    <Badge variant={(scan.scanType as string) === 'time_in' ? 'default' : 'secondary'}>
+                      {(scan.scanType as string) === 'time_in' ? 'Time-In' : 'Time-Out'}
                     </Badge>
                     <p className="text-sm text-gray-500 mt-1">
-                      {new Date(scan.timestamp).toLocaleTimeString()}
+                      {new Date(scan.timestamp as string).toLocaleTimeString()}
                     </p>
                   </div>
                 </div>

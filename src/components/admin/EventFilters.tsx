@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, X, Calendar, RefreshCw } from 'lucide-react';
+import { Search, Filter, X, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface EventFilters {
@@ -48,7 +48,7 @@ export function EventFilters({
   }, [localSearch, filters, onFiltersChange]);
 
   // Handle filter changes
-  const handleFilterChange = (key: keyof EventFilters, value: any) => {
+  const handleFilterChange = (key: keyof EventFilters, value: string | number | boolean) => {
     onFiltersChange({ ...filters, [key]: value });
   };
 
@@ -251,7 +251,7 @@ export function EventFilters({
               
               {filters.search && (
                 <Badge variant="outline" className="text-xs">
-                  Search: "{filters.search}"
+                  Search: &quot;{filters.search}&quot;
                   <Button
                     variant="ghost"
                     size="sm"

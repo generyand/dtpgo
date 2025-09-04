@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { highContrastStyles, isHighContrastEnabled } from '@/lib/styles/high-contrast'
+import { highContrastStyles } from '@/lib/styles/high-contrast'
 
 export interface ThemeProviderProps {
   children: React.ReactNode

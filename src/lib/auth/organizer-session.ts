@@ -404,7 +404,7 @@ export async function validateOrganizerSession(
 export async function trackOrganizerActivity(
   organizerId: string,
   action: string,
-  details?: Record<string, any>
+  details?: Record<string, unknown>
 ): Promise<void> {
   try {
     await prisma.activity.create({
@@ -413,11 +413,11 @@ export async function trackOrganizerActivity(
         action,
         description: `Organizer ${organizerId} performed action: ${action}`,
         organizerId,
-        metadata: {
+        metadata: JSON.parse(JSON.stringify({
           action,
           details,
           timestamp: new Date().toISOString(),
-        },
+        })),
         source: 'organizer',
         category: 'session_management',
         severity: 'info',

@@ -29,8 +29,8 @@ export function useTouchInteractions({ swipeThreshold = 40 }: UseTouchInteractio
     window.addEventListener('touchstart', onTouchStart, { passive: true })
     window.addEventListener('touchend', onTouchEnd)
     return () => {
-      window.removeEventListener('touchstart', onTouchStart as any)
-      window.removeEventListener('touchend', onTouchEnd as any)
+      window.removeEventListener('touchstart', onTouchStart as EventListener)
+      window.removeEventListener('touchend', onTouchEnd as EventListener)
     }
   }, [swipeThreshold])
 

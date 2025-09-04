@@ -4,14 +4,14 @@
 
 export interface QRScanResult {
   data: string;
-  cornerPoints: any[];
+  cornerPoints: unknown[];
   timestamp: number;
 }
 
 export interface ParsedQRData {
   isValid: boolean;
   type: QRDataType;
-  payload: any;
+  payload: unknown;
   error?: string;
 }
 
@@ -126,7 +126,7 @@ export interface AttendanceRecord {
   };
   metadata?: {
     qrData: string;
-    cornerPoints?: any[];
+    cornerPoints?: unknown[];
     deviceInfo?: string;
     userAgent?: string;
   };
@@ -225,7 +225,7 @@ export interface ScanStatistics {
 export interface ScanError {
   code: string;
   message: string;
-  details?: any;
+  details?: unknown;
   timestamp: Date;
   recoverable: boolean;
 }

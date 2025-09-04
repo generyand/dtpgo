@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -8,16 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { TimeWindowConfig } from './TimeWindowConfig';
 import { toast } from 'sonner';
-import { Calendar, Users, Clock, X, Plus, Trash2 } from 'lucide-react';
+import { X, Plus, Users } from 'lucide-react';
 import { z } from 'zod';
 import { SessionFormLayout, FormSection, FormGrid } from '@/components/admin/SessionFormLayout';
 import { SessionFormState, useSessionFormStateActions } from '@/components/admin/SessionFormState';
-import { useSessionValidation } from '@/hooks/use-session-validation';
 import { SubmissionStatus } from '@/components/admin/SessionSubmission';
 import { SessionFormActions } from '@/components/admin/SessionFormActions';
 
@@ -62,7 +60,7 @@ export function SessionConfig({ eventId, sessionId, onSuccess, onCancel }: Sessi
   const [events, setEvents] = useState<Event[]>([]);
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
   const [assignedOrganizers, setAssignedOrganizers] = useState<string[]>([]);
-  const [isEditing, setIsEditing] = useState(!!sessionId);
+  const [isEditing] = useState(!!sessionId);
   const router = useRouter();
 
   const form = useForm<SessionConfigFormData>({
@@ -134,7 +132,7 @@ export function SessionConfig({ eventId, sessionId, onSuccess, onCancel }: Sessi
     };
 
     fetchData();
-  }, [sessionId, form]);
+  }, [sessionId, form, setStatus]);
 
   const onSubmit = async (data: SessionConfigFormData) => {
     setStatus('submitting');
@@ -160,7 +158,7 @@ export function SessionConfig({ eventId, sessionId, onSuccess, onCancel }: Sessi
       });
 
       if (response.ok) {
-        const result = await response.json();
+        await response.json();
         toast.success(isEditing ? 'Session updated successfully' : 'Session created successfully');
         setStatus('success');
         

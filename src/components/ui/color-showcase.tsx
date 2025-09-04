@@ -29,14 +29,15 @@ import {
 import { 
   calculateContrastRatio, 
   meetsContrastRequirement,
-  validateColorAccessibility 
+  validateColorAccessibility,
+  type AccessibilityValidationResult
 } from '@/lib/styles/accessibility';
 
 // Color showcase component for development/testing
 export function ColorShowcase() {
   const [selectedColor, setSelectedColor] = React.useState<string>('');
   const [testBackground, setTestBackground] = React.useState<string>('#ffffff');
-  const [accessibilityResult, setAccessibilityResult] = React.useState<any>(null);
+  const [accessibilityResult, setAccessibilityResult] = React.useState<AccessibilityValidationResult | null>(null);
 
   const testAccessibility = () => {
     if (selectedColor && testBackground) {
@@ -68,10 +69,9 @@ export function ColorShowcase() {
                     {Object.entries(colorScale).map(([shade, color]) => (
                       <div key={shade} className="flex items-center gap-3">
                         <div 
-                          className="w-8 h-8 rounded border"
+                          className="w-8 h-8 rounded border cursor-pointer hover:scale-110 transition-transform"
                           style={{ backgroundColor: color }}
                           onClick={() => setSelectedColor(color)}
-                          className="w-8 h-8 rounded border cursor-pointer hover:scale-110 transition-transform"
                         />
                         <span className="text-xs font-mono">{shade}</span>
                         <span className="text-xs text-muted-foreground">{color}</span>
@@ -97,10 +97,9 @@ export function ColorShowcase() {
                       {Object.entries(colors).map(([name, color]) => (
                         <div key={name} className="flex items-center gap-3">
                           <div 
-                            className="w-6 h-6 rounded border"
+                            className="w-6 h-6 rounded border cursor-pointer hover:scale-110 transition-transform"
                             style={{ backgroundColor: color }}
                             onClick={() => setSelectedColor(color)}
-                            className="w-6 h-6 rounded border cursor-pointer hover:scale-110 transition-transform"
                           />
                           <span className="text-xs capitalize">{name}</span>
                           <span className="text-xs text-muted-foreground">{color}</span>
@@ -123,14 +122,13 @@ export function ColorShowcase() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {Object.entries(statuses).map(([status, colors]) => (
                       <div key={status} className="flex items-center gap-3 p-3 border rounded-lg">
-                        <div 
-                          className="w-8 h-8 rounded"
+                                                <div
+                          className="w-8 h-8 rounded flex items-center justify-center text-xs font-semibold"
                           style={{ 
                             backgroundColor: colors.background,
                             border: `2px solid ${colors.border}`,
                             color: colors.text
                           }}
-                          className="w-8 h-8 rounded flex items-center justify-center text-xs font-semibold"
                         >
                           {status.charAt(0).toUpperCase()}
                         </div>

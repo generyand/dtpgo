@@ -35,7 +35,7 @@ export interface FocusManagementApi {
 }
 
 export function useFocusManagement(
-  containerRef: React.RefObject<HTMLElement>,
+  containerRef: React.RefObject<HTMLElement | null>,
   { initialFocusRef, restoreFocus = true, trapFocus = false }: UseFocusManagementOptions = {}
 ): FocusManagementApi {
   const previousFocusedRef = useRef<Element | null>(null)
@@ -85,7 +85,7 @@ export function useFocusManagement(
     if (!container) return
 
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key !== 'Tab') return
+      if (event.key !== 'Tab' || !container) return
       const focusables = getFocusableElements(container)
       if (focusables.length === 0) return
 

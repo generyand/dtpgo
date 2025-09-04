@@ -279,7 +279,7 @@ export function ManualEntry({
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  No students found matching "{searchQuery}"
+                  No students found matching &quot;{searchQuery}&quot;
                 </AlertDescription>
               </Alert>
             )}
@@ -408,7 +408,7 @@ export function ManualEntry({
             <p>• Use the search function to quickly find students by name, ID, or email</p>
             <p>• Enter student ID in the format: S000-0000-000</p>
             <p>• Validate the student before processing the scan</p>
-            <p>• The system will automatically determine if it's a Time-In or Time-Out scan</p>
+            <p>• The system will automatically determine if it&apos;s a Time-In or Time-Out scan</p>
             <p>• Duplicate scans are prevented automatically</p>
           </div>
         </CardContent>

@@ -213,11 +213,6 @@ export function MultiSelect({
               <div className="flex items-center space-x-2">
                 <Checkbox
                   checked={allSelected}
-                  ref={ref => {
-                    if (ref) {
-                      ref.indeterminate = someSelected && !allSelected;
-                    }
-                  }}
                   onCheckedChange={handleSelectAll}
                 />
                 <span className="text-sm font-medium">

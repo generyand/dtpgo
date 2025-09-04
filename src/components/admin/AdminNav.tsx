@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, UserPlus, Users, BarChart3, Menu, LogOut, User, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
-import { useAuth, useUser } from '@/hooks/use-auth';
+import { useUser } from '@/hooks/use-auth';
 import { getRoleDisplayName, hasPermission } from '@/lib/utils/role-utils';
 import { LogoutDialog } from '@/components/auth/LogoutDialog';
 

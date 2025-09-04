@@ -39,7 +39,7 @@ export interface UseScanResultReturn {
   hasMessage: boolean;
   
   // Actions
-  processScan: (qrData: string, sessionId: string, organizerId: string, metadata?: Record<string, any>) => Promise<ScanProcessingResult | null>;
+  processScan: (qrData: string, sessionId: string, organizerId: string, metadata?: Record<string, unknown>) => Promise<ScanProcessingResult | null>;
   clearResult: () => void;
   clearError: () => void;
   clearMessage: () => void;
@@ -101,7 +101,7 @@ export function useScanResult(config: UseScanResultConfig = {}): UseScanResultRe
     qrData: string;
     sessionId: string;
     organizerId: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   } | null>(null);
   const autoClearTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -195,7 +195,7 @@ export function useScanResult(config: UseScanResultConfig = {}): UseScanResultRe
     qrData: string,
     sessionId: string,
     organizerId: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<ScanProcessingResult | null> => {
     if (!processorRef.current) {
       throw new Error('Scan result processor not initialized');
@@ -343,7 +343,7 @@ export function useSingleScanResult() {
     qrData: string,
     sessionId: string,
     organizerId: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<ScanProcessingResult | null> => {
     setIsProcessing(true);
     setError(null);

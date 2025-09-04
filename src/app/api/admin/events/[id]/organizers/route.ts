@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db/client';
-import { authenticateApiRequest } from '@/lib/auth/api-auth';
+import { authenticateApiRequest, ApiAuthResult } from '@/lib/auth/api-auth';
+import { UserWithRole } from '@/lib/types/auth';
 import { logActivity } from '@/lib/db/queries/activity';
 
 // Validation schema for organizer assignment
@@ -142,8 +143,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const startTime = Date.now();
   const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
-  let authResult: any;
-  let body: any;
+  let authResult: { success: boolean; error?: string; statusCode?: number } | undefined;
+  let body: Record<string, unknown> | undefined;
 
   try {
     // Authenticate admin request
@@ -152,7 +153,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       requireAuth: true,
     });
 
-    if (!authResult.success || !authResult.user) {
+    if (!authResult.success) {
       await logActivity({
         type: 'system_event',
         action: 'organizer_assignment_failed',
@@ -160,7 +161,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         severity: 'warning',
         category: 'authentication',
         metadata: { ipAddress, userAgent, error: authResult.error },
-        userId: authResult.user?.id,
+        userId: undefined,
       });
       return NextResponse.json(
         { error: authResult.error || 'Authentication failed' },
@@ -168,21 +169,37 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       );
     }
 
-    const adminUser = authResult.user;
+    // At this point, authResult.success is true, so user should be defined
+    if (!(authResult as ApiAuthResult & { user: UserWithRole }).user) {
+      await logActivity({
+        type: 'system_event',
+        action: 'organizer_assignment_failed',
+        description: `No user found in authentication result for event ${params.id}`,
+        severity: 'error',
+        category: 'authentication',
+        metadata: { ipAddress, userAgent },
+      });
+      return NextResponse.json(
+        { error: 'User not found in authentication result' },
+        { status: 401 }
+      );
+    }
+    
+    const adminUser = (authResult as ApiAuthResult & { user: UserWithRole }).user;
     const { id: eventId } = params;
 
     try {
       body = await request.json();
-    } catch (error) {
+    } catch {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
     // Check if this is a bulk assignment
-    const isBulkAssignment = Array.isArray(body.organizerIds);
+    const isBulkAssignment = body && Array.isArray(body.organizerIds);
 
     if (isBulkAssignment) {
       // Handle bulk assignment
-      const validationResult = bulkAssignOrganizersSchema.safeParse(body);
+      const validationResult = bulkAssignOrganizersSchema.safeParse(body!);
       if (!validationResult.success) {
         return NextResponse.json(
           {
@@ -330,7 +347,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     } else {
       // Handle single assignment
-      const validationResult = assignOrganizerSchema.safeParse(body);
+      const validationResult = assignOrganizerSchema.safeParse(body!);
       if (!validationResult.success) {
         return NextResponse.json(
           {
@@ -499,7 +516,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       severity: 'error',
       category: 'system',
       metadata: {
-        assignedBy: authResult.user?.id,
+        assignedBy: (authResult as ApiAuthResult & { user?: UserWithRole })?.user?.id,
         eventId: params.id,
         assignmentData: body,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
@@ -507,7 +524,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         ipAddress,
         userAgent,
       },
-      userId: authResult.user?.id,
+      userId: (authResult as ApiAuthResult & { user?: UserWithRole })?.user?.id,
     });
     return NextResponse.json(
       {
@@ -523,8 +540,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const startTime = Date.now();
   const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
-  let authResult: any;
-  let body: any;
+  let authResult: { success: boolean; error?: string; statusCode?: number } | undefined;
+  let body: Record<string, unknown> | undefined;
 
   try {
     // Authenticate admin request
@@ -533,7 +550,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       requireAuth: true,
     });
 
-    if (!authResult.success || !authResult.user) {
+    if (!authResult.success || !(authResult as ApiAuthResult & { user?: UserWithRole }).user) {
       await logActivity({
         type: 'system_event',
         action: 'organizer_removal_failed',
@@ -541,7 +558,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         severity: 'warning',
         category: 'authentication',
         metadata: { ipAddress, userAgent, error: authResult.error },
-        userId: authResult.user?.id,
+        userId: (authResult as ApiAuthResult & { user?: UserWithRole })?.user?.id,
       });
       return NextResponse.json(
         { error: authResult.error || 'Authentication failed' },
@@ -549,12 +566,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       );
     }
 
-    const adminUser = authResult.user;
+    const adminUser = (authResult as ApiAuthResult & { user: UserWithRole }).user;
     const { id: eventId } = params;
 
     try {
       body = await request.json();
-    } catch (error) {
+    } catch {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
@@ -681,7 +698,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       severity: 'error',
       category: 'system',
       metadata: {
-        removedBy: authResult.user?.id,
+        removedBy: (authResult as ApiAuthResult & { user?: UserWithRole })?.user?.id,
         eventId: params.id,
         removalData: body,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
@@ -689,7 +706,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         ipAddress,
         userAgent,
       },
-      userId: authResult.user?.id,
+      userId: (authResult as ApiAuthResult & { user?: UserWithRole })?.user?.id,
     });
     return NextResponse.json(
       {

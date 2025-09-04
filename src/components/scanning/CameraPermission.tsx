@@ -12,7 +12,6 @@ import {
   CheckCircle, 
   XCircle, 
   RefreshCw,
-  ExternalLink,
   Info
 } from 'lucide-react';
 import {
@@ -49,18 +48,6 @@ export function CameraPermission({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<PermissionError | null>(null);
   const [showRecoveryInstructions, setShowRecoveryInstructions] = useState(false);
-
-  // Check initial permission status
-  useEffect(() => {
-    checkPermissionStatus();
-  }, []);
-
-  // Auto-request permission if enabled
-  useEffect(() => {
-    if (autoRequest && permissionState?.prompt) {
-      handleRequestPermission();
-    }
-  }, [autoRequest, permissionState]);
 
   const checkPermissionStatus = useCallback(async () => {
     try {
@@ -111,6 +98,18 @@ export function CameraPermission({
       setIsLoading(false);
     }
   }, [onPermissionGranted, onPermissionDenied, onPermissionRequested]);
+
+  // Check initial permission status
+  useEffect(() => {
+    checkPermissionStatus();
+  }, [checkPermissionStatus]);
+
+  // Auto-request permission if enabled
+  useEffect(() => {
+    if (autoRequest && permissionState?.prompt) {
+      handleRequestPermission();
+    }
+  }, [autoRequest, permissionState, handleRequestPermission]);
 
   const handleRetry = useCallback(() => {
     setError(null);

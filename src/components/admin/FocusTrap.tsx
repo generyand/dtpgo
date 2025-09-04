@@ -18,7 +18,7 @@ export function FocusTrap({
   children,
   ...props
 }: FocusTrapProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLElement>(null)
   const { setTrapEnabled } = useFocusManagement(containerRef, {
     initialFocusRef,
     restoreFocus,
@@ -33,7 +33,7 @@ export function FocusTrap({
     if (!onEscape) return
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
-        onEscape()
+        onEscape?.()
       }
     }
     const node = containerRef.current
@@ -42,7 +42,7 @@ export function FocusTrap({
   }, [onEscape])
 
   return (
-    <div ref={containerRef} {...props}>
+    <div ref={containerRef as React.RefObject<HTMLDivElement>} {...props}>
       {children}
     </div>
   )

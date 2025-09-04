@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,29 +18,9 @@ interface SessionQRDisplayProps {
   onQRGenerated?: (qrUrl: string) => void;
 }
 
-interface SessionData {
-  id: string;
-  name: string;
-  description?: string;
-  timeInStart: string;
-  timeInEnd: string;
-  timeOutStart?: string;
-  timeOutEnd?: string;
-  isActive: boolean;
-  event: {
-    id: string;
-    name: string;
-    description?: string;
-    startDate: string;
-    endDate: string;
-    location?: string;
-    isActive: boolean;
-  };
-}
 
 export function SessionQRDisplay({ 
   sessionId, 
-  eventId, 
   sessionName, 
   eventName, 
   startTime, 
@@ -49,12 +29,11 @@ export function SessionQRDisplay({
   onQRGenerated 
 }: SessionQRDisplayProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
-  const [sessionData, setSessionData] = useState<SessionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
 
-  const fetchQRCode = async () => {
+  const fetchQRCode = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -83,7 +62,8 @@ export function SessionQRDisplay({
       const sessionResponse = await fetch(`/api/organizer/sessions/${sessionId}`);
       if (sessionResponse.ok) {
         const session = await sessionResponse.json();
-        setSessionData(session);
+        // sessionData is not used, so we don't need to set it
+        console.log('Session data fetched:', session);
       } else {
         // QR code worked but session data failed - not critical
         console.warn('Could not fetch session details, but QR code is available');
@@ -97,7 +77,7 @@ export function SessionQRDisplay({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [sessionId, onQRGenerated]);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -108,7 +88,7 @@ export function SessionQRDisplay({
         URL.revokeObjectURL(qrCodeUrl);
       }
     };
-  }, [sessionId, retryCount]);
+  }, [sessionId, retryCount, fetchQRCode, qrCodeUrl]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);

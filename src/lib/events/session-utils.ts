@@ -339,7 +339,7 @@ export function validateSessionTimeWindows(session: Session): {
 /**
  * Get session statistics
  */
-export function getSessionStatistics(session: SessionWithEvent & { attendance?: any[] }): {
+export function getSessionStatistics(session: SessionWithEvent & { attendance?: Record<string, unknown>[] }): {
   totalAttendance: number;
   timeInCount: number;
   timeOutCount: number;

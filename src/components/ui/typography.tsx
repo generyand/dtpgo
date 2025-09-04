@@ -8,7 +8,7 @@ import { typographyVariants, getTypographyVariant } from '@/lib/styles/typograph
 interface TypographyProps extends React.HTMLAttributes<HTMLElement> {
   variant?: keyof typeof typographyVariants;
   size?: string;
-  as?: keyof JSX.IntrinsicElements;
+  as?: keyof React.JSX.IntrinsicElements;
   children: React.ReactNode;
 }
 
@@ -20,7 +20,7 @@ export function Typography({
   children,
   ...props
 }: TypographyProps) {
-  const variantStyles = getTypographyVariant(variant, size as any);
+  const variantStyles = getTypographyVariant(variant, size as keyof (typeof typographyVariants)[typeof variant]);
   
   return (
     <Component
@@ -29,7 +29,7 @@ export function Typography({
         className
       )}
       style={variantStyles}
-      {...props}
+      {...(props as Record<string, unknown>)}
     >
       {children}
     </Component>
@@ -72,7 +72,7 @@ export function Heading({
     6: 'h6',
   } as const;
 
-  const Component = `h${level}` as keyof JSX.IntrinsicElements;
+  const Component = `h${level}` as keyof React.JSX.IntrinsicElements;
   
   return (
     <Typography

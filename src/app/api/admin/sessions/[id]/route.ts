@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+// import { z } from 'zod';
 import { prisma } from '@/lib/db/client';
-import { authenticateApiRequest } from '@/lib/auth/api-auth';
+import { authenticateApiRequest, ApiAuthResult } from '@/lib/auth/api-auth';
 import { logActivity } from '@/lib/db/queries/activity';
 import { updateSessionSchema, sessionIdSchema } from '@/lib/validations/session';
+import { Prisma } from '@prisma/client';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -105,8 +106,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const startTime = Date.now();
   const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
-  let authResult: any;
-  let body: any;
+  let authResult: ApiAuthResult | undefined;
+  let body: Record<string, unknown> | undefined;
 
   try {
     // Authenticate admin request
@@ -115,7 +116,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       requireAuth: true,
     });
 
-    if (!authResult.success || !authResult.user) {
+    if (!authResult.success) {
       await logActivity({
         type: 'system_event',
         action: 'session_update_failed',
@@ -123,11 +124,26 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         severity: 'warning',
         category: 'authentication',
         metadata: { ipAddress, userAgent, error: authResult.error },
-        userId: authResult.user?.id,
+        userId: undefined,
       });
       return NextResponse.json(
         { error: authResult.error || 'Authentication failed' },
         { status: authResult.statusCode || 401 }
+      );
+    }
+
+    if (!authResult.user) {
+      await logActivity({
+        type: 'system_event',
+        action: 'session_update_failed',
+        description: `No user found in authentication result for session ${params.id}`,
+        severity: 'error',
+        category: 'authentication',
+        metadata: { ipAddress, userAgent },
+      });
+      return NextResponse.json(
+        { error: 'User not found in authentication result' },
+        { status: 401 }
       );
     }
 
@@ -180,12 +196,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     try {
       body = await request.json();
-    } catch (error) {
+    } catch {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
     // Validate request body
-    const validationResult = updateSessionSchema.safeParse(body);
+    const validationResult = updateSessionSchema.safeParse(body!);
     if (!validationResult.success) {
       return NextResponse.json(
         {
@@ -233,7 +249,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       const timeOutStart = updateData.timeOutStart ? new Date(updateData.timeOutStart) : existingSession.timeOutStart;
       const timeOutEnd = updateData.timeOutEnd ? new Date(updateData.timeOutEnd) : existingSession.timeOutEnd;
 
-      const whereClause: any = {
+      const whereClause: Prisma.SessionWhereInput = {
         eventId: existingSession.eventId,
         isActive: true,
         id: { not: id },
@@ -250,6 +266,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
       // Add time-out window conflicts if both sessions have time-out windows
       if (timeOutStart && timeOutEnd) {
+        whereClause.OR = whereClause.OR || [];
         whereClause.OR.push({
           AND: [
             { timeOutStart: { not: null } },
@@ -257,7 +274,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
             { timeOutStart: { lte: timeOutEnd } },
             { timeOutEnd: { gte: timeOutStart } },
           ],
-        });
+        } as Prisma.SessionWhereInput);
       }
 
       const conflictingSessions = await prisma.session.findMany({
@@ -353,7 +370,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       severity: 'error',
       category: 'system',
       metadata: {
-        updatedBy: authResult.user?.id,
+        updatedBy: authResult?.user?.id,
         sessionId: params.id,
         updateData: body,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
@@ -361,7 +378,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         ipAddress,
         userAgent,
       },
-      userId: authResult.user?.id,
+      userId: authResult?.user?.id,
     });
     return NextResponse.json(
       {
@@ -377,7 +394,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const startTime = Date.now();
   const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
-  let authResult: any;
+  let authResult: ApiAuthResult | undefined;
 
   try {
     // Authenticate admin request
@@ -386,7 +403,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       requireAuth: true,
     });
 
-    if (!authResult.success || !authResult.user) {
+    if (!authResult.success) {
       await logActivity({
         type: 'system_event',
         action: 'session_deletion_failed',
@@ -394,11 +411,26 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         severity: 'warning',
         category: 'authentication',
         metadata: { ipAddress, userAgent, error: authResult.error },
-        userId: authResult.user?.id,
+        userId: undefined,
       });
       return NextResponse.json(
         { error: authResult.error || 'Authentication failed' },
         { status: authResult.statusCode || 401 }
+      );
+    }
+
+    if (!authResult.user) {
+      await logActivity({
+        type: 'system_event',
+        action: 'session_deletion_failed',
+        description: `No user found in authentication result for session ${params.id}`,
+        severity: 'error',
+        category: 'authentication',
+        metadata: { ipAddress, userAgent },
+      });
+      return NextResponse.json(
+        { error: 'User not found in authentication result' },
+        { status: 401 }
       );
     }
 
@@ -520,14 +552,14 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       severity: 'error',
       category: 'system',
       metadata: {
-        deletedBy: authResult.user?.id,
+        deletedBy: authResult?.user?.id,
         sessionId: params.id,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
         deletionDuration: Date.now() - startTime,
         ipAddress,
         userAgent,
       },
-      userId: authResult.user?.id,
+      userId: authResult?.user?.id,
     });
     return NextResponse.json(
       {

@@ -25,25 +25,12 @@ import {
   Users, 
   Clock, 
   Settings, 
-  ChevronDown,
-  ChevronUp,
   Star,
   TrendingUp
 } from 'lucide-react';
 
 // Card showcase component for development/testing
 export function CardShowcase() {
-  const [collapsedSections, setCollapsedSections] = React.useState<Record<string, boolean>>({
-    basic: false,
-    advanced: false,
-  });
-
-  const toggleSection = (section: string) => {
-    setCollapsedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
 
   return (
     <div className="space-y-8 p-6">

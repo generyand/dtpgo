@@ -232,7 +232,7 @@ export function SpacingShowcase() {
             <h3 className="text-lg font-medium mb-3 text-muted-foreground">Spacing Scale</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {Object.entries(spacingScale).map(([key, value]) => (
-                <Spacing key={key} size={key as keyof typeof spacingScale} type="padding">
+                <Spacing key={key} size={key as unknown as keyof typeof spacingScale} type="padding">
                   <div className="text-center">
                     <div className="font-mono text-xs text-gray-600">{key}</div>
                     <div className="font-mono text-xs">{value}</div>

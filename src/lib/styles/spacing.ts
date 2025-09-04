@@ -151,7 +151,7 @@ export function getComponentSpacing(
 ): string | Record<string, string> {
   const categorySpacing = componentSpacing[category];
   if (property && typeof categorySpacing === 'object' && property in categorySpacing) {
-    return (categorySpacing as any)[property];
+    return (categorySpacing as Record<string, string>)[property];
   }
   return categorySpacing;
 }
@@ -163,7 +163,7 @@ export function getResponsiveSpacing(
 ): string | Record<string, string> {
   const breakpointSpacing = responsiveSpacing[breakpoint];
   if (subcategory && typeof breakpointSpacing === 'object' && subcategory in breakpointSpacing) {
-    return (breakpointSpacing as any)[subcategory];
+    return (breakpointSpacing as Record<string, string>)[subcategory];
   }
   return breakpointSpacing;
 }

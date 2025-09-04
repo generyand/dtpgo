@@ -124,7 +124,7 @@ class FormErrorBoundaryImpl extends React.Component<
 	{ children: React.ReactNode; fallback?: React.ReactNode; onError?: (error: Error) => void },
 	{ hasError: boolean; message?: string }
 > {
-	constructor(props: any) {
+	constructor(props: { children: React.ReactNode; fallback?: React.ReactNode; onError?: (error: Error) => void }) {
 		super(props);
 		this.state = { hasError: false };
 	}

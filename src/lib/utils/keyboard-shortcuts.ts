@@ -116,7 +116,7 @@ class ShortcutManager {
   private detach() {
     if (!this.attached) return
     if (typeof window === 'undefined') return
-    window.removeEventListener('keydown', this.onKeyDown, { capture: true } as any)
+    window.removeEventListener('keydown', this.onKeyDown, { capture: true })
     this.attached = false
   }
 

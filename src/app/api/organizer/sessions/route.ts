@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/auth/supabase-server';
 import { prisma } from '@/lib/db/client';
 
@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db/client';
  * GET /api/organizer/sessions
  * Fetch sessions assigned to the current organizer
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Create Supabase client for server-side operations
     const supabase = await createSupabaseServerClient();

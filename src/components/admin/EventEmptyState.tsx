@@ -17,7 +17,6 @@ interface EventEmptyStateProps {
 export function EventEmptyState({
   onBackToEvents,
   onCreateEvent,
-  onSearchEvents,
   variant = 'default',
   className,
 }: EventEmptyStateProps) {

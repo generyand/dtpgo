@@ -7,7 +7,7 @@ import { prisma } from '@/lib/db/client';
  * GET /api/admin/organizers
  * Fetch all organizers for admin management
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Create Supabase client for server-side operations
     const supabase = await createSupabaseServerClient();

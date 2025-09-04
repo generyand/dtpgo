@@ -8,25 +8,22 @@ import { Label } from '@/components/ui/label';
 import { 
   Camera, 
   CheckCircle, 
-  AlertCircle, 
   User, 
   Clock, 
-  MapPin, 
   GraduationCap,
   QrCode,
   Scan,
-  X,
-  RotateCcw
+  X
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { parseQRCodeData, validateQRCodeData } from '@/lib/qr/session-generator';
+import { parseQRCodeData } from '@/lib/qr/session-generator';
 
 interface QRCodeScannerProps {
   sessionId: string;
   eventId: string;
   sessionName: string;
   eventName: string;
-  onAttendanceRecorded?: (attendanceData: any) => void;
+  onAttendanceRecorded?: (attendanceData: Record<string, unknown>) => void;
   onError?: (error: string) => void;
 }
 
@@ -61,7 +58,6 @@ export function QRCodeScanner({
   onError
 }: QRCodeScannerProps) {
   const [isScanning, setIsScanning] = useState(false);
-  const [scannedData, setScannedData] = useState<string | null>(null);
   const [parsedData, setParsedData] = useState<StudentAttendanceData | SessionAttendanceData | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastScanTime, setLastScanTime] = useState<Date | null>(null);
@@ -72,11 +68,11 @@ export function QRCodeScanner({
   const streamRef = useRef<MediaStream | null>(null);
 
   // Mock QR code detection (in a real implementation, you'd use a library like jsQR)
-  const detectQRCode = (imageData: ImageData): string | null => {
-    // This is a placeholder - in a real implementation, you'd use jsQR or similar
-    // For now, we'll simulate QR code detection
-    return null;
-  };
+  // const detectQRCode = (imageData: ImageData): string | null => {
+  //   // This is a placeholder - in a real implementation, you'd use jsQR or similar
+  //   // For now, we'll simulate QR code detection
+  //   return null;
+  // };
 
   const startScanning = async () => {
     try {
@@ -109,7 +105,6 @@ export function QRCodeScanner({
       streamRef.current = null;
     }
     setIsScanning(false);
-    setScannedData(null);
     setParsedData(null);
   };
 
@@ -127,13 +122,13 @@ export function QRCodeScanner({
 
       if (type === 'student_attendance') {
         const studentData: StudentAttendanceData = {
-          studentId: data.studentId,
-          studentIdNumber: data.studentIdNumber,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          programName: data.programName,
-          year: data.year,
-          timestamp: data.timestamp,
+          studentId: (data as Record<string, unknown>).studentId as string,
+          studentIdNumber: (data as Record<string, unknown>).studentIdNumber as string,
+          firstName: (data as Record<string, unknown>).firstName as string,
+          lastName: (data as Record<string, unknown>).lastName as string,
+          programName: (data as Record<string, unknown>).programName as string,
+          year: (data as Record<string, unknown>).year as number,
+          timestamp: (data as Record<string, unknown>).timestamp as string,
         };
         setParsedData(studentData);
         setLastScanTime(new Date());
@@ -146,15 +141,15 @@ export function QRCodeScanner({
         recordAttendance(studentData);
       } else if (type === 'session_attendance') {
         const sessionData: SessionAttendanceData = {
-          sessionId: data.sessionId,
-          eventId: data.eventId,
-          eventName: data.eventName,
-          sessionName: data.sessionName,
-          startTime: data.startTime,
-          endTime: data.endTime,
-          location: data.location,
-          organizerId: data.organizerId,
-          timestamp: data.timestamp,
+          sessionId: (data as Record<string, unknown>).sessionId as string,
+          eventId: (data as Record<string, unknown>).eventId as string,
+          eventName: (data as Record<string, unknown>).eventName as string,
+          sessionName: (data as Record<string, unknown>).sessionName as string,
+          startTime: (data as Record<string, unknown>).startTime as string,
+          endTime: (data as Record<string, unknown>).endTime as string,
+          location: (data as Record<string, unknown>).location as string,
+          organizerId: (data as Record<string, unknown>).organizerId as string,
+          timestamp: (data as Record<string, unknown>).timestamp as string,
         };
         setParsedData(sessionData);
         setLastScanTime(new Date());
@@ -229,7 +224,6 @@ export function QRCodeScanner({
   };
 
   const clearScan = () => {
-    setScannedData(null);
     setParsedData(null);
     setLastScanTime(null);
   };
@@ -414,7 +408,7 @@ export function QRCodeScanner({
                 <div className="text-left">
                   <p className="text-blue-800 text-sm font-semibold mb-1">How to scan:</p>
                   <ul className="text-blue-700 text-sm leading-relaxed space-y-1">
-                    <li>• Point the camera at a student's QR code</li>
+                    <li>• Point the camera at a student&apos;s QR code</li>
                     <li>• Ensure the QR code is within the scanning frame</li>
                     <li>• Hold steady until the code is detected</li>
                     <li>• Or use manual input for QR code data</li>

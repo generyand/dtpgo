@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,16 +17,47 @@ interface EventDetailsProps {
 
 export function EventDetails({ event, onClose }: EventDetailsProps) {
   const [sessions, setSessions] = useState<SessionWithDetails[]>([]);
-  const [organizers, setOrganizers] = useState<any[]>([]);
+  const [organizers, setOrganizers] = useState<Array<{ id: string; name: string; email: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showSessionConfig, setShowSessionConfig] = useState(false);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
 
+  // Refresh event details
+  const fetchEventDetails = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch sessions
+      const sessionsResponse = await fetch(`/api/admin/sessions?eventId=${event.id}&limit=100`);
+      if (sessionsResponse.ok) {
+        const sessionsData = await sessionsResponse.json();
+        if (sessionsData.success) {
+          setSessions(sessionsData.sessions);
+        }
+      }
+
+      // Fetch organizers
+      const organizersResponse = await fetch(`/api/admin/events/${event.id}/organizers`);
+      if (organizersResponse.ok) {
+        const organizersData = await organizersResponse.json();
+        if (organizersData.success) {
+          setOrganizers(organizersData.assignedOrganizers);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching event details:', err);
+      setError('Failed to load event details');
+    } finally {
+      setLoading(false);
+    }
+  }, [event.id]);
+
   // Fetch additional event details
   useEffect(() => {
     fetchEventDetails();
-  }, [event.id]);
+  }, [event.id, fetchEventDetails]);
 
   // Format date for display
   const formatDate = (date: string | Date) => {
@@ -109,37 +140,6 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
   const handleSessionConfigCancel = () => {
     setShowSessionConfig(false);
     setEditingSessionId(null);
-  };
-
-  // Refresh event details
-  const fetchEventDetails = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Fetch sessions
-      const sessionsResponse = await fetch(`/api/admin/sessions?eventId=${event.id}&limit=100`);
-      if (sessionsResponse.ok) {
-        const sessionsData = await sessionsResponse.json();
-        if (sessionsData.success) {
-          setSessions(sessionsData.sessions);
-        }
-      }
-
-      // Fetch organizers
-      const organizersResponse = await fetch(`/api/admin/events/${event.id}/organizers`);
-      if (organizersResponse.ok) {
-        const organizersData = await organizersResponse.json();
-        if (organizersData.success) {
-          setOrganizers(organizersData.assignedOrganizers);
-        }
-      }
-    } catch (err) {
-      console.error('Error fetching event details:', err);
-      setError('Failed to load event details');
-    } finally {
-      setLoading(false);
-    }
   };
 
   if (loading) {
@@ -250,7 +250,7 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
               <CardContent className="text-center py-8">
                 <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h4 className="text-lg font-medium text-gray-900 mb-2">No sessions</h4>
-                <p className="text-gray-500 mb-4">This event doesn't have any sessions yet.</p>
+                <p className="text-gray-500 mb-4">This event doesn&apos;t have any sessions yet.</p>
                 <Button onClick={handleCreateSession}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create First Session
@@ -328,7 +328,7 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
               <CardContent className="text-center py-8">
                 <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h4 className="text-lg font-medium text-gray-900 mb-2">No organizers assigned</h4>
-                <p className="text-gray-500 mb-4">This event doesn't have any organizers assigned yet.</p>
+                <p className="text-gray-500 mb-4">This event doesn&apos;t have any organizers assigned yet.</p>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
                   Assign First Organizer
@@ -337,8 +337,8 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
             </Card>
           ) : (
             <div className="space-y-3">
-              {organizers.map((assignment) => (
-                <Card key={assignment.assignmentId}>
+              {organizers.map((assignment, index) => (
+                <Card key={assignment.id || index}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -346,14 +346,14 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
                           <Users className="h-5 w-5 text-gray-600" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-gray-900">{assignment.organizer.fullName}</h4>
-                          <p className="text-sm text-gray-600">{assignment.organizer.email}</p>
+                          <h4 className="font-semibold text-gray-900">{assignment.name}</h4>
+                          <p className="text-sm text-gray-600">{assignment.email}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <Badge variant={assignment.organizer.role === 'admin' ? 'default' : 'secondary'}>
-                              {assignment.organizer.role}
+                            <Badge variant="secondary">
+                              Organizer
                             </Badge>
                             <span className="text-xs text-gray-500">
-                              Assigned {new Date(assignment.assignedAt).toLocaleDateString()}
+                              Assigned
                             </span>
                           </div>
                         </div>
@@ -396,7 +396,7 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
               <CardContent>
                 <div className="text-2xl font-bold">{event._count.organizerAssignments}</div>
                 <p className="text-xs text-muted-foreground">
-                  {organizers.filter(o => o.organizer.isActive).length} active
+                  {organizers.length} assigned
                 </p>
               </CardContent>
             </Card>

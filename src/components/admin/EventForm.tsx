@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+// import { zodResolver } from '@hookform/resolvers/zod';
+// import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { MapPin, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { createEventSchema, type CreateEventInput } from '@/lib/validations/event';
+// import { createEventSchema, type CreateEventInput } from '@/lib/validations/event';
 import { EventWithDetails } from '@/lib/types/event';
 
 // Form data type
@@ -79,7 +79,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
       };
 
       console.log('Submitting event form data:', formData);
-      await onSubmit(formData as any);
+      await onSubmit(formData as unknown as EventFormData);
     } catch (error) {
       console.error('Error submitting form:', error);
       toast.error('Failed to submit form');

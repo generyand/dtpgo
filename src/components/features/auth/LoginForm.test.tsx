@@ -118,7 +118,6 @@ describe('LoginForm', () => {
       </TestWrapper>
     );
 
-    const emailInput = screen.getByLabelText(/email address/i);
     const passwordInput = screen.getByPlaceholderText(/enter your password/i);
     const submitButton = screen.getByRole('button', { name: /signing in|sign in/i });
 

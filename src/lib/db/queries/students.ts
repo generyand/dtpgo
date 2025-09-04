@@ -266,7 +266,7 @@ export async function getStudents(options: {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     
     if (programId) {
       where.programId = programId;
@@ -373,7 +373,7 @@ export async function searchStudents(
 
     const searchTerm = query.trim();
     
-    const where: any = {
+    const where: Record<string, unknown> = {
       OR: [
         {
           studentIdNumber: {
@@ -620,7 +620,7 @@ export async function countStudents(options: {
   registrationSource?: string;
 } = {}): Promise<number> {
   try {
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     
     if (options.programId) {
       where.programId = options.programId;
@@ -745,7 +745,7 @@ export async function getStudentAttendanceHistory(
   try {
     const { limit = 50, eventId, sessionId } = options;
 
-    const where: any = { studentId };
+    const where: Record<string, unknown> = { studentId };
     
     if (eventId) {
       where.eventId = eventId;

@@ -25,6 +25,10 @@ export const POST = withRateLimit('registration', async (request: NextRequest) =
       registrationSource: 'public',
     });
 
+    if (!student) {
+      throw new Error('Failed to create student');
+    }
+
     studentId = student.id;
 
     // Log successful registration activity

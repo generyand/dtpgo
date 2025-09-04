@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Card } from '@/components/ui/card';
+// import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -38,9 +38,7 @@ export function EventManagementSplitPane() {
     sortBy: 'createdAt',
     sortOrder: 'desc',
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage] = useState(1);
   const limit = 10;
   const [localSearch, setLocalSearch] = useState<string>('');
 
@@ -64,8 +62,6 @@ export function EventManagementSplitPane() {
       if (!data.success) throw new Error(data.error || 'Failed to load events');
 
       setEvents(data.events as EventWithDetails[]);
-      setTotalPages(data.pagination?.totalPages || 1);
-      setTotalCount(data.pagination?.totalCount || 0);
       
       if (!selectedEvent && data.events.length > 0) {
         setSelectedEvent(data.events[0]);
@@ -73,8 +69,8 @@ export function EventManagementSplitPane() {
         const updated = data.events.find((e: EventWithDetails) => e.id === selectedEvent.id);
         if (updated) setSelectedEvent(updated);
       }
-    } catch (e: any) {
-      setError(e?.message || 'Failed to load events');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Failed to load events');
     } finally {
       if (!options?.suppressLoading) setLoading(false);
     }
@@ -120,7 +116,7 @@ export function EventManagementSplitPane() {
     setIsDeleteOpen(true);
   };
 
-  const handleUpdateEvent = async (eventData: any) => {
+  const handleUpdateEvent = async (eventData: Record<string, unknown>) => {
     if (!selectedEvent) return;
 
     try {
@@ -141,8 +137,8 @@ export function EventManagementSplitPane() {
       } else {
         throw new Error(data.error || 'Failed to update event');
       }
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to update event');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update event');
     }
   };
 
@@ -164,12 +160,12 @@ export function EventManagementSplitPane() {
       } else {
         throw new Error(data.error || 'Failed to delete event');
       }
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to delete event');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete event');
     }
   };
 
-  const handleCreateEvent = async (eventData: any) => {
+  const handleCreateEvent = async (eventData: Record<string, unknown>) => {
     try {
       const res = await fetch('/api/admin/events', {
         method: 'POST',
@@ -183,8 +179,8 @@ export function EventManagementSplitPane() {
       toast.success('Event created successfully');
       setIsCreateOpen(false);
       await fetchEvents();
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to create event');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to create event');
     }
   };
 
@@ -213,7 +209,7 @@ export function EventManagementSplitPane() {
             </div>
             {/* Filters row */}
             <div className="flex items-center gap-2">
-              <Select value={filters.status} onValueChange={(value: any) => setFilters((f) => ({ ...f, status: value }))}>
+              <Select value={filters.status} onValueChange={(value: string) => setFilters((f) => ({ ...f, status: value as 'all' | 'active' | 'inactive' | 'upcoming' | 'ended' }))}>
                 <SelectTrigger className="h-10 w-[140px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -225,7 +221,7 @@ export function EventManagementSplitPane() {
                   <SelectItem value="inactive">Inactive</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={filters.dateRange} onValueChange={(value: any) => setFilters((f) => ({ ...f, dateRange: value }))}>
+              <Select value={filters.dateRange} onValueChange={(value: string) => setFilters((f) => ({ ...f, dateRange: value as 'all' | 'today' | 'week' | 'month' | 'custom' }))}>
                 <SelectTrigger className="h-10 w-[140px]">
                   <SelectValue placeholder="Dates" />
                 </SelectTrigger>
@@ -343,7 +339,7 @@ export function EventManagementSplitPane() {
           <DialogHeader>
             <DialogTitle>Delete Event</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{selectedEvent?.name}"? This action cannot be undone.
+              Are you sure you want to delete &quot;{selectedEvent?.name}&quot;? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-3 pt-4">

@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
     const action = searchParams.get('action');
 
     // Build where clause
-    const whereClause: any = {
+    const whereClause: Record<string, unknown> = {
       organizerId: organizer.id,
     };
 
@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
       activities: activities.map(activity => ({
         id: activity.id,
         type: activity.type,
-        action: (activity.metadata as any)?.action,
+        action: (activity.metadata as Record<string, unknown>)?.action,
         description: activity.description,
         metadata: activity.metadata,
         createdAt: activity.createdAt,

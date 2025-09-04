@@ -18,14 +18,14 @@ export interface PermissionRequestOptions {
   retryDelay?: number;
 }
 
-export interface PermissionError {
+export interface IPermissionError {
   code: string;
   message: string;
   recoverable: boolean;
   fallback?: string;
 }
 
-export class PermissionError extends Error {
+export class PermissionError extends Error implements IPermissionError {
   constructor(
     message: string,
     public code: string,
@@ -172,7 +172,7 @@ export async function requestCameraPermission(
  * Map MediaStreamError to PermissionError
  */
 function mapMediaStreamErrorToPermissionError(error: Error): PermissionError {
-  const errorName = (error as any).name;
+  const errorName = (error as { name: string }).name;
   
   switch (errorName) {
     case 'NotAllowedError':

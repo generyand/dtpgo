@@ -34,7 +34,7 @@ interface UseSessionValidationReturn {
   warningCount: number;
   
   // Real-time validation functions
-  validateField: (fieldName: string, value: any) => ValidationResult;
+  validateField: (fieldName: string, value: unknown) => ValidationResult;
   validateForm: () => ValidationSummary;
 }
 
@@ -166,12 +166,12 @@ export function useSessionValidation(): UseSessionValidationReturn {
   }, [formValidation.warnings]);
 
   // Validation functions
-  const validateField = useCallback((fieldName: string, value: any): ValidationResult => {
+  const validateField = useCallback((fieldName: string, value: unknown): ValidationResult => {
     switch (fieldName) {
       case 'name':
-        return validateSessionNameRealTime(value || '');
+        return validateSessionNameRealTime((value as string) || '');
       case 'description':
-        return validateSessionDescriptionRealTime(value || '');
+        return validateSessionDescriptionRealTime((value as string) || '');
       case 'timeInStart':
       case 'timeInEnd':
         if (!timeInStart || !timeInEnd) {
@@ -188,15 +188,15 @@ export function useSessionValidation(): UseSessionValidationReturn {
         }
         return validateTimeWindowRealTime(timeOutStart, timeOutEnd);
       case 'organizerIds':
-        return validateOrganizerAssignment(value || [], maxCapacity);
+        return validateOrganizerAssignment((value as string[]) || [], maxCapacity);
       case 'maxCapacity':
         if (requireRegistration && !value) {
           return { isValid: false, message: 'Maximum capacity is required when registration is required', type: 'error' };
         }
-        if (value && value < 1) {
+        if (value && (value as number) < 1) {
           return { isValid: false, message: 'Maximum capacity must be at least 1', type: 'error' };
         }
-        if (value && value > 1000) {
+        if (value && (value as number) > 1000) {
           return { isValid: false, message: 'Maximum capacity cannot exceed 1000', type: 'error' };
         }
         return { isValid: true, message: 'Capacity looks good!', type: 'success' };

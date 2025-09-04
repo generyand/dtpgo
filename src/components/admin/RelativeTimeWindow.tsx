@@ -46,6 +46,20 @@ export function RelativeTimeWindow({
   const [endConfig, setEndConfig] = useState<TimeWindowConfig>(endTime);
   const [validationError, setValidationError] = useState<string>('');
 
+  // Convert time config to minutes
+  const convertToMinutes = useCallback((config: TimeWindowConfig): number => {
+    switch (config.unit) {
+      case 'minutes':
+        return config.value;
+      case 'hours':
+        return config.value * 60;
+      case 'days':
+        return config.value * 24 * 60;
+      default:
+        return config.value;
+    }
+  }, []);
+
   // Validate time window configuration
   const validateTimeWindow = useCallback((start: TimeWindowConfig, end: TimeWindowConfig): string => {
     if (start.value <= 0 || end.value <= 0) {
@@ -69,21 +83,7 @@ export function RelativeTimeWindow({
     }
 
     return '';
-  }, []);
-
-  // Convert time config to minutes
-  const convertToMinutes = useCallback((config: TimeWindowConfig): number => {
-    switch (config.unit) {
-      case 'minutes':
-        return config.value;
-      case 'hours':
-        return config.value * 60;
-      case 'days':
-        return config.value * 24 * 60;
-      default:
-        return config.value;
-    }
-  }, []);
+  }, [convertToMinutes]);
 
   // Format time for display
   const formatTimeDisplay = useCallback((config: TimeWindowConfig): string => {

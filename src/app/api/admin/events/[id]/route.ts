@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db/client';
-import { authenticateApiRequest } from '@/lib/auth/api-auth';
+import { authenticateApiRequest, ApiAuthResult } from '@/lib/auth/api-auth';
 import { logActivity } from '@/lib/db/queries/activity';
 
 // Validation schema for event updates
@@ -96,8 +96,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const startTime = Date.now();
   const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
-  let authResult: any;
-  let body: any;
+  let authResult: ApiAuthResult | undefined;
+  let body: Record<string, unknown> | undefined;
 
   try {
     // Authenticate admin request
@@ -106,7 +106,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       requireAuth: true,
     });
 
-    if (!authResult.success || !authResult.user) {
+    if (!authResult.success) {
       await logActivity({
         type: 'system_event',
         action: 'event_update_failed',
@@ -114,11 +114,26 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         severity: 'warning',
         category: 'authentication',
         metadata: { ipAddress, userAgent, error: authResult.error },
-        userId: authResult.user?.id,
+        userId: undefined,
       });
       return NextResponse.json(
         { error: authResult.error || 'Authentication failed' },
         { status: authResult.statusCode || 401 }
+      );
+    }
+
+    if (!authResult.user) {
+      await logActivity({
+        type: 'system_event',
+        action: 'event_update_failed',
+        description: `No user found in authentication result for event ${params.id}`,
+        severity: 'error',
+        category: 'authentication',
+        metadata: { ipAddress, userAgent },
+      });
+      return NextResponse.json(
+        { error: 'User not found in authentication result' },
+        { status: 401 }
       );
     }
 
@@ -146,15 +161,14 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       );
     }
 
-    let body;
     try {
       body = await request.json();
-    } catch (error) {
+    } catch {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
     // Validate request body
-    const validationResult = updateEventSchema.safeParse(body);
+    const validationResult = updateEventSchema.safeParse(body!);
     if (!validationResult.success) {
       return NextResponse.json(
         {
@@ -281,7 +295,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       severity: 'error',
       category: 'system',
       metadata: {
-        updatedBy: authResult.user?.id,
+        updatedBy: authResult?.user?.id,
         eventId: params.id,
         updateData: body,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
@@ -289,7 +303,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         ipAddress,
         userAgent,
       },
-      userId: authResult.user?.id,
+      userId: authResult?.user?.id,
     });
     return NextResponse.json(
       {
@@ -305,7 +319,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const startTime = Date.now();
   const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
-  let authResult: any;
+  let authResult: ApiAuthResult | undefined;
 
   try {
     // Authenticate admin request
@@ -314,7 +328,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       requireAuth: true,
     });
 
-    if (!authResult.success || !authResult.user) {
+    if (!authResult.success) {
       await logActivity({
         type: 'system_event',
         action: 'event_deletion_failed',
@@ -322,11 +336,26 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         severity: 'warning',
         category: 'authentication',
         metadata: { ipAddress, userAgent, error: authResult.error },
-        userId: authResult.user?.id,
+        userId: undefined,
       });
       return NextResponse.json(
         { error: authResult.error || 'Authentication failed' },
         { status: authResult.statusCode || 401 }
+      );
+    }
+
+    if (!authResult.user) {
+      await logActivity({
+        type: 'system_event',
+        action: 'event_deletion_failed',
+        description: `No user found in authentication result for event ${params.id}`,
+        severity: 'error',
+        category: 'authentication',
+        metadata: { ipAddress, userAgent },
+      });
+      return NextResponse.json(
+        { error: 'User not found in authentication result' },
+        { status: 401 }
       );
     }
 
@@ -424,14 +453,14 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       severity: 'error',
       category: 'system',
       metadata: {
-        deletedBy: authResult.user?.id,
+        deletedBy: authResult?.user?.id,
         eventId: params.id,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
         deletionDuration: Date.now() - startTime,
         ipAddress,
         userAgent,
       },
-      userId: authResult.user?.id,
+      userId: authResult?.user?.id,
     });
     return NextResponse.json(
       {

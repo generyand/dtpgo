@@ -118,7 +118,7 @@ export function useOrganizerSession() {
   /**
    * Track organizer activity
    */
-  const trackActivity = useCallback(async (action: string, details?: Record<string, any>) => {
+  const trackActivity = useCallback(async (action: string, details?: Record<string, unknown>) => {
     try {
       await fetch('/api/organizer/activity', {
         method: 'POST',

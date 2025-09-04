@@ -7,7 +7,7 @@ import QrScanner from 'qr-scanner';
 
 export interface QRDetectionResult {
   data: string;
-  cornerPoints: any[];
+  cornerPoints: unknown[];
   timestamp: number;
 }
 
@@ -16,7 +16,7 @@ export interface QRDetectionOptions {
   highlightScanRegion?: boolean;
   highlightCodeOutline?: boolean;
   preferredCamera?: 'environment' | 'user';
-  calculateScanRegion?: (video: HTMLVideoElement) => any;
+  calculateScanRegion?: (video: HTMLVideoElement) => Record<string, unknown>;
 }
 
 export interface QRDetectorConfig {
@@ -46,9 +46,9 @@ export async function isQRScanningSupported(): Promise<boolean> {
 /**
  * Get list of available cameras for QR scanning
  */
-export async function getQRCameras(): Promise<any[]> {
+export async function getQRCameras(): Promise<Record<string, unknown>[]> {
   try {
-    return await QrScanner.listCameras(true);
+    return await QrScanner.listCameras(true) as unknown as Record<string, unknown>[];
   } catch (error) {
     throw new QRDetectorError(
       'Failed to get camera list',
@@ -68,7 +68,7 @@ export function createQRScanner(
   const { onDetect, onError, options = {} } = config;
 
   // Configure scanner options
-  const scannerOptions: any = {
+  const scannerOptions: Record<string, unknown> = {
     maxScansPerSecond: options.maxScansPerSecond || 5,
     highlightScanRegion: options.highlightScanRegion || false,
     highlightCodeOutline: options.highlightCodeOutline || true,
@@ -79,7 +79,7 @@ export function createQRScanner(
   // Create scanner instance
   const scanner = new QrScanner(
     videoElement,
-    (result: any) => {
+    (result: { data: string; cornerPoints: unknown[] }) => {
       const detectionResult: QRDetectionResult = {
         data: result.data,
         cornerPoints: result.cornerPoints || [],
@@ -187,7 +187,7 @@ export async function switchQRCamera(
 /**
  * Get current camera being used by scanner
  */
-export function getCurrentQRCamera(scanner: QrScanner): any | null {
+export function getCurrentQRCamera(scanner: QrScanner): unknown | null {
   // Note: qr-scanner doesn't have getActiveCamera method
   // We'll need to track this separately if needed
   return null;
@@ -217,7 +217,7 @@ export function validateQRData(data: string): boolean {
 export function parseQRData(data: string): {
   isValid: boolean;
   type?: string;
-  payload?: any;
+  payload?: unknown;
   error?: string;
 } {
   if (!validateQRData(data)) {
@@ -288,7 +288,7 @@ export function parseQRData(data: string): {
 /**
  * Create optimized scan region for mobile devices
  */
-export function createMobileScanRegion(video: HTMLVideoElement): any {
+export function createMobileScanRegion(video: HTMLVideoElement): Record<string, unknown> {
   const { videoWidth, videoHeight } = video;
   
   // Create a centered region that's 80% of the video size
@@ -307,7 +307,7 @@ export function createMobileScanRegion(video: HTMLVideoElement): any {
 /**
  * Create scan region for desktop devices
  */
-export function createDesktopScanRegion(video: HTMLVideoElement): any {
+export function createDesktopScanRegion(video: HTMLVideoElement): Record<string, unknown> {
   const { videoWidth, videoHeight } = video;
   
   // For desktop, use a smaller centered region
@@ -326,7 +326,7 @@ export function createDesktopScanRegion(video: HTMLVideoElement): any {
 /**
  * Get optimal scan region based on device type
  */
-export function getOptimalScanRegion(video: HTMLVideoElement): any {
+export function getOptimalScanRegion(video: HTMLVideoElement): Record<string, unknown> {
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent
   );
@@ -411,8 +411,8 @@ export function monitorQRScannerHealth(
     errorCount: number;
   }) => void
 ): () => void {
-  let scanCount = 0;
-  let errorCount = 0;
+  const scanCount = 0;
+  const errorCount = 0;
   let lastScanTime: number | undefined;
   let isMonitoring = true;
 

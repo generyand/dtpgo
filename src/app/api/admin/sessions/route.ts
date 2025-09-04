@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+// import { z } from 'zod';
 import { prisma } from '@/lib/db/client';
-import { authenticateApiRequest } from '@/lib/auth/api-auth';
+import { authenticateApiRequest, ApiAuthResult } from '@/lib/auth/api-auth';
 import { logActivity } from '@/lib/db/queries/activity';
 import { createSessionSchema, sessionQuerySchema } from '@/lib/validations/session';
+import { Prisma } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
     const { page, limit, eventId, search, isActive, sortBy, sortOrder } = queryValidation.data;
 
     // Build where clause
-    const whereClause: any = {};
+    const whereClause: Record<string, unknown> = {};
     
     if (eventId) {
       whereClause.eventId = eventId;
@@ -64,7 +65,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build orderBy clause
-    const orderBy: any = {};
+    const orderBy: Record<string, string> = {};
     orderBy[sortBy] = sortOrder;
 
     // Get total count for pagination
@@ -123,8 +124,8 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
-  let authResult: any;
-  let body: any;
+  let authResult: ApiAuthResult | undefined;
+  let body: Record<string, unknown> | undefined;
 
   try {
     // Authenticate admin request
@@ -133,7 +134,7 @@ export async function POST(request: NextRequest) {
       requireAuth: true,
     });
 
-    if (!authResult.success || !authResult.user) {
+    if (!authResult.success) {
       await logActivity({
         type: 'system_event',
         action: 'session_creation_failed',
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
         severity: 'warning',
         category: 'authentication',
         metadata: { ipAddress, userAgent, error: authResult.error },
-        userId: authResult.user?.id,
+        userId: undefined,
       });
       return NextResponse.json(
         { error: authResult.error || 'Authentication failed' },
@@ -149,16 +150,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!authResult.user) {
+      await logActivity({
+        type: 'system_event',
+        action: 'session_creation_failed',
+        description: `No user found in authentication result for session creation`,
+        severity: 'error',
+        category: 'authentication',
+        metadata: { ipAddress, userAgent },
+      });
+      return NextResponse.json(
+        { error: 'User not found in authentication result' },
+        { status: 401 }
+      );
+    }
+
     const adminUser = authResult.user;
 
     try {
       body = await request.json();
-    } catch (error) {
+    } catch {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
     // Validate request body
-    const validationResult = createSessionSchema.safeParse(body);
+    const validationResult = createSessionSchema.safeParse(body!);
     if (!validationResult.success) {
       return NextResponse.json(
         {
@@ -234,7 +250,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for time window conflicts with existing sessions
-    const whereClause: any = {
+    const whereClause: Prisma.SessionWhereInput = {
       eventId,
       isActive: true,
       OR: [
@@ -250,6 +266,7 @@ export async function POST(request: NextRequest) {
 
     // Add time-out window conflicts if both sessions have time-out windows
     if (timeOutStart && timeOutEnd) {
+      whereClause.OR = whereClause.OR || [];
       whereClause.OR.push({
         AND: [
           { timeOutStart: { not: null } },
@@ -257,7 +274,7 @@ export async function POST(request: NextRequest) {
           { timeOutStart: { lte: new Date(timeOutEnd) } },
           { timeOutEnd: { gte: new Date(timeOutStart) } },
         ],
-      });
+      } as Prisma.SessionWhereInput);
     }
 
     const conflictingSessions = await prisma.session.findMany({
@@ -291,10 +308,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Create session
-    const sessionData: any = {
+    const sessionData: Record<string, unknown> = {
       name,
       description,
-      eventId,
+      event: { connect: { id: eventId } },
       timeInStart: new Date(timeInStart),
       timeInEnd: new Date(timeInEnd),
     };
@@ -307,7 +324,7 @@ export async function POST(request: NextRequest) {
     }
 
     const newSession = await prisma.session.create({
-      data: sessionData,
+      data: sessionData as Prisma.SessionCreateInput,
       include: {
         event: {
           select: {
@@ -366,14 +383,14 @@ export async function POST(request: NextRequest) {
       severity: 'error',
       category: 'system',
       metadata: {
-        createdBy: authResult.user?.id,
+        createdBy: authResult?.user?.id,
         sessionData: body,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
         creationDuration: Date.now() - startTime,
         ipAddress,
         userAgent,
       },
-      userId: authResult.user?.id,
+      userId: authResult?.user?.id,
     });
     return NextResponse.json(
       {

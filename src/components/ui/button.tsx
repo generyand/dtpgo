@@ -58,7 +58,7 @@ interface EnhancedButtonProps
   loadingText?: string
 }
 
-function Button({
+const Button = React.forwardRef<HTMLButtonElement, EnhancedButtonProps>(({
   className,
   variant,
   size,
@@ -71,11 +71,12 @@ function Button({
   children,
   disabled,
   ...props
-}: EnhancedButtonProps) {
+}, ref) => {
   const Comp = asChild ? Slot : "button"
 
   return (
     <Comp
+      ref={ref}
       data-slot="button"
       className={cn(buttonVariants({ variant, size, fullWidth, className }))}
       disabled={disabled || isLoading}
@@ -96,6 +97,8 @@ function Button({
       )}
     </Comp>
   )
-}
+})
+
+Button.displayName = "Button"
 
 export { Button, buttonVariants }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { readStateFromSearchParams, writeStateToSearchParams, UrlStateOptions } from '@/lib/utils/url-state'
 
-export function useFilterPersistence<TState extends Record<string, any>>(
+export function useFilterPersistence<TState extends Record<string, unknown>>(
   keys: Array<keyof TState & string>,
   state: TState,
   setState: (next: Partial<TState>) => void,

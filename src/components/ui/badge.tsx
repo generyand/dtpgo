@@ -2,7 +2,6 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
-import { getStatusColor } from "@/lib/styles/status-colors"
 
 const badgeVariants = cva(
   "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
@@ -94,29 +93,28 @@ function StatusBadge({
     if (!category) {
       // Try to infer category from status
       if (['draft', 'published', 'active', 'completed', 'cancelled'].includes(status)) {
-        return `event${status.charAt(0).toUpperCase() + status.slice(1)}` as any;
+        return `event${status.charAt(0).toUpperCase() + status.slice(1)}` as string;
       }
       if (['upcoming', 'ongoing', 'completed', 'cancelled'].includes(status)) {
-        return `session${status.charAt(0).toUpperCase() + status.slice(1)}` as any;
+        return `session${status.charAt(0).toUpperCase() + status.slice(1)}` as string;
       }
       if (['active', 'inactive', 'suspended', 'pending'].includes(status)) {
-        return `user${status.charAt(0).toUpperCase() + status.slice(1)}` as any;
+        return `user${status.charAt(0).toUpperCase() + status.slice(1)}` as string;
       }
       if (['present', 'absent', 'late', 'excused', 'pending'].includes(status)) {
-        return `attendance${status.charAt(0).toUpperCase() + status.slice(1)}` as any;
+        return `attendance${status.charAt(0).toUpperCase() + status.slice(1)}` as string;
       }
       if (['low', 'medium', 'high', 'critical'].includes(status)) {
-        return `priority${status.charAt(0).toUpperCase() + status.slice(1)}` as any;
+        return `priority${status.charAt(0).toUpperCase() + status.slice(1)}` as string;
       }
       if (['online', 'offline', 'maintenance', 'degraded'].includes(status)) {
-        return `system${status.charAt(0).toUpperCase() + status.slice(1)}` as any;
+        return `system${status.charAt(0).toUpperCase() + status.slice(1)}` as string;
       }
     } else {
       // Use explicit category mapping
-      const variantKey = `${category}${status.charAt(0).toUpperCase() + status.slice(1)}` as any;
-      if (variantKey in badgeVariants.variants.variant) {
-        return variantKey;
-      }
+      const variantKey = `${category}${status.charAt(0).toUpperCase() + status.slice(1)}` as string;
+      // Return the variant key directly - the component will handle invalid variants gracefully
+      return variantKey;
     }
     
     return 'secondary'; // Fallback
@@ -126,7 +124,7 @@ function StatusBadge({
 
   return (
     <Badge 
-      variant={variant as any} 
+      variant={variant as "default" | "secondary" | "destructive" | "outline"} 
       className={cn("gap-1", className)} 
       {...props}
     >

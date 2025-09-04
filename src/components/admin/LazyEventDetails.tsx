@@ -5,9 +5,9 @@ import useLazyLoading from '@/lib/hooks/useLazyLoading'
 import { Skeleton } from '@/components/ui/loading'
 
 export interface LazyEventDetailsProps {
-  loader: () => Promise<{ default: React.ComponentType<any> }>
+  loader: () => Promise<{ default: React.ComponentType<Record<string, unknown>> }>
   fallbackHeight?: number
-  componentProps?: Record<string, any>
+  componentProps?: Record<string, unknown>
 }
 
 export function LazyEventDetails({ loader, fallbackHeight = 240, componentProps }: LazyEventDetailsProps) {

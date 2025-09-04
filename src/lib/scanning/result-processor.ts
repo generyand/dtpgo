@@ -112,7 +112,7 @@ export class ScanResultProcessor {
     qrData: string,
     sessionId: string,
     organizerId: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<ScanProcessingResult | null> {
     try {
       // Clear any existing retry timeout
@@ -223,7 +223,7 @@ export class ScanResultProcessor {
     qrData: string,
     sessionId: string,
     organizerId: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<void> {
     const newRetryCount = this.state.retryCount + 1;
     
@@ -401,7 +401,7 @@ export async function processScanResult(
   qrData: string,
   sessionId: string,
   organizerId: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): Promise<ScanProcessingResult | null> {
   const processor = createScanResultProcessor();
   

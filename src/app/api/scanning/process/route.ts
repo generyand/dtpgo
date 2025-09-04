@@ -5,16 +5,16 @@ import { createSupabaseServerClient } from '@/lib/auth/supabase-server';
 import {
   parseQRData,
   determineScanType,
-  createScanResult,
+  // createScanResult,
   validateDTPQRFormat,
 } from '@/lib/scanning/scan-logic';
 import {
-  ScanRequest,
+  // ScanRequest,
   ScanResponse,
   ScanProcessingResult,
   ScanContextData,
   StudentValidationResult,
-  SessionValidationResult,
+  // SessionValidationResult,
   ScanActionType,
   AttendanceRecord,
 } from '@/lib/types/scanning';

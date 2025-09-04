@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,7 +38,7 @@ export function EnhancedQRCodeDisplay({
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -84,7 +84,7 @@ export function EnhancedQRCodeDisplay({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [studentId, useEnhanced, onQRGenerated]);
 
   useEffect(() => {
     if (!studentId) return;
@@ -95,7 +95,7 @@ export function EnhancedQRCodeDisplay({
         URL.revokeObjectURL(qrCodeUrl);
       }
     };
-  }, [studentId, retryCount, useEnhanced]);
+  }, [studentId, retryCount, useEnhanced, fetchData, qrCodeUrl]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);

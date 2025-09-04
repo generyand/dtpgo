@@ -6,13 +6,13 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { FilterPreset, listPresets, upsertPreset, deletePreset } from '@/lib/utils/filter-presets'
 
-export interface FilterPresetsProps<TState extends Record<string, any> = Record<string, any>> {
+export interface FilterPresetsProps<TState extends Record<string, unknown> = Record<string, unknown>> {
   namespace?: string
   currentState: TState
   onApply: (state: TState) => void
 }
 
-export function FilterPresets<TState extends Record<string, any>>({ namespace, currentState, onApply }: FilterPresetsProps<TState>) {
+export function FilterPresets<TState extends Record<string, unknown>>({ namespace, currentState, onApply }: FilterPresetsProps<TState>) {
   const [presets, setPresets] = React.useState<FilterPreset<TState>[]>([])
   const [name, setName] = React.useState('')
 

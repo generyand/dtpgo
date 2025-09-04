@@ -47,6 +47,12 @@ export interface StudentQROptions {
   branding?: boolean;
 }
 
+// Union type for QR code validation
+type QRCodeData = 
+  | { type: 'session_attendance'; sessionId: string; eventId: string; timestamp: string }
+  | { type: 'student_attendance'; studentId: string; studentIdNumber: string; timestamp: string }
+  | { type: 'session_info'; sessionId: string; eventId: string; sessionName: string; eventName: string };
+
 /**
  * Generate a session-specific QR code for attendance scanning
  */
@@ -243,7 +249,7 @@ export async function createBrandedStudentQRCode(
 /**
  * Validate QR code data structure
  */
-export function validateQRCodeData(data: any): {
+export function validateQRCodeData(data: unknown): {
   isValid: boolean;
   type?: 'session_attendance' | 'student_attendance';
   error?: string;
@@ -253,24 +259,26 @@ export function validateQRCodeData(data: any): {
       return { isValid: false, error: 'Invalid QR code data format' };
     }
 
-    if (!data.type) {
+    const qrData = data as QRCodeData;
+    
+    if (!qrData.type) {
       return { isValid: false, error: 'Missing QR code type' };
     }
 
-    if (data.type === 'session_attendance') {
-      const requiredFields = ['sessionId', 'eventId', 'timestamp'];
+    if (qrData.type === 'session_attendance') {
+      const requiredFields = ['sessionId', 'eventId', 'timestamp'] as const;
       for (const field of requiredFields) {
-        if (!data[field]) {
+        if (!qrData[field]) {
           return { isValid: false, error: `Missing required field: ${field}` };
         }
       }
       return { isValid: true, type: 'session_attendance' };
     }
 
-    if (data.type === 'student_attendance') {
-      const requiredFields = ['studentId', 'studentIdNumber', 'timestamp'];
+    if (qrData.type === 'student_attendance') {
+      const requiredFields = ['studentId', 'studentIdNumber', 'timestamp'] as const;
       for (const field of requiredFields) {
-        if (!data[field]) {
+        if (!qrData[field]) {
           return { isValid: false, error: `Missing required field: ${field}` };
         }
       }
@@ -288,7 +296,7 @@ export function validateQRCodeData(data: any): {
  */
 export function parseQRCodeData(qrText: string): {
   isValid: boolean;
-  data?: any;
+  data?: unknown;
   type?: 'session_attendance' | 'student_attendance';
   error?: string;
 } {

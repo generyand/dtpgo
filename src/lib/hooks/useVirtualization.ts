@@ -49,7 +49,7 @@ export function useVirtualization({ itemCount, itemHeight, overscan = 6 }: UseVi
   const offsetTop = startIndex * itemHeight
 
   return useMemo(
-    () => ({ containerRef, totalHeight, startIndex, endIndex, offsetTop }),
+    () => ({ containerRef: containerRef as React.RefObject<HTMLDivElement>, totalHeight, startIndex, endIndex, offsetTop }),
     [endIndex, offsetTop, startIndex, totalHeight]
   )
 }

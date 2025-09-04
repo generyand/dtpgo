@@ -5,7 +5,7 @@ import { EventWithDetails } from '@/lib/types/event';
 
 // Mock the EventStatusBadge component
 jest.mock('./EventStatusBadge', () => ({
-  EventStatusBadge: ({ isActive, sessionCount, organizerCount }: any) => (
+  EventStatusBadge: ({ isActive, sessionCount, organizerCount }: { isActive: boolean; sessionCount: number; organizerCount: number }) => (
     <div data-testid="event-status-badge">
       Status: {isActive ? 'Active' : 'Inactive'} | Sessions: {sessionCount} | Organizers: {organizerCount}
     </div>

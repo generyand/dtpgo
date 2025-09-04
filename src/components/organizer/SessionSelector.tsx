@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Users, MapPin, Calendar, Play, Pause, CheckCircle, AlertCircle } from 'lucide-react';
@@ -217,7 +217,7 @@ export function SessionSelector({ onSessionSelect, className }: SessionSelectorP
             <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Sessions Assigned</h3>
             <p className="text-gray-600 mb-4">
-              You don't have any sessions assigned to you yet. Contact your administrator to get assigned to events.
+              You don&apos;t have any sessions assigned to you yet. Contact your administrator to get assigned to events.
             </p>
           </CardContent>
         </Card>

@@ -20,13 +20,13 @@ export interface CameraConstraints {
   audio?: boolean;
 }
 
-export interface CameraError {
+export interface ICameraError {
   code: string;
   message: string;
   name: string;
 }
 
-export class CameraError extends Error {
+export class CameraError extends Error implements ICameraError {
   constructor(
     message: string,
     public code: string,
@@ -118,7 +118,7 @@ export async function requestCameraPermissions(): Promise<CameraDevice[]> {
       throw error;
     }
 
-    const cameraError = error as any;
+    const cameraError = error as { name: string };
     throw new CameraError(
       getCameraErrorMessage(cameraError),
       cameraError.name,
@@ -145,7 +145,7 @@ export async function createCameraStream(
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     return stream;
   } catch (error) {
-    const cameraError = error as any;
+    const cameraError = error as { name: string };
     throw new CameraError(
       getCameraErrorMessage(cameraError),
       cameraError.name,
@@ -193,8 +193,9 @@ export function getOptimalCameraConstraints(
 /**
  * Get camera error message from MediaStreamError
  */
-function getCameraErrorMessage(error: any): string {
-  switch (error.name) {
+function getCameraErrorMessage(error: unknown): string {
+  const err = error as { name: string; message?: string };
+  switch (err.name) {
     case 'NotAllowedError':
       return 'Camera access denied. Please allow camera permissions and try again.';
     case 'NotFoundError':
@@ -208,7 +209,7 @@ function getCameraErrorMessage(error: any): string {
     case 'TypeError':
       return 'Invalid camera constraints provided.';
     default:
-      return `Camera error: ${error.message || 'Unknown error occurred'}`;
+      return `Camera error: ${err.message || 'Unknown error occurred'}`;
   }
 }
 
@@ -320,7 +321,7 @@ export function monitorCameraStream(
   onRecover: () => void
 ): () => void {
   let isMonitoring = true;
-  let lastFrameTime = Date.now();
+  const lastFrameTime = Date.now();
   let errorReported = false;
 
   const checkStreamHealth = () => {

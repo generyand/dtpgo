@@ -370,7 +370,7 @@ export async function getSessionScanStats(sessionId: string): Promise<{
           GROUP BY student_id
           HAVING (time_in_count > 0 AND time_out_count = 0) OR (time_in_count = 0 AND time_out_count > 0)
         ) as incomplete_students
-      `.then((result: any) => result[0]?.incomplete_count || 0),
+      `.then((result: unknown) => (result as Record<string, unknown>[])[0]?.incomplete_count || 0),
     ]);
 
     return {

@@ -154,7 +154,7 @@ export const semanticColors = {
 // Color utility functions
 export function getColor(colorPath: string): string {
   const path = colorPath.split('.');
-  let current: any = { ...baseColors, ...semanticColors };
+  let current: Record<string, any> = { ...baseColors, ...semanticColors };
   
   for (const key of path) {
     if (current[key] !== undefined) {
