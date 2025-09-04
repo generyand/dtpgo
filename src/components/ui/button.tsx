@@ -78,12 +78,35 @@ const Button = React.forwardRef<HTMLButtonElement, EnhancedButtonProps>(({
   ...props
 }, ref) => {
   const Comp = asChild ? Slot : "button"
+  const buttonClasses = cn(buttonVariants({ variant, size, fullWidth, className }))
+
+  if (asChild) {
+    return (
+      <Slot
+        ref={ref}
+        className={buttonClasses}
+      >
+        {isLoading ? (
+          <div>
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            {loadingText ? <span>{loadingText}</span> : <span className="sr-only">Loading</span>}
+          </div>
+        ) : (
+          <div>
+            {leftIcon}
+            {children}
+            {rightIcon}
+          </div>
+        )}
+      </Slot>
+    )
+  }
 
   return (
     <Comp
       ref={ref}
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, fullWidth, className }))}
+      className={buttonClasses}
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
       {...props}

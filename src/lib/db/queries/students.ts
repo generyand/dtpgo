@@ -243,25 +243,25 @@ export async function getStudents(options: {
   programId?: string;
   year?: number;
   search?: string;
+  registrationSource?: string;
+  dateFrom?: string;
+  dateTo?: string;
   orderBy?: 'studentIdNumber' | 'firstName' | 'lastName' | 'email' | 'year' | 'createdAt';
   orderDirection?: 'asc' | 'desc';
-} = {}): Promise<{
-  students: ScanningStudent[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}> {
+} = {}): Promise<StudentWithProgram[]> {
   try {
-  const {
-    page = 1,
+    const {
+      page = 1,
       limit = 50,
       programId,
       year,
-    search,
+      search,
+      registrationSource,
+      dateFrom,
+      dateTo,
       orderBy = 'studentIdNumber',
       orderDirection = 'asc',
-  } = options;
+    } = options;
 
     const skip = (page - 1) * limit;
 
@@ -270,11 +270,25 @@ export async function getStudents(options: {
     
     if (programId) {
       where.programId = programId;
-  }
+    }
 
-  if (year) {
-    where.year = year;
-  }
+    if (year) {
+      where.year = year;
+    }
+
+    if (registrationSource) {
+      where.registrationSource = registrationSource;
+    }
+
+    if (dateFrom || dateTo) {
+      where.createdAt = {} as any;
+      if (dateFrom) {
+        (where.createdAt as any).gte = new Date(dateFrom);
+      }
+      if (dateTo) {
+        (where.createdAt as any).lte = new Date(dateTo);
+      }
+    }
 
     if (search) {
       where.OR = [
@@ -305,52 +319,39 @@ export async function getStudents(options: {
       ];
     }
 
-    const [students, total] = await Promise.all([
-      prisma.student.findMany({
-    where,
-            include: {
-          program: {
-            select: {
-              id: true,
-              name: true,
-              displayName: true,
-            },
+    const students = await prisma.student.findMany({
+      where,
+      include: {
+        program: {
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
           },
         },
-        orderBy: { [orderBy]: orderDirection },
-        skip,
-    take: limit,
-      }),
-      prisma.student.count({ where }),
-    ]);
+      },
+      orderBy: { [orderBy]: orderDirection },
+      skip,
+      take: limit,
+    });
 
-    const studentList: ScanningStudent[] = students.map(student => ({
+    return students.map(student => ({
       id: student.id,
-      studentId: student.studentIdNumber,
-      fullName: `${student.firstName} ${student.lastName}`,
+      studentIdNumber: student.studentIdNumber,
+      firstName: student.firstName,
+      lastName: student.lastName,
       email: student.email,
-      program: student.program.name,
       year: student.year,
-      isActive: true, // Placeholder - assume active
+      programId: student.programId,
+      registrationSource: student.registrationSource,
+      createdAt: student.createdAt,
+      updatedAt: student.updatedAt,
+      program: student.program,
     }));
-
-    return {
-      students: studentList,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
 
   } catch (error) {
     console.error('Error getting students:', error);
-    return {
-      students: [],
-      total: 0,
-      page: 1,
-      limit: 50,
-      totalPages: 0,
-    };
+    return [];
   }
 }
 
@@ -619,6 +620,9 @@ export async function countStudents(options: {
   programId?: string;
   year?: number;
   registrationSource?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  search?: string;
 } = {}): Promise<number> {
   try {
     const where: Record<string, unknown> = {};
@@ -633,6 +637,45 @@ export async function countStudents(options: {
     
     if (options.registrationSource) {
       where.registrationSource = options.registrationSource;
+    }
+
+    if (options.dateFrom || options.dateTo) {
+      where.createdAt = {} as any;
+      if (options.dateFrom) {
+        (where.createdAt as any).gte = new Date(options.dateFrom);
+      }
+      if (options.dateTo) {
+        (where.createdAt as any).lte = new Date(options.dateTo);
+      }
+    }
+
+    if (options.search) {
+      where.OR = [
+        {
+          studentIdNumber: {
+            contains: options.search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          firstName: {
+            contains: options.search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          lastName: {
+            contains: options.search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          email: {
+            contains: options.search,
+            mode: 'insensitive',
+          },
+        },
+      ];
     }
 
     return await prisma.student.count({ where });
