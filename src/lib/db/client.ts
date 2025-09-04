@@ -14,12 +14,38 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   errorFormat: 'pretty',
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
 })
 
 // In development, store the client globally to prevent multiple instances
 // due to hot reloading in Next.js
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma
+}
+
+/**
+ * Test database connection with retry logic
+ */
+export async function testDatabaseConnection(retries = 3): Promise<boolean> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await prisma.$connect()
+      return true
+    } catch (error) {
+      console.warn(`Database connection attempt ${i + 1} failed:`, error)
+      if (i === retries - 1) {
+        console.error('All database connection attempts failed')
+        return false
+      }
+      // Wait before retry (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000))
+    }
+  }
+  return false
 }
 
 /**

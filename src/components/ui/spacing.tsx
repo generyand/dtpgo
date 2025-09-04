@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { spacingScale, componentSpacing, getSpacing } from '@/lib/styles/spacing';
+import { spacingScale, getSpacing } from '@/lib/styles/spacing';
 
 // Spacing component with consistent variants
 interface SpacingProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -23,8 +23,6 @@ export function Spacing({
   const spacingValue = getSpacing(size);
   
   const getSpacingClasses = () => {
-    const baseClass = `spacing-${size}`;
-    
     switch (type) {
       case 'margin':
         switch (direction) {

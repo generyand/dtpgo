@@ -324,7 +324,7 @@ export async function searchStudents(
   } = {}
 ): Promise<ScanningStudent[]> {
   try {
-    const { limit = 10, includeInactive = false } = options;
+    const { limit = 10 } = options;
     
     if (!query || query.trim().length < 2) {
       return [];

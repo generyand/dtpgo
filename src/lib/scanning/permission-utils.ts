@@ -92,7 +92,6 @@ export async function requestCameraPermission(
   options: PermissionRequestOptions = {}
 ): Promise<PermissionState> {
   const {
-    showPrompt = true,
     fallbackMessage = 'Camera access is required for QR code scanning',
     retryAttempts = 3,
     retryDelay = 1000,

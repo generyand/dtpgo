@@ -49,7 +49,7 @@ export async function isQRScanningSupported(): Promise<boolean> {
 export async function getQRCameras(): Promise<Record<string, unknown>[]> {
   try {
     return await QrScanner.listCameras(true) as unknown as Record<string, unknown>[];
-  } catch (error) {
+  } catch {
     throw new QRDetectorError(
       'Failed to get camera list',
       'CAMERA_LIST_FAILED',
@@ -187,7 +187,7 @@ export async function switchQRCamera(
 /**
  * Get current camera being used by scanner
  */
-export function getCurrentQRCamera(scanner: QrScanner): unknown | null {
+export function getCurrentQRCamera(_scanner: QrScanner): unknown | null {
   // Note: qr-scanner doesn't have getActiveCamera method
   // We'll need to track this separately if needed
   return null;
@@ -288,9 +288,7 @@ export function parseQRData(data: string): {
 /**
  * Create optimized scan region for mobile devices
  */
-export function createMobileScanRegion(video: HTMLVideoElement): Record<string, unknown> {
-  const { videoWidth, videoHeight } = video;
-  
+export function createMobileScanRegion(_video: HTMLVideoElement): Record<string, unknown> {
   // Create a centered region that's 80% of the video size
   const regionSize = 0.8;
   const x = (1 - regionSize) / 2;
@@ -307,9 +305,7 @@ export function createMobileScanRegion(video: HTMLVideoElement): Record<string, 
 /**
  * Create scan region for desktop devices
  */
-export function createDesktopScanRegion(video: HTMLVideoElement): Record<string, unknown> {
-  const { videoWidth, videoHeight } = video;
-  
+export function createDesktopScanRegion(_video: HTMLVideoElement): Record<string, unknown> {
   // For desktop, use a smaller centered region
   const regionSize = 0.6;
   const x = (1 - regionSize) / 2;

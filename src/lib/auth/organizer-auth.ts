@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
-import { createSupabaseApiClient, createSupabaseServerClient } from '@/lib/auth/supabase-server'
-import { UserRole, UserWithRole, AuthContextType } from '@/lib/types/auth'
-import { authenticateApiRequest, ApiAuthResult } from '@/lib/auth/api-auth'
+import { createSupabaseServerClient } from '@/lib/auth/supabase-server'
+import { UserWithRole } from '@/lib/types/auth'
+import { authenticateApiRequest } from '@/lib/auth/api-auth'
 
 /**
  * Organizer-specific authentication result

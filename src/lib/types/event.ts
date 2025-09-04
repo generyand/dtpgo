@@ -1,4 +1,4 @@
-import { Event, Session, OrganizerEventAssignment } from '@prisma/client';
+import { Event, Session } from '@prisma/client';
 
 /**
  * Event with session and organizer information

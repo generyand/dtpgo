@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getStudents, countStudents } from '@/lib/db/queries/students';
+import { getStudents } from '@/lib/db/queries/students';
 import { authenticatePermissionApi, createAuthErrorResponse } from '@/lib/auth/api-auth';
 
 export async function GET(request: NextRequest) {
@@ -33,11 +33,11 @@ export async function GET(request: NextRequest) {
       dateTo,
     };
 
-    const result = await getStudents(filters);
+    const students = await getStudents(filters);
 
     return NextResponse.json({ 
-      students: result.students, 
-      total: result.total 
+      students, 
+      total: students.length 
     }, { status: 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to load students';

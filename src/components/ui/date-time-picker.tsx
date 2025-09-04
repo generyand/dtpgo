@@ -34,7 +34,6 @@ interface DateTimePickerProps {
 export function DateTimePicker({
   value,
   onChange,
-  placeholder = 'Pick a date and time',
   disabled = false,
   className,
   label,
@@ -74,12 +73,6 @@ export function DateTimePicker({
     }
   };
 
-  const displayValue = React.useMemo(() => {
-    if (!selectedDate) return '';
-    const dateStr = format(selectedDate, 'MMM dd, yyyy');
-    const timeStr = timeValue || '00:00';
-    return `${dateStr} at ${timeStr}`;
-  }, [selectedDate, timeValue]);
 
   return (
     <div className={cn('space-y-3', className)}>

@@ -3,18 +3,8 @@
  * Checks database connectivity and schema status on server startup
  */
 
-import { PrismaClient } from '@prisma/client'
 import { Prisma } from '@prisma/client'
-
-// Global for Prisma client in development
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-}
-
-// Create a singleton Prisma client
-export const prisma = globalForPrisma.prisma ?? new PrismaClient()
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+import { prisma, testDatabaseConnection } from './client'
 
 /**
  * Verifies database connection and schema status
@@ -28,8 +18,11 @@ export async function verifyDatabaseConnection(): Promise<{
   try {
     console.log('🔍 Verifying database connection...')
     
-    // Test basic connection
-    await prisma.$connect()
+    // Test basic connection with retry logic
+    const connected = await testDatabaseConnection(3)
+    if (!connected) {
+      throw new Error('Failed to connect to database after retries')
+    }
     console.log('✅ Database connection successful')
     
     // Test if schema is applied by checking if tables exist

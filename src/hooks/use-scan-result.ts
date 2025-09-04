@@ -11,7 +11,7 @@ import {
   processScanResult,
   ScanResultUtils 
 } from '@/lib/scanning/result-processor';
-import { ScanProcessingResult, ScanningStudent } from '@/lib/types/scanning';
+import { ScanProcessingResult } from '@/lib/types/scanning';
 
 /**
  * Hook configuration
@@ -107,6 +107,17 @@ export function useScanResult(config: UseScanResultConfig = {}): UseScanResultRe
 
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
 
+  // Clear result function (defined early to avoid hoisting issues)
+  const clearResult = useCallback(() => {
+    if (processorRef.current) {
+      processorRef.current.clearResult();
+    }
+    if (autoClearTimeoutRef.current) {
+      clearTimeout(autoClearTimeoutRef.current);
+      autoClearTimeoutRef.current = null;
+    }
+  }, []);
+
   // Initialize processor
   useEffect(() => {
     const events: ScanResultEvents = {
@@ -117,7 +128,7 @@ export function useScanResult(config: UseScanResultConfig = {}): UseScanResultRe
         setHasSuccess(newState.status === 'success' && newState.result !== null);
         setHasMessage(newState.message !== null);
       },
-      onScanStart: (qrData) => {
+      onScanStart: () => {
         if (finalConfig.showToasts) {
           toast.loading('Processing scan...', {
             id: 'scan-processing',
@@ -168,7 +179,7 @@ export function useScanResult(config: UseScanResultConfig = {}): UseScanResultRe
           });
         }
       },
-      onScanComplete: (result, error) => {
+      onScanComplete: () => {
         if (finalConfig.showToasts) {
           toast.dismiss('scan-processing');
           toast.dismiss('scan-retry');
@@ -188,7 +199,7 @@ export function useScanResult(config: UseScanResultConfig = {}): UseScanResultRe
         autoClearTimeoutRef.current = null;
       }
     };
-  }, [finalConfig]);
+  }, [finalConfig, clearResult]);
 
   // Process scan
   const processScan = useCallback(async (
@@ -207,16 +218,6 @@ export function useScanResult(config: UseScanResultConfig = {}): UseScanResultRe
     return await processorRef.current.processScan(qrData, sessionId, organizerId, metadata);
   }, []);
 
-  // Clear result
-  const clearResult = useCallback(() => {
-    if (processorRef.current) {
-      processorRef.current.clearResult();
-    }
-    if (autoClearTimeoutRef.current) {
-      clearTimeout(autoClearTimeoutRef.current);
-      autoClearTimeoutRef.current = null;
-    }
-  }, []);
 
   // Clear error
   const clearError = useCallback(() => {

@@ -5,7 +5,7 @@
  * for consistent status indicators across the interface.
  */
 
-import { baseColors, semanticColors } from './colors';
+import { baseColors } from './colors';
 
 // Status color definitions
 export const statusColors = {

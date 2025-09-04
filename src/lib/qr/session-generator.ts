@@ -180,13 +180,13 @@ export async function createBrandedSessionQRCode(
       },
     });
 
-    // Add text overlay for session information
-    const sessionInfoText = `
-${sessionData.eventName}
-${sessionData.sessionName}
-${new Date(sessionData.startTime).toLocaleString()}
-${sessionData.location ? `📍 ${sessionData.location}` : ''}
-    `.trim();
+    // Session information text (for future use)
+    // const sessionInfoText = `
+    // ${sessionData.eventName}
+    // ${sessionData.sessionName}
+    // ${new Date(sessionData.startTime).toLocaleString()}
+    // ${sessionData.location ? `📍 ${sessionData.location}` : ''}
+    // `.trim();
 
     return canvas
       .composite([
@@ -286,7 +286,7 @@ export function validateQRCodeData(data: unknown): {
     }
 
     return { isValid: false, error: 'Unknown QR code type' };
-  } catch (error) {
+  } catch {
     return { isValid: false, error: 'Failed to validate QR code data' };
   }
 }
@@ -313,7 +313,7 @@ export function parseQRCodeData(qrText: string): {
       data,
       type: validation.type,
     };
-  } catch (error) {
+  } catch {
     return { isValid: false, error: 'Invalid JSON in QR code' };
   }
 }

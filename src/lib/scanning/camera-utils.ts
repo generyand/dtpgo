@@ -80,7 +80,7 @@ export async function getCameraDevices(): Promise<CameraDevice[]> {
         kind: device.kind,
         groupId: device.groupId,
       }));
-  } catch (error) {
+  } catch {
     throw new CameraError(
       'Failed to enumerate camera devices',
       'ENUMERATION_FAILED',
@@ -321,7 +321,6 @@ export function monitorCameraStream(
   onRecover: () => void
 ): () => void {
   let isMonitoring = true;
-  const lastFrameTime = Date.now();
   let errorReported = false;
 
   const checkStreamHealth = () => {

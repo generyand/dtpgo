@@ -4,18 +4,13 @@
  */
 
 import {
-  QRScanResult,
   ParsedQRData,
-  QRDataType,
   DTPSessionQR,
   DTPStudentQR,
-  ScanContext,
   ScanType,
-  ScanActionType,
   TimeWindow,
   SessionTimeWindows,
   ScanProcessingResult,
-  StudentValidationResult,
   SessionValidationResult,
   ScanContextData,
   ScanValidationRules,
@@ -137,12 +132,10 @@ export function determineScanType(
   options: ScanLogicOptions = {}
 ): ScanType {
   const {
-    timeZone = 'UTC',
     allowEarlyScan = true,
     earlyScanMinutes = 15,
     allowLateScan = true,
     lateScanMinutes = 30,
-    strictMode = false,
   } = options;
 
   const currentTime = context.currentTime;
@@ -542,7 +535,7 @@ export function validateDTPQRFormat(qrData: string): {
 /**
  * Get current time in specified timezone
  */
-export function getCurrentTimeInTimezone(timezone: string = 'UTC'): Date {
+export function getCurrentTimeInTimezone(_timezone: string = 'UTC'): Date {
   const now = new Date();
   
   // For now, we'll use the local time

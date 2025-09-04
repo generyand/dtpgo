@@ -281,12 +281,12 @@ export async function getStudents(options: {
     }
 
     if (dateFrom || dateTo) {
-      where.createdAt = {} as any;
+      where.createdAt = {};
       if (dateFrom) {
-        (where.createdAt as any).gte = new Date(dateFrom);
+        (where.createdAt as Record<string, unknown>).gte = new Date(dateFrom);
       }
       if (dateTo) {
-        (where.createdAt as any).lte = new Date(dateTo);
+        (where.createdAt as Record<string, unknown>).lte = new Date(dateTo);
       }
     }
 
@@ -640,12 +640,12 @@ export async function countStudents(options: {
     }
 
     if (options.dateFrom || options.dateTo) {
-      where.createdAt = {} as any;
+      where.createdAt = {};
       if (options.dateFrom) {
-        (where.createdAt as any).gte = new Date(options.dateFrom);
+        (where.createdAt as Record<string, unknown>).gte = new Date(options.dateFrom);
       }
       if (options.dateTo) {
-        (where.createdAt as any).lte = new Date(options.dateTo);
+        (where.createdAt as Record<string, unknown>).lte = new Date(options.dateTo);
       }
     }
 

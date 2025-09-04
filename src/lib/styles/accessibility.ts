@@ -5,7 +5,7 @@
  * and accessibility compliance across the interface.
  */
 
-import { baseColors, semanticColors } from './colors';
+import { baseColors } from './colors';
 
 // WCAG 2.1 AA contrast ratio requirements
 export const WCAG_AA_CONTRAST_RATIOS = {
@@ -168,7 +168,6 @@ export function getAccessibleTextColor(
   size: 'normal' | 'large' | 'ui' = 'normal'
 ): string {
   const requirements = level === 'AA' ? WCAG_AA_CONTRAST_RATIOS : WCAG_AAA_CONTRAST_RATIOS;
-  const requiredRatio = requirements[size];
   
   // Try white text first
   if (meetsContrastRequirement('#ffffff', background, level, size)) {

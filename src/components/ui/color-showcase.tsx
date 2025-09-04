@@ -3,17 +3,8 @@
 import React from 'react';
 import { Badge, StatusBadge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { 
   CheckCircle, 
-  AlertCircle, 
-  XCircle, 
-  Clock, 
-  User, 
-  Calendar,
-  Activity,
-  Shield,
-  Eye,
   Accessibility
 } from 'lucide-react';
 import { 
@@ -23,8 +14,7 @@ import {
   getColorWithOpacity 
 } from '@/lib/styles/colors';
 import { 
-  statusColors, 
-  getStatusColor 
+  statusColors
 } from '@/lib/styles/status-colors';
 import { 
   calculateContrastRatio, 
@@ -39,16 +29,16 @@ export function ColorShowcase() {
   const [testBackground, setTestBackground] = React.useState<string>('#ffffff');
   const [accessibilityResult, setAccessibilityResult] = React.useState<AccessibilityValidationResult | null>(null);
 
-  const testAccessibility = () => {
+  const testAccessibility = React.useCallback(() => {
     if (selectedColor && testBackground) {
       const result = validateColorAccessibility(selectedColor, testBackground);
       setAccessibilityResult(result);
     }
-  };
+  }, [selectedColor, testBackground]);
 
   React.useEffect(() => {
     testAccessibility();
-  }, [selectedColor, testBackground]);
+  }, [testAccessibility]);
 
   return (
     <div className="space-y-8 p-6">

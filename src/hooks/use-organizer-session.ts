@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { EnhancedOrganizerSession, OrganizerSessionState } from '@/lib/auth/organizer-session';
+import { OrganizerSessionState } from '@/lib/auth/organizer-session';
 import { OrganizerPermissions } from '@/lib/types/organizer';
 
 /**

@@ -1,8 +1,5 @@
 import { 
-  ScanProcessingResult, 
-  ScanActionType, 
-  ScanningStudent,
-  DuplicateCheckResult 
+  ScanProcessingResult
 } from '@/lib/types/scanning';
 
 /**

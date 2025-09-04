@@ -255,16 +255,29 @@ function CardSection({
     >
       {(title || description) && (
         <div className="space-y-1">
-          {title && (
-            <h3 className="text-sm font-medium text-foreground">
-              {title}
-            </h3>
-          )}
-          {description && (
-            <p className="text-xs text-muted-foreground">
-              {description}
-            </p>
-          )}
+          <div className="flex items-center justify-between">
+            <div>
+              {title && (
+                <h3 className="text-sm font-medium text-foreground">
+                  {title}
+                </h3>
+              )}
+              {description && (
+                <p className="text-xs text-muted-foreground">
+                  {description}
+                </p>
+              )}
+            </div>
+            {collapsible && (
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={isCollapsed ? 'Expand section' : 'Collapse section'}
+              >
+                {isCollapsed ? '▼' : '▲'}
+              </button>
+            )}
+          </div>
         </div>
       )}
       {collapsible ? (
