@@ -148,7 +148,7 @@ export function getComponentSpacing(
   category: keyof typeof componentSpacing,
   subcategory: string,
   property?: string
-): string | Record<string, string> {
+): string | Record<string, string> | unknown {
   const categorySpacing = componentSpacing[category];
   if (property && typeof categorySpacing === 'object' && property in categorySpacing) {
     return (categorySpacing as Record<string, string>)[property];
@@ -160,10 +160,10 @@ export function getResponsiveSpacing(
   breakpoint: keyof typeof responsiveSpacing,
   category: string,
   subcategory?: string
-): string | Record<string, string> {
+): string | Record<string, string> | unknown {
   const breakpointSpacing = responsiveSpacing[breakpoint];
   if (subcategory && typeof breakpointSpacing === 'object' && subcategory in breakpointSpacing) {
-    return (breakpointSpacing as Record<string, string>)[subcategory];
+    return (breakpointSpacing as Record<string, unknown>)[subcategory];
   }
   return breakpointSpacing;
 }

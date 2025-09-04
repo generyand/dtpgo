@@ -19,7 +19,7 @@ function getKey(namespace?: string) {
   return namespace ? `${DEFAULT_NS}:${namespace}` : DEFAULT_NS
 }
 
-export function listPresets<TState = unknown>(options?: FilterPresetStoreOptions): FilterPreset<TState>[] {
+export function listPresets<TState extends Record<string, unknown> = Record<string, unknown>>(options?: FilterPresetStoreOptions): FilterPreset<TState>[] {
   if (typeof window === 'undefined') return []
   try {
     const raw = localStorage.getItem(getKey(options?.namespace))
@@ -31,7 +31,7 @@ export function listPresets<TState = unknown>(options?: FilterPresetStoreOptions
   }
 }
 
-export function savePresets<TState = unknown>(presets: FilterPreset<TState>[], options?: FilterPresetStoreOptions) {
+export function savePresets<TState extends Record<string, unknown> = Record<string, unknown>>(presets: FilterPreset<TState>[], options?: FilterPresetStoreOptions) {
   if (typeof window === 'undefined') return
   try {
     localStorage.setItem(getKey(options?.namespace), JSON.stringify(presets))
@@ -40,7 +40,7 @@ export function savePresets<TState = unknown>(presets: FilterPreset<TState>[], o
   }
 }
 
-export function upsertPreset<TState = unknown>(
+export function upsertPreset<TState extends Record<string, unknown> = Record<string, unknown>>(
   preset: Omit<FilterPreset<TState>, 'id' | 'updatedAt'> & { id?: string },
   options?: FilterPresetStoreOptions
 ): FilterPreset<TState> {
@@ -54,13 +54,13 @@ export function upsertPreset<TState = unknown>(
   return next
 }
 
-export function deletePreset<TState = unknown>(id: string, options?: FilterPresetStoreOptions) {
+export function deletePreset<TState extends Record<string, unknown> = Record<string, unknown>>(id: string, options?: FilterPresetStoreOptions) {
   const presets = listPresets<TState>(options)
   const next = presets.filter(p => p.id !== id)
   savePresets(next, options)
 }
 
-export function renamePreset<TState = unknown>(id: string, name: string, options?: FilterPresetStoreOptions) {
+export function renamePreset<TState extends Record<string, unknown> = Record<string, unknown>>(id: string, name: string, options?: FilterPresetStoreOptions) {
   const presets = listPresets<TState>(options)
   const idx = presets.findIndex(p => p.id === id)
   if (idx >= 0) {
@@ -70,7 +70,7 @@ export function renamePreset<TState = unknown>(id: string, name: string, options
   }
 }
 
-export function getPreset<TState = unknown>(id: string, options?: FilterPresetStoreOptions): FilterPreset<TState> | undefined {
+export function getPreset<TState extends Record<string, unknown> = Record<string, unknown>>(id: string, options?: FilterPresetStoreOptions): FilterPreset<TState> | undefined {
   return listPresets<TState>(options).find(p => p.id === id)
 }
 

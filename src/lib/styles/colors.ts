@@ -154,18 +154,25 @@ export const semanticColors = {
 // Color utility functions
 export function getColor(colorPath: string): string {
   const path = colorPath.split('.');
-  let current: Record<string, any> = { ...baseColors, ...semanticColors };
+  let current: Record<string, unknown> = { ...baseColors, ...semanticColors };
   
   for (const key of path) {
     if (current[key] !== undefined) {
-      current = current[key];
+      current = current[key] as Record<string, unknown>;
     } else {
       console.warn(`Color path "${colorPath}" not found`);
       return baseColors.neutral[500]; // Fallback
     }
   }
   
-  return current;
+  // At this point, current should be a string value, not a Record
+  if (typeof current === 'string') {
+    return current;
+  }
+  
+  // Fallback if the final value is not a string
+  console.warn(`Color path "${colorPath}" does not resolve to a string value`);
+  return baseColors.neutral[500];
 }
 
 export function getColorWithOpacity(colorPath: string, opacity: number): string {

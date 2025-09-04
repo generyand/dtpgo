@@ -100,15 +100,27 @@ export function Hero() {
 
             {/* CTA Button */}
             <div className="pt-2">
-              <Button
-                className="h-12 px-6 text-base bg-yellow-400 text-black hover:bg-yellow-500 shadow-lg hover:shadow-xl transition-all duration-200 group"
-                asChild
-              >
-                <Link href="/join">
+              <Link href="/join">
+                <Button
+                  variant="yellowLight"
+                  size="xl"
+                  className="shadow-lg hover:shadow-xl transition-all duration-200 group"
+                  style={{ 
+                    backgroundColor: '#fbbf24', 
+                    color: '#000',
+                    transition: 'background-color 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f59e0b';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#fbbf24';
+                  }}
+                >
                   Get My QR Code
                   <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform duration-200" />
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             </div>
           </div>
         </Reveal>

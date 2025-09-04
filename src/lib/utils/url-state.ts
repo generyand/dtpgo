@@ -34,10 +34,11 @@ export function writeStateToSearchParams(
       })
     } else if (value instanceof Date) {
       params.set(pKey, value.toISOString())
-    } else if (typeof value === 'object' && 'from' in value || 'to' in value) {
+    } else if (typeof value === 'object' && value !== null && ('from' in value || 'to' in value)) {
       // Date range object
-      const from = value.from ? new Date(value.from).toISOString() : ''
-      const to = value.to ? new Date(value.to).toISOString() : ''
+      const dateRange = value as { from?: unknown; to?: unknown }
+      const from = dateRange.from ? new Date(dateRange.from as string).toISOString() : ''
+      const to = dateRange.to ? new Date(dateRange.to as string).toISOString() : ''
       if (from) params.set(`${pKey}_from`, from)
       if (to) params.set(`${pKey}_to`, to)
     } else {

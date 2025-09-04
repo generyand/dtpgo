@@ -308,9 +308,10 @@ export async function getStudents(options: {
     const [students, total] = await Promise.all([
       prisma.student.findMany({
     where,
-    include: {
+            include: {
           program: {
             select: {
+              id: true,
               name: true,
               displayName: true,
             },

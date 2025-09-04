@@ -6,7 +6,7 @@ import { logActivity } from '@/lib/db/queries/activity';
 import { updateSessionSchema, sessionIdSchema } from '@/lib/validations/session';
 import { Prisma } from '@prisma/client';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Authenticate admin request
     const authResult = await authenticateApiRequest(request, {
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Validate session ID
     const idValidation = sessionIdSchema.safeParse({ id });
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const startTime = Date.now();
   const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
@@ -120,7 +120,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       await logActivity({
         type: 'system_event',
         action: 'session_update_failed',
-        description: `Unauthorized attempt to update session ${params.id}`,
+        description: `Unauthorized attempt to update session ${(await params).id}`,
         severity: 'warning',
         category: 'authentication',
         metadata: { ipAddress, userAgent, error: authResult.error },
@@ -136,7 +136,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       await logActivity({
         type: 'system_event',
         action: 'session_update_failed',
-        description: `No user found in authentication result for session ${params.id}`,
+        description: `No user found in authentication result for session ${(await params).id}`,
         severity: 'error',
         category: 'authentication',
         metadata: { ipAddress, userAgent },
@@ -148,7 +148,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     const adminUser = authResult.user;
-    const { id } = params;
+    const { id } = await params;
 
     // Validate session ID
     const idValidation = sessionIdSchema.safeParse({ id });
@@ -366,12 +366,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     await logActivity({
       type: 'system_event',
       action: 'session_update_failed',
-      description: `Failed to update session ${params.id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      description: `Failed to update session ${(await params).id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       severity: 'error',
       category: 'system',
       metadata: {
         updatedBy: authResult?.user?.id,
-        sessionId: params.id,
+        sessionId: (await params).id,
         updateData: body,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
         updateDuration: Date.now() - startTime,
@@ -390,7 +390,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const startTime = Date.now();
   const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
@@ -407,7 +407,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       await logActivity({
         type: 'system_event',
         action: 'session_deletion_failed',
-        description: `Unauthorized attempt to delete session ${params.id}`,
+        description: `Unauthorized attempt to delete session ${(await params).id}`,
         severity: 'warning',
         category: 'authentication',
         metadata: { ipAddress, userAgent, error: authResult.error },
@@ -423,7 +423,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       await logActivity({
         type: 'system_event',
         action: 'session_deletion_failed',
-        description: `No user found in authentication result for session ${params.id}`,
+        description: `No user found in authentication result for session ${(await params).id}`,
         severity: 'error',
         category: 'authentication',
         metadata: { ipAddress, userAgent },
@@ -435,7 +435,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     const adminUser = authResult.user;
-    const { id } = params;
+    const { id } = await params;
 
     // Validate session ID
     const idValidation = sessionIdSchema.safeParse({ id });
@@ -548,12 +548,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     await logActivity({
       type: 'system_event',
       action: 'session_deletion_failed',
-      description: `Failed to delete session ${params.id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      description: `Failed to delete session ${(await params).id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       severity: 'error',
       category: 'system',
       metadata: {
         deletedBy: authResult?.user?.id,
-        sessionId: params.id,
+        sessionId: (await params).id,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
         deletionDuration: Date.now() - startTime,
         ipAddress,
