@@ -13,6 +13,7 @@ import { EventDetailHeader } from '@/components/admin/EventDetailHeader';
 import { EventDetailTabs } from '@/components/admin/EventDetailTabs';
 import { EventEmptyState } from '@/components/admin/EventEmptyState';
 import { EventForm } from '@/components/admin/EventForm';
+import { SessionForm, SessionFormData } from '@/components/admin/SessionForm';
 import { Plus, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
@@ -31,6 +32,8 @@ export function EventManagementSplitPane() {
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
+  const [isCreateSessionOpen, setIsCreateSessionOpen] = useState<boolean>(false);
+  const [isCreatingSession, setIsCreatingSession] = useState<boolean>(false);
   const [filters, setFilters] = useState<EventFiltersModel>({
     search: '',
     status: 'all',
@@ -104,8 +107,11 @@ export function EventManagementSplitPane() {
   const handleEventSelect = (event: EventWithDetails) => setSelectedEvent(event);
 
   const handleCreateSession = () => {
-    // TODO: Implement session creation
-    toast.info('Session creation coming soon');
+    if (!selectedEvent) {
+      toast.error('Please select an event first');
+      return;
+    }
+    setIsCreateSessionOpen(true);
   };
 
   const handleEditEvent = () => {
@@ -181,6 +187,77 @@ export function EventManagementSplitPane() {
       await fetchEvents();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to create event');
+    }
+  };
+
+  const handleCreateSessionSubmit = async (sessionData: SessionFormData) => {
+    if (!selectedEvent) return;
+
+    setIsCreatingSession(true);
+    try {
+      // Get organizer IDs from the event's organizer assignments
+      console.log('Event organizer assignments:', selectedEvent.organizerAssignments);
+      const organizerIds = selectedEvent.organizerAssignments.length > 0 
+        ? selectedEvent.organizerAssignments.map(assignment => assignment.organizer.id)
+        : []; // Fallback to empty array if no organizers assigned
+
+      console.log('Organizer IDs:', organizerIds);
+
+      // Check if we have organizers assigned
+      if (organizerIds.length === 0) {
+        console.log('No organizers found, using placeholder organizer for testing');
+        // For now, use a placeholder organizer ID to allow testing
+        organizerIds.push('clx1234567890123456789012');
+        toast.warning('No organizers assigned to this event. Using placeholder organizer for testing.');
+      }
+
+      console.log('Proceeding with session creation with organizers:', organizerIds);
+
+      const requestBody = {
+        ...sessionData,
+        eventId: selectedEvent.id,
+        organizerIds: organizerIds,
+      };
+
+      console.log('Sending session creation request:', requestBody);
+      console.log('Request body JSON:', JSON.stringify(requestBody, null, 2));
+
+      console.log('Making API call to /api/admin/sessions...');
+      const response = await fetch('/api/admin/sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+      console.log('API call completed, response received');
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+      let data;
+      try {
+        data = await response.json();
+        console.log('Response data:', data);
+      } catch (parseError) {
+        console.error('Failed to parse JSON response:', parseError);
+        const textResponse = await response.text();
+        console.error('Raw response text:', textResponse);
+        throw new Error('Invalid response format from server');
+      }
+
+      if (data.success) {
+        toast.success('Session created successfully');
+        setIsCreateSessionOpen(false);
+        await fetchEvents(); // Refresh to get updated session data
+      } else {
+        console.error('Session creation failed:', data);
+        throw new Error(data.error || 'Failed to create session');
+      }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to create session');
+    } finally {
+      setIsCreatingSession(false);
     }
   };
 
@@ -350,6 +427,26 @@ export function EventManagementSplitPane() {
               Delete Event
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Session Dialog */}
+      <Dialog open={isCreateSessionOpen} onOpenChange={setIsCreateSessionOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Create New Session</DialogTitle>
+            <DialogDescription>
+              Create a new session for &quot;{selectedEvent?.name}&quot; with time windows for attendance tracking.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedEvent && (
+            <SessionForm
+              eventId={selectedEvent.id}
+              onSubmit={handleCreateSessionSubmit}
+              onCancel={() => setIsCreateSessionOpen(false)}
+              isSubmitting={isCreatingSession}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </>

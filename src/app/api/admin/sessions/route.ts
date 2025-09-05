@@ -185,12 +185,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, description, eventId, timeInStart, timeInEnd, timeOutStart, timeOutEnd } = validationResult.data;
+    const { 
+      name, 
+      description, 
+      eventId, 
+      timeInStart, 
+      timeInEnd, 
+      timeOutStart, 
+      timeOutEnd, 
+      organizerIds,
+      maxCapacity,
+      allowWalkIns,
+      requireRegistration
+    } = validationResult.data;
+
+    // TODO: Implement session-organizer relationship and additional fields in database schema
+    // For now, we'll log the additional fields but not store them in the database
+    console.log('Session creation - additional fields received:', {
+      organizerIds,
+      maxCapacity,
+      allowWalkIns,
+      requireRegistration
+    });
 
     // Verify event exists and is active
+    console.log('Looking up event with ID:', eventId);
     const event = await prisma.event.findUnique({
       where: { id: eventId },
     });
+    console.log('Event found:', event ? 'Yes' : 'No');
 
     if (!event) {
       await logActivity({
@@ -308,6 +331,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create session
+    console.log('Preparing session data...');
     const sessionData: Record<string, unknown> = {
       name,
       description,
@@ -323,6 +347,9 @@ export async function POST(request: NextRequest) {
       sessionData.timeOutEnd = new Date(timeOutEnd);
     }
 
+    console.log('Session data prepared:', sessionData);
+    console.log('Creating session in database...');
+    
     const newSession = await prisma.session.create({
       data: sessionData as Prisma.SessionCreateInput,
       include: {
@@ -342,6 +369,7 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+    console.log('Session created successfully:', newSession.id);
 
     await logActivity({
       type: 'admin_action',
@@ -376,6 +404,9 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error creating session:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('Session data that caused error:', body);
+    
     await logActivity({
       type: 'system_event',
       action: 'session_creation_failed',
@@ -386,6 +417,7 @@ export async function POST(request: NextRequest) {
         createdBy: authResult?.user?.id,
         sessionData: body,
         errorMessage: error instanceof Error ? error.message : 'Unknown',
+        errorStack: error instanceof Error ? error.stack : 'No stack trace',
         creationDuration: Date.now() - startTime,
         ipAddress,
         userAgent,
@@ -396,6 +428,7 @@ export async function POST(request: NextRequest) {
       {
         error: 'Internal server error',
         message: 'Failed to create session',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

@@ -223,8 +223,8 @@ model Session {
   description String?
   timeInStart DateTime // Start time for Time-In scanning
   timeInEnd   DateTime // End time for Time-In scanning
-  timeOutStart DateTime // Start time for Time-Out scanning
-  timeOutEnd  DateTime // End time for Time-Out scanning
+  timeOutStart DateTime? // Start time for Time-Out scanning
+  timeOutEnd  DateTime? // End time for Time-Out scanning
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

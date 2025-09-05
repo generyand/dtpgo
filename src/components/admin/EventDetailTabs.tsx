@@ -96,10 +96,12 @@ export function EventDetailTabs({
         <TabsContent value="sessions" className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Event Sessions</h3>
-            <Button onClick={onCreateSession} size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Session
-            </Button>
+            {event.sessions.length > 0 && (
+              <Button onClick={onCreateSession} size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Session
+              </Button>
+            )}
           </div>
 
           {event.sessions.length === 0 ? (
