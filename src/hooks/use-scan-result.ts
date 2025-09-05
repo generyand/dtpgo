@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { toast } from 'sonner';
 import { 
   ScanResultProcessor, 
@@ -105,7 +105,7 @@ export function useScanResult(config: UseScanResultConfig = {}): UseScanResultRe
   } | null>(null);
   const autoClearTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const finalConfig = { ...DEFAULT_CONFIG, ...config };
+  const finalConfig = useMemo(() => ({ ...DEFAULT_CONFIG, ...config }), [config]);
 
   // Clear result function (defined early to avoid hoisting issues)
   const clearResult = useCallback(() => {

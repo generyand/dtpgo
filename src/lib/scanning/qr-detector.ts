@@ -187,9 +187,10 @@ export async function switchQRCamera(
 /**
  * Get current camera being used by scanner
  */
-export function getCurrentQRCamera(_scanner: QrScanner): unknown | null {
+export function getCurrentQRCamera(scanner: QrScanner): unknown | null {
   // Note: qr-scanner doesn't have getActiveCamera method
   // We'll need to track this separately if needed
+  // For now, we can't access the current camera from the scanner instance
   return null;
 }
 
@@ -288,12 +289,14 @@ export function parseQRData(data: string): {
 /**
  * Create optimized scan region for mobile devices
  */
-export function createMobileScanRegion(_video: HTMLVideoElement): Record<string, unknown> {
+export function createMobileScanRegion(video: HTMLVideoElement): Record<string, unknown> {
   // Create a centered region that's 80% of the video size
   const regionSize = 0.8;
   const x = (1 - regionSize) / 2;
   const y = (1 - regionSize) / 2;
   
+  // Note: video element is available for future enhancements
+  // such as aspect ratio calculations or dynamic sizing
   return {
     x,
     y,
@@ -305,12 +308,14 @@ export function createMobileScanRegion(_video: HTMLVideoElement): Record<string,
 /**
  * Create scan region for desktop devices
  */
-export function createDesktopScanRegion(_video: HTMLVideoElement): Record<string, unknown> {
+export function createDesktopScanRegion(video: HTMLVideoElement): Record<string, unknown> {
   // For desktop, use a smaller centered region
   const regionSize = 0.6;
   const x = (1 - regionSize) / 2;
   const y = (1 - regionSize) / 2;
   
+  // Note: video element is available for future enhancements
+  // such as aspect ratio calculations or dynamic sizing
   return {
     x,
     y,

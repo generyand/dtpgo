@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Badge } from '@/components/ui/badge';
@@ -134,21 +133,12 @@ export function MultiSelect({
     setFocusedIndex(-1);
   };
 
-  // Handle search input change
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
-    setFocusedIndex(-1);
-  };
 
   // Check if all filtered options are selected
   const allSelected = filteredOptions
     .filter(option => !option.disabled)
     .every(option => value.includes(option.value));
 
-  // Check if some filtered options are selected
-  const someSelected = filteredOptions
-    .filter(option => !option.disabled)
-    .some(option => value.includes(option.value));
 
   return (
     <div className={cn('relative', className)}>

@@ -131,12 +131,8 @@ export function determineScanType(
   context: ScanContextData,
   options: ScanLogicOptions = {}
 ): ScanType {
-  const {
-    allowEarlyScan = true,
-    earlyScanMinutes = 15,
-    allowLateScan = true,
-    lateScanMinutes = 30,
-  } = options;
+  // Note: Early/late scan options are used in determineTimeInOrOut function
+  // They are passed through the options parameter for consistency
 
   const currentTime = context.currentTime;
   const session = context.currentSession;
@@ -535,11 +531,12 @@ export function validateDTPQRFormat(qrData: string): {
 /**
  * Get current time in specified timezone
  */
-export function getCurrentTimeInTimezone(_timezone: string = 'UTC'): Date {
+export function getCurrentTimeInTimezone(timezone: string = 'UTC'): Date {
   const now = new Date();
   
   // For now, we'll use the local time
   // In a real implementation, you might want to use a library like date-fns-tz
+  // The timezone parameter is available for future timezone handling
   return now;
 }
 

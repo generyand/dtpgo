@@ -167,8 +167,6 @@ export function getAccessibleTextColor(
   level: 'AA' | 'AAA' = 'AA',
   size: 'normal' | 'large' | 'ui' = 'normal'
 ): string {
-  const requirements = level === 'AA' ? WCAG_AA_CONTRAST_RATIOS : WCAG_AAA_CONTRAST_RATIOS;
-  
   // Try white text first
   if (meetsContrastRequirement('#ffffff', background, level, size)) {
     return '#ffffff';
