@@ -37,15 +37,15 @@ export function EventDetailTabs({
   const formatDate = (date: string | Date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   const formatTime = (date: string | Date) => new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-  const getSessionStatus = (session: { timeInStart: string | Date; timeInEnd: string | Date; timeOutEnd: string | Date }) => {
+  const getSessionStatus = (session: { timeInStart: string | Date; timeInEnd: string | Date; timeOutEnd: string | Date | null }) => {
     const now = new Date();
     const timeInStart = new Date(session.timeInStart);
     const timeInEnd = new Date(session.timeInEnd);
-    const timeOutEnd = new Date(session.timeOutEnd);
+    const timeOutEnd = session.timeOutEnd ? new Date(session.timeOutEnd) : null;
     if (now < timeInStart) return 'upcoming';
     if (now >= timeInStart && now <= timeInEnd) return 'time-in';
-    if (now > timeInEnd && now <= timeOutEnd) return 'time-out';
-    if (now > timeOutEnd) return 'ended';
+    if (now > timeInEnd && timeOutEnd && now <= timeOutEnd) return 'time-out';
+    if (timeOutEnd && now > timeOutEnd) return 'ended';
     return 'unknown';
   };
 
@@ -139,7 +139,10 @@ export function EventDetailTabs({
                             </div>
                             <div>
                               <span className="text-gray-500">Time-Out:</span>
-                              <p className="font-medium">{formatTime(session.timeOutStart)} - {formatTime(session.timeOutEnd)}</p>
+                              <p className="font-medium">
+                                {session.timeOutStart ? formatTime(session.timeOutStart) : 'N/A'} - 
+                                {session.timeOutEnd ? formatTime(session.timeOutEnd) : 'N/A'}
+                              </p>
                             </div>
                             <div>
                               <span className="text-gray-500">Date:</span>
