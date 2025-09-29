@@ -268,13 +268,11 @@ export function OrganizerCard({
               onClick={(e) => {
                 e.stopPropagation();
                 onViewDetails?.(organizer);
+                window.location.href = `/admin/organizers/${organizer.id}`;
               }}
-              asChild
             >
-              <Link href={`/admin/organizers/${organizer.id}`}>
-                <Eye className="mr-1 h-3 w-3" />
-                View
-              </Link>
+              <Eye className="mr-1 h-3 w-3" />
+              View
             </Button>
             <Button 
               variant="ghost" 
