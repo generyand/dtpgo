@@ -167,6 +167,8 @@ model Organizer {
   isActive    Boolean  @default(true)
   invitedBy   String?  // Reference to admin who invited this organizer
   invitedAt   DateTime?
+  invitationToken     String?   @unique
+  invitationExpiresAt DateTime?
   lastLoginAt DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

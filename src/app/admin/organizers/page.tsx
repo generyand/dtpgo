@@ -25,12 +25,12 @@ export default function OrganizersPage() {
             Manage organizers, invitations, and event assignments
           </p>
         </div>
-        <Button asChild>
-          <Link href="/admin/organizers/invite">
+        <Link href="/admin/organizers/invite">
+          <Button>
             <Plus className="mr-2 h-4 w-4" />
             Invite Organizer
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       </div>
 
       {/* Statistics Cards */}

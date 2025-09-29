@@ -101,9 +101,9 @@ export function InviteOrganizerForm({
           throw new Error(errorData.message || 'Failed to send invitation');
         }
 
-        await response.json();
+        const resJson = await response.json();
         toast.success('Invitation sent successfully!', {
-          description: `Invitation sent to ${data.email}`,
+          description: `Invitation sent to ${data.email}${resJson.messageId ? ` (messageId: ${resJson.messageId})` : ''}`,
         });
       }
 

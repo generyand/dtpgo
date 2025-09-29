@@ -124,6 +124,17 @@ export function OrganizerList({ searchQuery = '' }: OrganizerListProps) {
     );
   };
 
+  const getInvitationBadge = (organizer: Organizer) => {
+    // Derive invitation status from available fields
+    if (!organizer.invitedAt) {
+      return <Badge variant="outline">Not Invited</Badge>;
+    }
+    if (organizer.lastLoginAt) {
+      return <Badge variant="default">Accepted</Badge>;
+    }
+    return <Badge variant="secondary">Sent</Badge>;
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -262,6 +273,7 @@ export function OrganizerList({ searchQuery = '' }: OrganizerListProps) {
                       <TableHead>Organizer</TableHead>
                       <TableHead>Role</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Invitation</TableHead>
                       <TableHead>Last Login</TableHead>
                       <TableHead>Created</TableHead>
                       <TableHead className="w-[70px]">Actions</TableHead>
@@ -284,6 +296,9 @@ export function OrganizerList({ searchQuery = '' }: OrganizerListProps) {
                         </TableCell>
                         <TableCell>
                           {getStatusBadge(organizer)}
+                        </TableCell>
+                        <TableCell>
+                          {getInvitationBadge(organizer)}
                         </TableCell>
                         <TableCell>
                           {organizer.lastLoginAt ? (
@@ -341,9 +356,22 @@ export function OrganizerList({ searchQuery = '' }: OrganizerListProps) {
                               }
                             }}
                             onResendInvitation={async (org) => {
-                              // Handle resend invitation
-                              toast.info(`Resending invitation to: ${org.fullName}`);
-                              // This would integrate with the email service when implemented
+                              try {
+                                const res = await fetch(`/api/admin/organizers/${org.id}/resend-invitation`, {
+                                  method: 'POST',
+                                });
+                                if (!res.ok) {
+                                  const err = await res.json().catch(() => ({}));
+                                  throw new Error(err.message || 'Failed to resend invitation');
+                                }
+                                const data = await res.json();
+                                toast.success('Invitation resent successfully', {
+                                  description: `Sent to ${org.email}${data.messageId ? ` (messageId: ${data.messageId})` : ''}`,
+                                });
+                                refetch();
+                              } catch (e) {
+                                toast.error('Failed to resend invitation');
+                              }
                             }}
                             onViewDetails={(org) => {
                               window.location.href = `/admin/organizers/${org.id}`;

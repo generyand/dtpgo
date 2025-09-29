@@ -49,8 +49,8 @@ Tech-stack specific file structure:
 
 ### Three-Tier Structure: Epic → Story → Atomic
 
-- [ ] **1.0 Epic: Organizer Management Dashboard** *(FR-01)*
-  - [ ] **1.1 Story: Organizer List Interface**
+- [x] **1.0 Epic: Organizer Management Dashboard** *(FR-01)*
+  - [x] **1.1 Story: Organizer List Interface**
     - [x] **1.1.1 Atomic:** Create organizer management page at `/admin/organizers`
       - **Files:** `src/app/admin/organizers/page.tsx`
       - **Dependencies:** Admin layout, authentication system
@@ -72,7 +72,7 @@ Tech-stack specific file structure:
       - **Acceptance:** Displays total, active, inactive, and assignment counts
       - **Tech:** Real-time data fetching, animated counters
 
-  - [ ] **1.2 Story: Organizer Details and Actions**
+  - [x] **1.2 Story: Organizer Details and Actions**
     - [x] **1.2.1 Atomic:** Create individual organizer details page
       - **Files:** `src/app/admin/organizers/[id]/page.tsx`, `src/app/admin/organizers/[id]/not-found.tsx`, `src/app/api/admin/organizers/[id]/route.ts`, `src/hooks/use-organizer-details.ts`
       - **Dependencies:** OrganizerList component
@@ -86,38 +86,65 @@ Tech-stack specific file structure:
 
 - [ ] **2.0 Epic: Organizer Invitation System** *(FR-02)*
   - [ ] **2.1 Story: Email Service Integration**
-    - [ ] **2.1.1 Atomic:** Set up Nodemailer email service
+    - [x] **2.1.1 Atomic:** Set up Nodemailer email service
       - **Files:** `src/lib/email/nodemailer-config.ts`, `src/lib/email/email-service.ts`, `.env.local`
       - **Dependencies:** Nodemailer package installation
       - **Acceptance:** Nodemailer configured with SMTP settings and testable
       - **Tech:** Nodemailer, SMTP configuration, environment variables, error handling
-    - [ ] **2.1.2 Atomic:** Create email template system
+    - [x] **2.1.2 Atomic:** Create email template system
       - **Files:** `src/lib/email/templates/organizer-invitation.tsx`, `src/lib/email/templates/base-template.tsx`
       - **Dependencies:** Email service setup
       - **Acceptance:** Professional HTML email template with branding
       - **Tech:** React Email, responsive design, inline CSS, Nodemailer HTML rendering
-    - [ ] **2.1.3 Atomic:** Implement invitation email service
+    - [x] **2.1.3 Atomic:** Implement invitation email service
       - **Files:** `src/lib/email/invitation-service.ts`
       - **Dependencies:** Email templates, Nodemailer configuration
       - **Acceptance:** Sends invitation emails with proper content and tracking
       - **Tech:** Nodemailer, async/await, error handling, retry logic, HTML rendering
 
   - [ ] **2.2 Story: Invitation UI and Workflow**
-    - [ ] **2.2.1 Atomic:** Enhance existing InviteOrganizerForm with email integration
+    - [x] **2.2.1 Atomic:** Enhance existing InviteOrganizerForm with email integration
       - **Files:** `src/components/admin/InviteOrganizerForm.tsx`
       - **Dependencies:** Email service, invitation API
       - **Acceptance:** Form sends actual emails, shows delivery status
       - **Tech:** React Hook Form, toast notifications, loading states
-    - [ ] **2.2.2 Atomic:** Add invitation status tracking to organizer list
+    - [x] **2.2.2 Atomic:** Add invitation status tracking to organizer list
       - **Files:** `src/components/admin/organizers/InvitationStatus.tsx`
       - **Dependencies:** Organizer API with invitation data
       - **Acceptance:** Shows pending, sent, accepted, failed invitation status
       - **Tech:** Status badges, real-time updates
-    - [ ] **2.2.3 Atomic:** Implement resend invitation functionality
+    - [x] **2.2.3 Atomic:** Implement resend invitation functionality
       - **Files:** `src/app/api/admin/organizers/[id]/resend-invitation/route.ts`
       - **Dependencies:** Email service, organizer data
       - **Acceptance:** Resends invitation email and updates status
       - **Tech:** Next.js API route, error handling, rate limiting
+
+  - [ ] **2.3 Story: Organizer Invitation Acceptance & Password Setup**
+    - [x] **2.3.1 Atomic:** Issue secure invitation tokens
+      - **Files:** `prisma/schema.prisma`, `src/app/api/admin/invite-organizer/route.ts`, `src/app/api/admin/organizers/[id]/resend-invitation/route.ts`
+      - **Dependencies:** Organizer model, email service
+      - **Acceptance:** Invitation token (+ expiry) generated on invite/resend and persisted
+      - **Tech:** Prisma fields (e.g., `invitationToken`, `invitationExpiresAt`), crypto random bytes
+    - [x] **2.3.2 Atomic:** Update email link to acceptance route with token
+      - **Files:** `src/lib/email/invitation-service.ts`, `src/app/api/admin/invite-organizer/route.ts`, `src/app/api/admin/organizers/[id]/resend-invitation/route.ts`
+      - **Dependencies:** 2.3.1 token issuance
+      - **Acceptance:** Email CTA points to `/organizer/accept?token=...` (not role-gated)
+      - **Tech:** URL-safe token in query param
+    - [x] **2.3.3 Atomic:** Create organizer acceptance page with set-password form
+      - **Files:** `src/app/organizer/accept/page.tsx`, `src/components/organizer/OrganizerSetPasswordForm.tsx`
+      - **Dependencies:** Token in URL; UI validation
+      - **Acceptance:** Loads with token, shows password + confirm, client‑side validation
+      - **Tech:** React Hook Form, Zod, secure form handling
+    - [x] **2.3.4 Atomic:** Implement acceptance API to validate token and set password
+      - **Files:** `src/app/api/organizer/accept/route.ts`, `src/lib/validations/organizer-accept.ts`
+      - **Dependencies:** 2.3.1 token storage; auth provider
+      - **Acceptance:** Valid token → set password, activate organizer, invalidate token
+      - **Tech:** Prisma updates, hashing, expiry checks, clear token on success
+    - [x] **2.3.5 Atomic:** Post‑accept redirect and UX
+      - **Files:** `src/app/organizer/accept/page.tsx`
+      - **Dependencies:** 2.3.4 acceptance API
+      - **Acceptance:** On success, redirect to organizer dashboard or login with success toast
+      - **Tech:** Next.js navigation, success state, error states
 
 - [ ] **3.0 Epic: Event Assignment Management** *(FR-03)*
   - [ ] **3.1 Story: Assignment Interface Components**

@@ -58,6 +58,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // Allow public access to organizer invitation acceptance page in the public route group
+  if (pathname.startsWith('/organizer/accept')) {
+    return NextResponse.next()
+  }
+
   // Skip auth checks for login page to prevent redirect loops
   if (pathname.startsWith('/auth/')) {
     return NextResponse.next()

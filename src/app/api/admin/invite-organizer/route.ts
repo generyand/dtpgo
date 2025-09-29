@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import crypto from 'crypto'
+import { sendOrganizerInvitationEmail } from '@/lib/email/invitation-service'
 import { authenticateAdminApi, createAuthErrorResponse } from '@/lib/auth/api-auth'
 import { prisma } from '@/lib/db/client'
 import { z } from 'zod'
@@ -114,15 +116,34 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // TODO: Send invitation email
-    // This would integrate with an email service like SendGrid, Resend, etc.
-    // For now, we'll just log that an invitation was sent
-    console.log(`Invitation email would be sent to: ${email}`)
+    // Generate secure invitation token with expiry (48 hours)
+    const token = crypto.randomBytes(32).toString('base64url')
+    const invitationExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 48)
+
+    await prisma.organizer.update({
+      where: { id: organizer.id },
+      data: {
+        invitationToken: token,
+        invitationExpiresAt,
+      },
+    })
+
+    // Build invite link to dedicated organizer acceptance flow
+    const origin = request.headers.get('origin') || request.nextUrl.origin
+    const inviteLink = `${origin}/organizer/accept?token=${encodeURIComponent(token)}`
+
+    // Send invitation email
+    const sendResult = await sendOrganizerInvitationEmail({
+      recipientEmail: email,
+      recipientName: fullName,
+      inviteLink,
+    })
 
     return NextResponse.json(
       {
         success: true,
         message: 'Organizer invitation sent successfully',
+        messageId: sendResult.messageId,
         organizer: {
           id: organizer.id,
           email: organizer.email,

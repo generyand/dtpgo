@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, UserX } from 'lucide-react';
 
@@ -21,12 +21,13 @@ export default function NotFound() {
             <p className="text-sm text-muted-foreground">
               This organizer may have been deleted, or the link you followed is incorrect.
             </p>
-            <Button asChild>
-              <Link href="/admin/organizers">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Organizers
-              </Link>
-            </Button>
+            <Link
+              href="/admin/organizers"
+              className={buttonVariants({ variant: 'outline', size: 'xl' })}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Organizers
+            </Link>
           </CardContent>
         </Card>
       </div>

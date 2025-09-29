@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
 export interface OrganizerDetails {
@@ -53,7 +53,7 @@ export function useOrganizerDetails(organizerId: string): UseOrganizerDetailsRet
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchOrganizerDetails = async () => {
+  const fetchOrganizerDetails = useCallback(async () => {
     if (!organizerId) return;
 
     try {
@@ -83,7 +83,7 @@ export function useOrganizerDetails(organizerId: string): UseOrganizerDetailsRet
     } finally {
       setLoading(false);
     }
-  };
+  }, [organizerId]);
 
   const updateOrganizer = async (data: Partial<OrganizerDetails>): Promise<boolean> => {
     if (!organizerId) return false;
@@ -157,7 +157,7 @@ export function useOrganizerDetails(organizerId: string): UseOrganizerDetailsRet
 
   useEffect(() => {
     fetchOrganizerDetails();
-  }, [organizerId]);
+  }, [fetchOrganizerDetails]);
 
   return {
     organizer,
