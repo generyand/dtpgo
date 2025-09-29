@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/admin/dashboard'
+  const next = searchParams.get('next')
 
   if (code) {
     const supabase = await createSupabaseServerClient()
@@ -21,9 +21,25 @@ export async function GET(request: NextRequest) {
         const { data: { user } } = await supabase.auth.getUser()
         
         if (user) {
-          // For now, redirect to the next URL or default dashboard
-          // Role-based redirects will be implemented later
-          const redirectUrl = new URL(next, origin)
+          // Determine redirect based on user role
+          let redirectPath = next
+          
+          if (!redirectPath) {
+            // Role-based redirect if no specific redirect provided
+            const userRole = user.user_metadata?.role
+            switch (userRole) {
+              case 'admin':
+                redirectPath = '/admin/dashboard'
+                break
+              case 'organizer':
+                redirectPath = '/organizer/sessions'
+                break
+              default:
+                redirectPath = '/admin/dashboard' // Default fallback
+            }
+          }
+          
+          const redirectUrl = new URL(redirectPath, origin)
           return NextResponse.redirect(redirectUrl)
         }
       } else {

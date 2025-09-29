@@ -62,32 +62,14 @@ export function LoginForm({ redirectTo, showPasswordReset = true }: LoginFormPro
         return;
       }
 
-      // Get user role for role-based redirect
-      const userRole = user?.user_metadata?.role || null;
-      const roleDisplayName = getRoleDisplayName(userRole);
-      
+      // Show success message immediately
       toast.success('Login Successful', { 
-        description: `Welcome back, ${roleDisplayName}!`
+        description: 'Redirecting to your dashboard...'
       });
 
-      // Determine redirect based on role or provided redirectTo
-      let finalRedirect = redirectTo;
-      
-      if (!finalRedirect) {
-        // Role-based redirect if no specific redirect provided
-        switch (userRole) {
-          case 'admin':
-            finalRedirect = '/admin/dashboard';
-            break;
-          case 'organizer':
-            finalRedirect = '/organizer/sessions';
-            break;
-          default:
-            finalRedirect = '/admin/dashboard'; // Default fallback
-        }
-      }
-
-      // Redirect to the determined page
+      // For role-based redirect, we'll let the auth callback handle it
+      // or redirect to a generic success page that will handle the role check
+      const finalRedirect = redirectTo || '/auth/success';
       router.push(finalRedirect);
     } catch (error) {
       const errorMessage = getAuthErrorMessage(error);
