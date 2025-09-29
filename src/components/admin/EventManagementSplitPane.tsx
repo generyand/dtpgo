@@ -16,7 +16,7 @@ import { EventForm } from '@/components/admin/EventForm';
 import { SessionForm, SessionFormData } from '@/components/admin/SessionForm';
 import { OrganizerAssignments } from '@/components/admin/organizers/OrganizerAssignments';
 import { Plus, Search } from 'lucide-react';
-import { toast } from 'sonner';
+import { eventFeedback, sessionFeedback, genericFeedback } from '@/lib/utils/toast-feedback';
 import { 
   EventsListSkeleton, 
   EventDetailsSkeleton, 
@@ -128,6 +128,8 @@ export function EventManagementSplitPane() {
   const handleUpdateEvent = async (eventData: Record<string, unknown>) => {
     if (!selectedEvent) return;
 
+    const toastId = eventFeedback.update.loading(selectedEvent.name);
+
     try {
       const response = await fetch(`/api/admin/events/${selectedEvent.id}`, {
         method: 'PUT',
@@ -140,19 +142,21 @@ export function EventManagementSplitPane() {
       const data = await response.json();
 
       if (data.success) {
-        toast.success('Event updated successfully');
+        eventFeedback.update.success(selectedEvent.name, toastId);
         setIsEditOpen(false);
         await fetchEvents();
       } else {
         throw new Error(data.error || 'Failed to update event');
       }
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Failed to update event');
+      eventFeedback.update.error(selectedEvent.name, err instanceof Error ? err.message : 'Failed to update event', toastId);
     }
   };
 
   const handleDeleteEventConfirm = async () => {
     if (!selectedEvent) return;
+
+    const toastId = eventFeedback.delete.loading(selectedEvent.name);
 
     try {
       console.log('Attempting to delete event:', selectedEvent.id, selectedEvent.name);
@@ -168,20 +172,28 @@ export function EventManagementSplitPane() {
       console.log('Delete response data:', data);
 
       if (data.success) {
-        toast.success('Event deleted successfully');
+        eventFeedback.delete.success(selectedEvent.name, toastId);
         setIsDeleteOpen(false);
         setSelectedEvent(null);
         await fetchEvents();
       } else {
-        throw new Error(data.error || 'Failed to delete event');
+        // Check if it's a warning (attendance records exist)
+        if (response.status === 400 && data.error?.includes('attendance records')) {
+          eventFeedback.delete.warning(selectedEvent.name, data.error);
+        } else {
+          throw new Error(data.error || 'Failed to delete event');
+        }
       }
     } catch (err: unknown) {
       console.error('Delete event error:', err);
-      toast.error(err instanceof Error ? err.message : 'Failed to delete event');
+      eventFeedback.delete.error(selectedEvent.name, err instanceof Error ? err.message : 'Failed to delete event', toastId);
     }
   };
 
   const handleCreateEvent = async (eventData: Record<string, unknown>) => {
+    const eventName = eventData.name as string || 'New Event';
+    const toastId = eventFeedback.create.loading(eventName);
+
     try {
       const res = await fetch('/api/admin/events', {
         method: 'POST',
@@ -192,18 +204,20 @@ export function EventManagementSplitPane() {
       if (!res.ok || !data.success) {
         throw new Error(data?.error || 'Failed to create event');
       }
-      toast.success('Event created successfully');
+      eventFeedback.create.success(eventName, toastId);
       setIsCreateOpen(false);
       await fetchEvents();
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Failed to create event');
+      eventFeedback.create.error(eventName, err instanceof Error ? err.message : 'Failed to create event', toastId);
     }
   };
 
   const handleCreateSessionSubmit = async (sessionData: SessionFormData) => {
     if (!selectedEvent) return;
 
-    setIsCreatingSession(true);
+    const sessionName = sessionData.name || 'New Session';
+    const toastId = sessionFeedback.create.loading(sessionName);
+
     try {
       // Get organizer IDs from the event's organizer assignments
       console.log('Event organizer assignments:', selectedEvent.organizerAssignments);
@@ -218,7 +232,7 @@ export function EventManagementSplitPane() {
         console.log('No organizers found, using placeholder organizer for testing');
         // For now, use a placeholder organizer ID to allow testing
         organizerIds.push('clx1234567890123456789012');
-        toast.warning('No organizers assigned to this event. Using placeholder organizer for testing.');
+        genericFeedback.warning('No organizers assigned', 'Using placeholder organizer for testing.');
       }
 
       console.log('Proceeding with session creation with organizers:', organizerIds);
@@ -257,7 +271,7 @@ export function EventManagementSplitPane() {
       }
 
       if (data.success) {
-        toast.success('Session created successfully');
+        sessionFeedback.create.success(sessionName, toastId);
         setIsCreateSessionOpen(false);
         await fetchEvents(); // Refresh to get updated session data
       } else {
@@ -265,9 +279,7 @@ export function EventManagementSplitPane() {
         throw new Error(data.error || 'Failed to create session');
       }
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Failed to create session');
-    } finally {
-      setIsCreatingSession(false);
+      sessionFeedback.create.error(sessionName, err instanceof Error ? err.message : 'Failed to create session', toastId);
     }
   };
 
