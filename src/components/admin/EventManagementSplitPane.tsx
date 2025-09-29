@@ -14,6 +14,7 @@ import { EventDetailTabs } from '@/components/admin/EventDetailTabs';
 import { EventEmptyState } from '@/components/admin/EventEmptyState';
 import { EventForm } from '@/components/admin/EventForm';
 import { SessionForm, SessionFormData } from '@/components/admin/SessionForm';
+import { OrganizerAssignments } from '@/components/admin/organizers/OrganizerAssignments';
 import { Plus, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
@@ -34,6 +35,7 @@ export function EventManagementSplitPane() {
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
   const [isCreateSessionOpen, setIsCreateSessionOpen] = useState<boolean>(false);
   const [isCreatingSession, setIsCreatingSession] = useState<boolean>(false);
+  const [showOrganizerAssignments, setShowOrganizerAssignments] = useState<boolean>(false);
   const [filters, setFilters] = useState<EventFiltersModel>({
     search: '',
     status: 'all',
@@ -358,17 +360,36 @@ export function EventManagementSplitPane() {
             onEdit={handleEditEvent}
             onCreateSession={handleCreateSession}
           />
-          <EventDetailTabs
-            event={selectedEvent}
-            onCreateSession={handleCreateSession}
-            onViewSession={() => {}}
-            onEditSession={() => {}}
-            onDeleteSession={() => {}}
-            onAssignOrganizer={() => {}}
-            onViewOrganizer={() => {}}
-            onRemoveOrganizer={() => {}}
-            className="pb-6"
-          />
+          {showOrganizerAssignments ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Organizer Assignments</h2>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowOrganizerAssignments(false)}
+                >
+                  Back to Event Details
+                </Button>
+              </div>
+              <OrganizerAssignments 
+                eventId={selectedEvent.id}
+                eventName={selectedEvent.name}
+                className="pb-6"
+              />
+            </div>
+          ) : (
+            <EventDetailTabs
+              event={selectedEvent}
+              onCreateSession={handleCreateSession}
+              onViewSession={() => {}}
+              onEditSession={() => {}}
+              onDeleteSession={() => {}}
+              onAssignOrganizer={() => setShowOrganizerAssignments(true)}
+              onViewOrganizer={() => {}}
+              onRemoveOrganizer={() => {}}
+              className="pb-6"
+            />
+          )}
         </div>
       )}
     </div>
