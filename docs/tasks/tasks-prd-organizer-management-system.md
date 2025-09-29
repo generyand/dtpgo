@@ -14,10 +14,20 @@ Map each functional requirement to specific tasks:
 ## Relevant Files
 
 Tech-stack specific file structure:
-- `src/app/admin/organizers/page.tsx` - Dedicated organizer management page
-- `src/app/admin/organizers/[id]/page.tsx` - Individual organizer details page
-- `src/components/admin/organizers/OrganizerList.tsx` - Organizer listing component
-- `src/components/admin/organizers/OrganizerCard.tsx` - Individual organizer card component
+- `src/app/admin/organizers/page.tsx` - Dedicated organizer management page ✅
+- `src/app/admin/organizers/[id]/page.tsx` - Individual organizer details page ✅
+- `src/app/admin/organizers/[id]/not-found.tsx` - Not found page for organizers ✅
+- `src/app/api/admin/organizers/[id]/route.ts` - Individual organizer API endpoints ✅
+- `src/hooks/use-organizer-details.ts` - Hook for organizer details management ✅
+- `src/components/admin/organizers/OrganizerList.tsx` - Organizer listing component ✅
+- `src/hooks/use-organizers.ts` - Custom hook for fetching organizer data ✅
+- `src/components/admin/organizers/OrganizerCard.tsx` - Individual organizer card component ✅
+- `src/components/admin/organizers/index.ts` - Component exports ✅
+- `src/components/admin/AdminNav.tsx` - Updated with organizers navigation ✅
+- `src/components/admin/organizers/OrganizerStats.tsx` - Organizer statistics component ✅
+- `src/lib/db/queries/organizers.ts` - Organizer database queries ✅
+- `src/app/api/admin/organizers/stats/route.ts` - Organizer statistics API ✅
+- `src/components/admin/organizers/OrganizerActions.tsx` - Organizer action dropdown menu ✅
 - `src/components/admin/organizers/OrganizerForm.tsx` - Organizer creation/editing form
 - `src/components/admin/organizers/OrganizerAssignments.tsx` - Event assignment management
 - `src/components/admin/organizers/BulkAssignmentModal.tsx` - Bulk assignment interface
@@ -41,34 +51,34 @@ Tech-stack specific file structure:
 
 - [ ] **1.0 Epic: Organizer Management Dashboard** *(FR-01)*
   - [ ] **1.1 Story: Organizer List Interface**
-    - [ ] **1.1.1 Atomic:** Create organizer management page at `/admin/organizers`
+    - [x] **1.1.1 Atomic:** Create organizer management page at `/admin/organizers`
       - **Files:** `src/app/admin/organizers/page.tsx`
       - **Dependencies:** Admin layout, authentication system
       - **Acceptance:** Page renders with header, stats cards, and organizer list
       - **Tech:** Next.js App Router, TypeScript, responsive design
-    - [ ] **1.1.2 Atomic:** Build OrganizerList component with search and filtering
-      - **Files:** `src/components/admin/organizers/OrganizerList.tsx`
+    - [x] **1.1.2 Atomic:** Build OrganizerList component with search and filtering
+      - **Files:** `src/components/admin/organizers/OrganizerList.tsx`, `src/hooks/use-organizers.ts`
       - **Dependencies:** Organizer API endpoints
       - **Acceptance:** Displays organizers in table/card format with search, filter, and pagination
       - **Tech:** React hooks, Tailwind CSS, Lucide icons
-    - [ ] **1.1.3 Atomic:** Create OrganizerCard component for individual organizer display
-      - **Files:** `src/components/admin/organizers/OrganizerCard.tsx`
+    - [x] **1.1.3 Atomic:** Create OrganizerCard component for individual organizer display
+      - **Files:** `src/components/admin/organizers/OrganizerCard.tsx`, `src/components/admin/organizers/index.ts`
       - **Dependencies:** Organizer type definitions
       - **Acceptance:** Shows organizer details, status, assignments, and action buttons
       - **Tech:** CVA for variants, responsive design, hover states
-    - [ ] **1.1.4 Atomic:** Add organizer statistics cards to dashboard
-      - **Files:** `src/components/admin/organizers/OrganizerStats.tsx`
+    - [x] **1.1.4 Atomic:** Add organizer statistics cards to dashboard
+      - **Files:** `src/components/admin/organizers/OrganizerStats.tsx`, `src/lib/db/queries/organizers.ts`, `src/app/api/admin/organizers/stats/route.ts`
       - **Dependencies:** Organizer API with statistics
       - **Acceptance:** Displays total, active, inactive, and assignment counts
       - **Tech:** Real-time data fetching, animated counters
 
   - [ ] **1.2 Story: Organizer Details and Actions**
-    - [ ] **1.2.1 Atomic:** Create individual organizer details page
-      - **Files:** `src/app/admin/organizers/[id]/page.tsx`
+    - [x] **1.2.1 Atomic:** Create individual organizer details page
+      - **Files:** `src/app/admin/organizers/[id]/page.tsx`, `src/app/admin/organizers/[id]/not-found.tsx`, `src/app/api/admin/organizers/[id]/route.ts`, `src/hooks/use-organizer-details.ts`
       - **Dependencies:** OrganizerList component
       - **Acceptance:** Shows detailed organizer info, assignments, and activity history
       - **Tech:** Dynamic routing, server-side data fetching
-    - [ ] **1.2.2 Atomic:** Implement organizer action dropdown menu
+    - [x] **1.2.2 Atomic:** Implement organizer action dropdown menu
       - **Files:** `src/components/admin/organizers/OrganizerActions.tsx`
       - **Dependencies:** Organizer API endpoints
       - **Acceptance:** Edit, deactivate, resend invitation, view details actions

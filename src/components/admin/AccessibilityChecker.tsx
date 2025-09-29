@@ -24,7 +24,9 @@ export function AccessibilityChecker() {
       <CardContent>
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm text-muted-foreground">WCAG 2.1 AA basic checks</div>
-          <Button onClick={handleRun} isLoading={isRunning}>Run Audit</Button>
+          <Button onClick={handleRun} disabled={isRunning} aria-busy={isRunning}>
+            {isRunning ? 'Running…' : 'Run Audit'}
+          </Button>
         </div>
 
         {issues.length === 0 ? (

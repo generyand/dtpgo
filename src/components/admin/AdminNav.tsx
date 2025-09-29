@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, UserPlus, Users, BarChart3, Menu, LogOut, User, Calendar } from 'lucide-react';
+import { LayoutDashboard, UserPlus, Users, BarChart3, Menu, LogOut, User, Calendar, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { useUser } from '@/hooks/use-auth';
@@ -14,6 +14,7 @@ import { LogoutDialog } from '@/components/auth/LogoutDialog';
 const allNavItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, permission: 'canAccessAdminPanel' },
   { href: '/admin/events', label: 'Events', icon: Calendar, permission: 'canAccessAdminPanel' },
+  { href: '/admin/organizers', label: 'Organizers', icon: UserCheck, permission: 'canAccessAdminPanel' },
   { href: '/admin/register', label: 'Register Students', icon: UserPlus, permission: 'canRegisterStudents' },
   { href: '/admin/students', label: 'Manage Students', icon: Users, permission: 'canManageStudents' },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3, permission: 'canViewAnalytics' },

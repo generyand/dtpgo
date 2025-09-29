@@ -51,7 +51,7 @@ export function HeaderNav() {
           <div className="flex items-center gap-4">
             <Link href="/join" aria-label="Join event registration" prefetch>
               <Button 
-                variant="yellow"
+                variant="default"
                 className="hidden md:inline-flex shadow"
                 style={{ 
                   backgroundColor: '#f59e0b', 
