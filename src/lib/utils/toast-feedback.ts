@@ -1,4 +1,5 @@
 import { toast } from 'sonner';
+import React from 'react';
 import { CheckCircle, XCircle, AlertCircle, Loader2, Trash2, Plus, Edit, Users, Calendar, Clock } from 'lucide-react';
 
 // Toast configuration options
@@ -60,13 +61,13 @@ export const eventFeedback = {
     loading: (eventName: string) => {
       return toast.loading(`Creating event "${eventName}"...`, {
         ...loadingConfig,
-        icon: <Plus className="h-4 w-4 text-blue-600" />,
+        icon: React.createElement(Plus, { className: "h-4 w-4 text-blue-600" }),
       });
     },
     success: (eventName: string, toastId?: string) => {
       return toast.success(`Event "${eventName}" created successfully!`, {
         ...successConfig,
-        icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+        icon: React.createElement(CheckCircle, { className: "h-4 w-4 text-green-600" }),
         id: toastId,
         description: 'The event is now available for session creation and organizer assignment.',
       });
@@ -74,7 +75,7 @@ export const eventFeedback = {
     error: (eventName: string, error: string, toastId?: string) => {
       return toast.error(`Failed to create event "${eventName}"`, {
         ...errorConfig,
-        icon: <XCircle className="h-4 w-4 text-red-600" />,
+        icon: React.createElement(XCircle, { className: "h-4 w-4 text-red-600" }),
         id: toastId,
         description: error,
       });
@@ -86,13 +87,13 @@ export const eventFeedback = {
     loading: (eventName: string) => {
       return toast.loading(`Updating event "${eventName}"...`, {
         ...loadingConfig,
-        icon: <Edit className="h-4 w-4 text-blue-600" />,
+        icon: React.createElement(Edit, { className: "h-4 w-4 text-blue-600" }),
       });
     },
     success: (eventName: string, toastId?: string) => {
       return toast.success(`Event "${eventName}" updated successfully!`, {
         ...successConfig,
-        icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+        icon: React.createElement(CheckCircle, { className: "h-4 w-4 text-green-600" }),
         id: toastId,
         description: 'All changes have been saved.',
       });
@@ -100,7 +101,7 @@ export const eventFeedback = {
     error: (eventName: string, error: string, toastId?: string) => {
       return toast.error(`Failed to update event "${eventName}"`, {
         ...errorConfig,
-        icon: <XCircle className="h-4 w-4 text-red-600" />,
+        icon: React.createElement(XCircle, { className: "h-4 w-4 text-red-600" }),
         id: toastId,
         description: error,
       });
@@ -112,13 +113,13 @@ export const eventFeedback = {
     loading: (eventName: string) => {
       return toast.loading(`Deleting event "${eventName}"...`, {
         ...loadingConfig,
-        icon: <Trash2 className="h-4 w-4 text-blue-600" />,
+        icon: React.createElement(Trash2, { className: "h-4 w-4 text-blue-600" }),
       });
     },
     success: (eventName: string, toastId?: string) => {
       return toast.success(`Event "${eventName}" deleted successfully!`, {
         ...successConfig,
-        icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+        icon: React.createElement(CheckCircle, { className: "h-4 w-4 text-green-600" }),
         id: toastId,
         description: 'The event has been deactivated and removed from the active list.',
       });
@@ -126,7 +127,7 @@ export const eventFeedback = {
     error: (eventName: string, error: string, toastId?: string) => {
       return toast.error(`Failed to delete event "${eventName}"`, {
         ...errorConfig,
-        icon: <XCircle className="h-4 w-4 text-red-600" />,
+        icon: React.createElement(XCircle, { className: "h-4 w-4 text-red-600" }),
         id: toastId,
         description: error,
       });
@@ -134,7 +135,7 @@ export const eventFeedback = {
     warning: (eventName: string, reason: string) => {
       return toast.warning(`Cannot delete event "${eventName}"`, {
         ...warningConfig,
-        icon: <AlertCircle className="h-4 w-4 text-amber-600" />,
+        icon: React.createElement(AlertCircle, { className: "h-4 w-4 text-amber-600" }),
         description: reason,
       });
     },
@@ -148,13 +149,13 @@ export const sessionFeedback = {
     loading: (sessionName: string) => {
       return toast.loading(`Creating session "${sessionName}"...`, {
         ...loadingConfig,
-        icon: <Plus className="h-4 w-4 text-blue-600" />,
+        icon: React.createElement(Plus, { className: "h-4 w-4 text-blue-600" }),
       });
     },
     success: (sessionName: string, toastId?: string) => {
       return toast.success(`Session "${sessionName}" created successfully!`, {
         ...successConfig,
-        icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+        icon: React.createElement(CheckCircle, { className: "h-4 w-4 text-green-600" }),
         id: toastId,
         description: 'The session is now ready for attendance tracking.',
       });
@@ -162,7 +163,7 @@ export const sessionFeedback = {
     error: (sessionName: string, error: string, toastId?: string) => {
       return toast.error(`Failed to create session "${sessionName}"`, {
         ...errorConfig,
-        icon: <XCircle className="h-4 w-4 text-red-600" />,
+        icon: React.createElement(XCircle, { className: "h-4 w-4 text-red-600" }),
         id: toastId,
         description: error,
       });
@@ -174,13 +175,13 @@ export const sessionFeedback = {
     loading: (sessionName: string) => {
       return toast.loading(`Updating session "${sessionName}"...`, {
         ...loadingConfig,
-        icon: <Edit className="h-4 w-4 text-blue-600" />,
+        icon: React.createElement(Edit, { className: "h-4 w-4 text-blue-600" }),
       });
     },
     success: (sessionName: string, toastId?: string) => {
       return toast.success(`Session "${sessionName}" updated successfully!`, {
         ...successConfig,
-        icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+        icon: React.createElement(CheckCircle, { className: "h-4 w-4 text-green-600" }),
         id: toastId,
         description: 'All session changes have been saved.',
       });
@@ -188,7 +189,7 @@ export const sessionFeedback = {
     error: (sessionName: string, error: string, toastId?: string) => {
       return toast.error(`Failed to update session "${sessionName}"`, {
         ...errorConfig,
-        icon: <XCircle className="h-4 w-4 text-red-600" />,
+        icon: React.createElement(XCircle, { className: "h-4 w-4 text-red-600" }),
         id: toastId,
         description: error,
       });
@@ -200,13 +201,13 @@ export const sessionFeedback = {
     loading: (sessionName: string) => {
       return toast.loading(`Deleting session "${sessionName}"...`, {
         ...loadingConfig,
-        icon: <Trash2 className="h-4 w-4 text-blue-600" />,
+        icon: React.createElement(Trash2, { className: "h-4 w-4 text-blue-600" }),
       });
     },
     success: (sessionName: string, toastId?: string) => {
       return toast.success(`Session "${sessionName}" deleted successfully!`, {
         ...successConfig,
-        icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+        icon: React.createElement(CheckCircle, { className: "h-4 w-4 text-green-600" }),
         id: toastId,
         description: 'The session has been removed from the event.',
       });
@@ -214,7 +215,7 @@ export const sessionFeedback = {
     error: (sessionName: string, error: string, toastId?: string) => {
       return toast.error(`Failed to delete session "${sessionName}"`, {
         ...errorConfig,
-        icon: <XCircle className="h-4 w-4 text-red-600" />,
+        icon: React.createElement(XCircle, { className: "h-4 w-4 text-red-600" }),
         id: toastId,
         description: error,
       });
@@ -229,13 +230,13 @@ export const organizerFeedback = {
     loading: (email: string) => {
       return toast.loading(`Sending invitation to ${email}...`, {
         ...loadingConfig,
-        icon: <Users className="h-4 w-4 text-blue-600" />,
+        icon: React.createElement(Users, { className: "h-4 w-4 text-blue-600" }),
       });
     },
     success: (email: string, toastId?: string) => {
       return toast.success(`Invitation sent to ${email}!`, {
         ...successConfig,
-        icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+        icon: React.createElement(CheckCircle, { className: "h-4 w-4 text-green-600" }),
         id: toastId,
         description: 'The organizer will receive an email with setup instructions.',
       });
@@ -243,7 +244,7 @@ export const organizerFeedback = {
     error: (email: string, error: string, toastId?: string) => {
       return toast.error(`Failed to send invitation to ${email}`, {
         ...errorConfig,
-        icon: <XCircle className="h-4 w-4 text-red-600" />,
+        icon: React.createElement(XCircle, { className: "h-4 w-4 text-red-600" }),
         id: toastId,
         description: error,
       });
@@ -255,13 +256,13 @@ export const organizerFeedback = {
     loading: (organizerName: string) => {
       return toast.loading(`Updating organizer "${organizerName}"...`, {
         ...loadingConfig,
-        icon: <Edit className="h-4 w-4 text-blue-600" />,
+        icon: React.createElement(Edit, { className: "h-4 w-4 text-blue-600" }),
       });
     },
     success: (organizerName: string, toastId?: string) => {
       return toast.success(`Organizer "${organizerName}" updated successfully!`, {
         ...successConfig,
-        icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+        icon: React.createElement(CheckCircle, { className: "h-4 w-4 text-green-600" }),
         id: toastId,
         description: 'All organizer changes have been saved.',
       });
@@ -269,7 +270,7 @@ export const organizerFeedback = {
     error: (organizerName: string, error: string, toastId?: string) => {
       return toast.error(`Failed to update organizer "${organizerName}"`, {
         ...errorConfig,
-        icon: <XCircle className="h-4 w-4 text-red-600" />,
+        icon: React.createElement(XCircle, { className: "h-4 w-4 text-red-600" }),
         id: toastId,
         description: error,
       });
@@ -281,13 +282,13 @@ export const organizerFeedback = {
     loading: (organizerName: string) => {
       return toast.loading(`Deactivating organizer "${organizerName}"...`, {
         ...loadingConfig,
-        icon: <Trash2 className="h-4 w-4 text-blue-600" />,
+        icon: React.createElement(Trash2, { className: "h-4 w-4 text-blue-600" }),
       });
     },
     success: (organizerName: string, toastId?: string) => {
       return toast.success(`Organizer "${organizerName}" deactivated successfully!`, {
         ...successConfig,
-        icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+        icon: React.createElement(CheckCircle, { className: "h-4 w-4 text-green-600" }),
         id: toastId,
         description: 'The organizer can no longer access the system.',
       });
@@ -295,7 +296,7 @@ export const organizerFeedback = {
     error: (organizerName: string, error: string, toastId?: string) => {
       return toast.error(`Failed to deactivate organizer "${organizerName}"`, {
         ...errorConfig,
-        icon: <XCircle className="h-4 w-4 text-red-600" />,
+        icon: React.createElement(XCircle, { className: "h-4 w-4 text-red-600" }),
         id: toastId,
         description: error,
       });
@@ -307,13 +308,13 @@ export const organizerFeedback = {
     loading: (organizerName: string, eventName: string) => {
       return toast.loading(`Assigning "${organizerName}" to "${eventName}"...`, {
         ...loadingConfig,
-        icon: <Users className="h-4 w-4 text-blue-600" />,
+        icon: React.createElement(Users, { className: "h-4 w-4 text-blue-600" }),
       });
     },
     success: (organizerName: string, eventName: string, toastId?: string) => {
       return toast.success(`"${organizerName}" assigned to "${eventName}"!`, {
         ...successConfig,
-        icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+        icon: React.createElement(CheckCircle, { className: "h-4 w-4 text-green-600" }),
         id: toastId,
         description: 'The organizer can now manage this event.',
       });
@@ -321,7 +322,7 @@ export const organizerFeedback = {
     error: (organizerName: string, eventName: string, error: string, toastId?: string) => {
       return toast.error(`Failed to assign "${organizerName}" to "${eventName}"`, {
         ...errorConfig,
-        icon: <XCircle className="h-4 w-4 text-red-600" />,
+        icon: React.createElement(XCircle, { className: "h-4 w-4 text-red-600" }),
         id: toastId,
         description: error,
       });
@@ -333,13 +334,13 @@ export const organizerFeedback = {
     loading: (count: number, eventCount: number) => {
       return toast.loading(`Assigning ${count} organizer(s) to ${eventCount} event(s)...`, {
         ...loadingConfig,
-        icon: <Users className="h-4 w-4 text-blue-600" />,
+        icon: React.createElement(Users, { className: "h-4 w-4 text-blue-600" }),
       });
     },
     success: (successCount: number, eventCount: number, toastId?: string) => {
       return toast.success(`Bulk assignment completed!`, {
         ...successConfig,
-        icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+        icon: React.createElement(CheckCircle, { className: "h-4 w-4 text-green-600" }),
         id: toastId,
         description: `${successCount} organizer(s) successfully assigned to ${eventCount} event(s).`,
       });
@@ -347,7 +348,7 @@ export const organizerFeedback = {
     error: (error: string, toastId?: string) => {
       return toast.error(`Bulk assignment failed`, {
         ...errorConfig,
-        icon: <XCircle className="h-4 w-4 text-red-600" />,
+        icon: React.createElement(XCircle, { className: "h-4 w-4 text-red-600" }),
         id: toastId,
         description: error,
       });
@@ -360,7 +361,7 @@ export const genericFeedback = {
   loading: (message: string) => {
     return toast.loading(message, {
       ...loadingConfig,
-      icon: <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />,
+        icon: React.createElement(Loader2, { className: "h-4 w-4 text-blue-600 animate-spin" }),
     });
   },
   success: (message: string, description?: string) => {
@@ -387,7 +388,7 @@ export const genericFeedback = {
   info: (message: string, description?: string) => {
     return toast.info(message, {
       ...baseConfig,
-      icon: <AlertCircle className="h-4 w-4 text-blue-600" />,
+        icon: React.createElement(AlertCircle, { className: "h-4 w-4 text-blue-600" }),
       description,
     });
   },
