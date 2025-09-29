@@ -121,6 +121,7 @@ export function EventManagementSplitPane() {
   };
 
   const handleDeleteEvent = () => {
+    console.log('Delete button clicked for event:', selectedEvent?.id, selectedEvent?.name);
     setIsDeleteOpen(true);
   };
 
@@ -154,11 +155,17 @@ export function EventManagementSplitPane() {
     if (!selectedEvent) return;
 
     try {
+      console.log('Attempting to delete event:', selectedEvent.id, selectedEvent.name);
+      
       const response = await fetch(`/api/admin/events/${selectedEvent.id}`, {
         method: 'DELETE',
       });
 
+      console.log('Delete response status:', response.status);
+      console.log('Delete response headers:', Object.fromEntries(response.headers.entries()));
+
       const data = await response.json();
+      console.log('Delete response data:', data);
 
       if (data.success) {
         toast.success('Event deleted successfully');
@@ -169,6 +176,7 @@ export function EventManagementSplitPane() {
         throw new Error(data.error || 'Failed to delete event');
       }
     } catch (err: unknown) {
+      console.error('Delete event error:', err);
       toast.error(err instanceof Error ? err.message : 'Failed to delete event');
     }
   };
