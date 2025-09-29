@@ -164,13 +164,13 @@ Tech-stack specific file structure:
       - **Acceptance:** Improved UI, better error handling, progress indicators
       - **Tech:** Loading states, error boundaries, success feedback
 
-  - [ ] **3.2 Story: Assignment API Integration**
-    - [ ] **3.2.1 Atomic:** Enhance event organizer API with bulk operations
+  - [x] **3.2 Story: Assignment API Integration**
+    - [x] **3.2.1 Atomic:** Enhance event organizer API with bulk operations
       - **Files:** `src/app/api/admin/events/[id]/organizers/route.ts`
       - **Dependencies:** Existing assignment API
       - **Acceptance:** Supports bulk assignment, better error handling
       - **Tech:** Prisma transactions, validation, activity logging
-    - [ ] **3.2.2 Atomic:** Add assignment validation and conflict detection
+    - [x] **3.2.2 Atomic:** Add assignment validation and conflict detection
       - **Files:** `src/lib/validations/organizer-assignment.ts`
       - **Dependencies:** Event and organizer data models
       - **Acceptance:** Prevents duplicate assignments, validates permissions

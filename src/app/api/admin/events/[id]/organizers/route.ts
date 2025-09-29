@@ -23,6 +23,12 @@ const removeOrganizerSchema = z.object({
   reason: z.string().optional(),
 });
 
+// Validation schema for bulk organizer removal
+const bulkRemoveOrganizersSchema = z.object({
+  organizerIds: z.array(z.string().cuid('Invalid organizer ID format')).min(1, 'At least one organizer ID is required'),
+  reason: z.string().optional(),
+});
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Authenticate admin request
@@ -307,13 +313,23 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         );
       }
 
-      // Create bulk assignments
-      const assignments = await prisma.organizerEventAssignment.createMany({
-        data: organizerIds.map(organizerId => ({
-          organizerId,
-          eventId,
-          assignedBy: adminUser.id,
-        })),
+      // Create bulk assignments with transaction for better error handling
+      const assignments = await prisma.$transaction(async (tx) => {
+        // Create assignments
+        const createdAssignments = await tx.organizerEventAssignment.createMany({
+          data: organizerIds.map(organizerId => ({
+            organizerId,
+            eventId,
+            assignedBy: adminUser.id,
+          })),
+        });
+
+        // Verify all assignments were created successfully
+        if (createdAssignments.count !== organizerIds.length) {
+          throw new Error(`Failed to create all assignments. Expected: ${organizerIds.length}, Created: ${createdAssignments.count}`);
+        }
+
+        return createdAssignments;
       });
 
       await logActivity({
@@ -575,19 +591,149 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
-    // Validate request body
-    const validationResult = removeOrganizerSchema.safeParse(body);
-    if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: 'Validation failed',
-          details: validationResult.error.issues,
-        },
-        { status: 400 }
-      );
-    }
+    // Check if this is a bulk removal
+    const isBulkRemoval = body && Array.isArray(body.organizerIds);
 
-    const { organizerId, reason } = validationResult.data;
+    if (isBulkRemoval) {
+      // Handle bulk removal
+      const validationResult = bulkRemoveOrganizersSchema.safeParse(body!);
+      if (!validationResult.success) {
+        return NextResponse.json(
+          {
+            error: 'Validation failed',
+            details: validationResult.error.issues,
+          },
+          { status: 400 }
+        );
+      }
+
+      const { organizerIds, reason } = validationResult.data;
+
+      // Verify event exists
+      const event = await prisma.event.findUnique({
+        where: { id: eventId },
+        select: {
+          id: true,
+          name: true,
+          isActive: true,
+        },
+      });
+
+      if (!event) {
+        await logActivity({
+          type: 'system_event',
+          action: 'organizer_removal_failed',
+          description: `Attempt to remove organizers from non-existent event: ${eventId}`,
+          severity: 'warning',
+          category: 'data_management',
+          metadata: { removedBy: adminUser.id, eventId, organizerIds, ipAddress, userAgent },
+          userId: adminUser.id,
+        });
+        return NextResponse.json(
+          { error: 'Event not found' },
+          { status: 404 }
+        );
+      }
+
+      // Find existing assignments
+      const existingAssignments = await prisma.organizerEventAssignment.findMany({
+        where: {
+          eventId,
+          organizerId: { in: organizerIds },
+          isActive: true,
+        },
+        include: {
+          organizer: {
+            select: {
+              id: true,
+              email: true,
+              fullName: true,
+              role: true,
+            },
+          },
+        },
+      });
+
+      if (existingAssignments.length === 0) {
+        await logActivity({
+          type: 'system_event',
+          action: 'organizer_removal_failed',
+          description: `Attempt to remove non-assigned organizers from event: ${event.name}`,
+          severity: 'warning',
+          category: 'data_management',
+          metadata: { removedBy: adminUser.id, eventId, organizerIds, ipAddress, userAgent },
+          userId: adminUser.id,
+        });
+        return NextResponse.json(
+          { error: 'None of the specified organizers are assigned to this event' },
+          { status: 404 }
+        );
+      }
+
+      // Soft delete the assignments with transaction for better error handling
+      const removedAssignments = await prisma.$transaction(async (tx) => {
+        // Soft delete assignments
+        const deletedAssignments = await tx.organizerEventAssignment.updateMany({
+          where: {
+            eventId,
+            organizerId: { in: organizerIds },
+            isActive: true,
+          },
+          data: { isActive: false },
+        });
+
+        // Verify all assignments were removed successfully
+        if (deletedAssignments.count !== existingAssignments.length) {
+          throw new Error(`Failed to remove all assignments. Expected: ${existingAssignments.length}, Removed: ${deletedAssignments.count}`);
+        }
+
+        return deletedAssignments;
+      });
+
+      await logActivity({
+        type: 'admin_action',
+        action: 'organizers_bulk_removed',
+        description: `Admin ${adminUser.email} removed ${removedAssignments.count} organizers from event: ${event.name}`,
+        severity: 'info',
+        category: 'data_management',
+        metadata: {
+          eventId: event.id,
+          eventName: event.name,
+          organizerIds,
+          organizerEmails: existingAssignments.map(a => a.organizer.email),
+          removalCount: removedAssignments.count,
+          reason,
+          removalDuration: Date.now() - startTime,
+          ipAddress,
+          userAgent,
+        },
+        userId: adminUser.id,
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: `Successfully removed ${removedAssignments.count} organizers from event`,
+        removals: {
+          count: removedAssignments.count,
+          organizerIds,
+          organizerEmails: existingAssignments.map(a => a.organizer.email),
+        },
+      });
+
+    } else {
+      // Handle single removal
+      const validationResult = removeOrganizerSchema.safeParse(body!);
+      if (!validationResult.success) {
+        return NextResponse.json(
+          {
+            error: 'Validation failed',
+            details: validationResult.error.issues,
+          },
+          { status: 400 }
+        );
+      }
+
+      const { organizerId, reason } = validationResult.data;
 
     // Verify event exists
     const event = await prisma.event.findUnique({
@@ -688,6 +834,8 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
         reason,
       },
     });
+
+    }
 
   } catch (error) {
     console.error('Error removing organizer:', error);
