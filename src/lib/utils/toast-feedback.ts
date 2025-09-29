@@ -367,21 +367,21 @@ export const genericFeedback = {
   success: (message: string, description?: string) => {
     return toast.success(message, {
       ...successConfig,
-      icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+      icon: React.createElement(CheckCircle, { className: "h-4 w-4 text-green-600" }),
       description,
     });
   },
   error: (message: string, description?: string) => {
     return toast.error(message, {
       ...errorConfig,
-      icon: <XCircle className="h-4 w-4 text-red-600" />,
+      icon: React.createElement(XCircle, { className: "h-4 w-4 text-red-600" }),
       description,
     });
   },
   warning: (message: string, description?: string) => {
     return toast.warning(message, {
       ...warningConfig,
-      icon: <AlertCircle className="h-4 w-4 text-amber-600" />,
+      icon: React.createElement(AlertCircle, { className: "h-4 w-4 text-amber-600" }),
       description,
     });
   },
