@@ -1,10 +1,27 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Users, MapPin, Calendar, Play, Pause, CheckCircle, AlertCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { 
+  Clock, 
+  Users, 
+  MapPin, 
+  Calendar, 
+  Play, 
+  Pause, 
+  CheckCircle, 
+  AlertCircle, 
+  Search, 
+  Filter, 
+  RefreshCw,
+  Eye,
+  BarChart3,
+  Settings
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -33,43 +50,103 @@ interface Session {
 interface SessionSelectorProps {
   onSessionSelect?: (session: Session) => void;
   className?: string;
+  autoRefresh?: boolean;
+  refreshInterval?: number;
 }
 
-export function SessionSelector({ onSessionSelect, className }: SessionSelectorProps) {
+export function SessionSelector({ 
+  onSessionSelect, 
+  className, 
+  autoRefresh = true, 
+  refreshInterval = 30000 
+}: SessionSelectorProps) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [retryCount, setRetryCount] = useState(0);
   const router = useRouter();
 
-  // Fetch assigned sessions
-  useEffect(() => {
-    const fetchSessions = async () => {
-      try {
+  // Enhanced fetch function with retry logic
+  const fetchSessions = useCallback(async (isRetry = false) => {
+    try {
+      if (!isRetry) {
         setLoading(true);
         setError(null);
+      }
 
-        const response = await fetch('/api/organizer/sessions');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            setSessions(data.sessions);
-          } else {
-            setError(data.message || 'Failed to load sessions');
-          }
+      const response = await fetch('/api/organizer/sessions', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // Add cache busting for real-time updates
+        cache: 'no-cache',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setSessions(data.sessions);
+          setLastRefresh(new Date());
+          setRetryCount(0);
+          setError(null);
         } else {
-          setError('Failed to load sessions');
+          throw new Error(data.message || 'Failed to load sessions');
         }
-      } catch (err) {
-        console.error('Error fetching sessions:', err);
-        setError('Failed to load sessions');
-      } finally {
+      } else if (response.status === 401) {
+        throw new Error('Authentication required. Please log in again.');
+      } else if (response.status === 403) {
+        throw new Error('Access denied. You may not have organizer permissions.');
+      } else {
+        throw new Error(`Server error: ${response.status}`);
+      }
+    } catch (err) {
+      console.error('Error fetching sessions:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load sessions';
+      setError(errorMessage);
+      
+      // Implement exponential backoff retry
+      if (retryCount < 3 && !isRetry) {
+        const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+        setTimeout(() => {
+          setRetryCount(prev => prev + 1);
+          fetchSessions(true);
+        }, delay);
+      } else {
+        toast.error('Failed to load sessions', {
+          description: errorMessage,
+          action: {
+            label: 'Retry',
+            onClick: () => {
+              setRetryCount(0);
+              fetchSessions();
+            }
+          }
+        });
+      }
+    } finally {
+      if (!isRetry) {
         setLoading(false);
       }
-    };
+    }
+  }, [retryCount]);
 
+  // Initial fetch and auto-refresh
+  useEffect(() => {
     fetchSessions();
-  }, []);
+
+    if (autoRefresh) {
+      const interval = setInterval(() => {
+        fetchSessions(true);
+      }, refreshInterval);
+
+      return () => clearInterval(interval);
+    }
+  }, [fetchSessions, autoRefresh, refreshInterval]);
 
   // Get session status
   const getSessionStatus = (session: Session) => {
@@ -159,21 +236,79 @@ export function SessionSelector({ onSessionSelect, className }: SessionSelectorP
     }
   };
 
-  // Filter sessions by status
-  const activeSessions = sessions.filter(session => {
+  // Enhanced filtering with search and status
+  const filteredSessions = useMemo(() => {
+    return sessions.filter(session => {
+      const status = getSessionStatus(session);
+      
+      // Status filter
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'active' && !(status === 'active_time_in' || status === 'active_time_out')) {
+          return false;
+        }
+        if (statusFilter === 'upcoming' && status !== 'upcoming') {
+          return false;
+        }
+        if (statusFilter === 'ended' && status !== 'ended') {
+          return false;
+        }
+        if (statusFilter === 'inactive' && status !== 'inactive') {
+          return false;
+        }
+      }
+
+      // Search filter
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        return (
+          session.name.toLowerCase().includes(query) ||
+          session.event.name.toLowerCase().includes(query) ||
+          (session.description && session.description.toLowerCase().includes(query)) ||
+          (session.event.location && session.event.location.toLowerCase().includes(query))
+        );
+      }
+
+      return true;
+    });
+  }, [sessions, statusFilter, searchQuery]);
+
+  // Group filtered sessions by status
+  const activeSessions = filteredSessions.filter(session => {
     const status = getSessionStatus(session);
     return status === 'active_time_in' || status === 'active_time_out';
   });
 
-  const upcomingSessions = sessions.filter(session => {
+  const upcomingSessions = filteredSessions.filter(session => {
     const status = getSessionStatus(session);
     return status === 'upcoming';
   });
 
-  const endedSessions = sessions.filter(session => {
+  const endedSessions = filteredSessions.filter(session => {
     const status = getSessionStatus(session);
     return status === 'ended';
   });
+
+  const inactiveSessions = filteredSessions.filter(session => {
+    const status = getSessionStatus(session);
+    return status === 'inactive';
+  });
+
+  // Format last refresh time
+  const formatLastRefresh = (date: Date) => {
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    
+    if (minutes < 1) return 'Just now';
+    if (minutes === 1) return '1 minute ago';
+    if (minutes < 60) return `${minutes} minutes ago`;
+    
+    const hours = Math.floor(minutes / 60);
+    if (hours === 1) return '1 hour ago';
+    if (hours < 24) return `${hours} hours ago`;
+    
+    return date.toLocaleDateString();
+  };
 
   if (loading) {
     return (
@@ -228,6 +363,67 @@ export function SessionSelector({ onSessionSelect, className }: SessionSelectorP
   return (
     <div className={className}>
       <div className="space-y-6">
+        {/* Enhanced Header with Controls */}
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-blue-600" />
+                  Session Management
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {filteredSessions.length} of {sessions.length} sessions
+                  {searchQuery && ` matching "${searchQuery}"`}
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <RefreshCw className="h-3 w-3" />
+                  <span>Updated {formatLastRefresh(lastRefresh)}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fetchSessions()}
+                  disabled={loading}
+                >
+                  <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Search Input */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search sessions, events, or locations..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              {/* Status Filter */}
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sessions</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="upcoming">Upcoming</SelectItem>
+                  <SelectItem value="ended">Ended</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
         {/* Active Sessions */}
         {activeSessions.length > 0 && (
           <div className="space-y-4">
@@ -291,12 +487,28 @@ export function SessionSelector({ onSessionSelect, className }: SessionSelectorP
                           </div>
                         </div>
                         
-                        <div className="ml-4">
+                        <div className="ml-4 flex gap-2">
                           <Button 
                             size="sm" 
                             className="bg-green-600 hover:bg-green-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSessionSelect(session);
+                            }}
                           >
+                            <Play className="h-4 w-4 mr-1" />
                             Start Scanning
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/organizer/sessions/${session.id}`);
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View Details
                           </Button>
                         </div>
                       </div>
@@ -349,6 +561,20 @@ export function SessionSelector({ onSessionSelect, className }: SessionSelectorP
                             <span className="font-medium">Starts:</span> {formatDate(session.timeInStart)} at {formatTime(session.timeInStart)}
                           </div>
                         </div>
+                        
+                        <div className="ml-4">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/organizer/sessions/${session.id}`);
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View Details
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -393,6 +619,20 @@ export function SessionSelector({ onSessionSelect, className }: SessionSelectorP
                             </div>
                           </div>
                         </div>
+                        
+                        <div className="ml-4">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/organizer/sessions/${session.id}`);
+                            }}
+                          >
+                            <BarChart3 className="h-4 w-4 mr-1" />
+                            View Report
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -400,6 +640,92 @@ export function SessionSelector({ onSessionSelect, className }: SessionSelectorP
               })}
             </div>
           </div>
+        )}
+
+        {/* Inactive Sessions */}
+        {inactiveSessions.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-gray-600" />
+              <h2 className="text-lg font-semibold text-gray-900">Inactive Sessions</h2>
+              <Badge variant="outline" className="text-gray-600 border-gray-200">
+                {inactiveSessions.length}
+              </Badge>
+            </div>
+            <div className="grid gap-4">
+              {inactiveSessions.slice(0, 3).map((session) => {
+                const status = getSessionStatus(session);
+                return (
+                  <Card key={session.id} className="opacity-50">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            {getSessionStatusIcon(status)}
+                            <h3 className="font-semibold text-gray-900">{session.name}</h3>
+                            {getSessionStatusBadge(status)}
+                          </div>
+                          
+                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              {session.event.name}
+                            </div>
+                            {session.event.location && (
+                              <div className="flex items-center gap-1">
+                                <MapPin className="h-4 w-4" />
+                                {session.event.location}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="text-sm text-gray-500">
+                            <span className="font-medium">Status:</span> Session is currently inactive
+                          </div>
+                        </div>
+                        
+                        <div className="ml-4">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/organizer/sessions/${session.id}`);
+                            }}
+                          >
+                            <Settings className="h-4 w-4 mr-1" />
+                            View Details
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* No Results Message */}
+        {filteredSessions.length === 0 && sessions.length > 0 && (
+          <Card>
+            <CardContent className="text-center py-8">
+              <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Sessions Found</h3>
+              <p className="text-gray-600 mb-4">
+                No sessions match your current search and filter criteria.
+              </p>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setSearchQuery('');
+                  setStatusFilter('all');
+                }}
+              >
+                Clear Filters
+              </Button>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>

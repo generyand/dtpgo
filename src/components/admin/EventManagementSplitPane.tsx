@@ -16,6 +16,7 @@ import { EventForm } from '@/components/admin/EventForm';
 import { SessionForm, SessionFormData } from '@/components/admin/SessionForm';
 import { OrganizerAssignments } from '@/components/admin/organizers/OrganizerAssignments';
 import { Plus, Search } from 'lucide-react';
+import { toast } from 'sonner';
 import { eventFeedback, sessionFeedback, genericFeedback } from '@/lib/utils/toast-feedback';
 import { 
   EventsListSkeleton, 
@@ -116,6 +117,48 @@ export function EventManagementSplitPane() {
     setIsCreateSessionOpen(true);
   };
 
+  const handleViewOrganizer = (organizerId: string) => {
+    // Navigate to organizer details page
+    window.open(`/admin/organizers/${organizerId}`, '_blank');
+  };
+
+  const handleRemoveOrganizer = async (organizerId: string) => {
+    if (!selectedEvent) return;
+
+    const organizer = selectedEvent.organizerAssignments.find(a => a.organizer.id === organizerId)?.organizer;
+    if (!organizer) return;
+
+    const confirmed = confirm(`Are you sure you want to remove ${organizer.fullName} from this event?`);
+    if (!confirmed) return;
+
+    const toastId = eventFeedback.update.loading(`Removing ${organizer.fullName} from ${selectedEvent.name}`);
+
+    try {
+      const response = await fetch(`/api/admin/events/${selectedEvent.id}/organizers`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          organizerId,
+          reason: 'Removed via event details',
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to remove organizer');
+      }
+
+      eventFeedback.update.success(`${organizer.fullName} removed from ${selectedEvent.name}`, toastId);
+      
+      // Refresh events to update the data
+      await fetchEvents();
+    } catch (err: unknown) {
+      eventFeedback.update.error(`${organizer.fullName} removal`, err instanceof Error ? err.message : 'Failed to remove organizer', toastId);
+    }
+  };
+
   const handleEditEvent = () => {
     setIsEditOpen(true);
   };
@@ -195,15 +238,46 @@ export function EventManagementSplitPane() {
     const toastId = eventFeedback.create.loading(eventName);
 
     try {
+      // Extract organizer IDs from the form data
+      const organizerIds = eventData.organizerIds as string[] || [];
+      
+      // Create the event first
+      const eventPayload = {
+        ...eventData,
+        organizerIds: undefined, // Remove organizerIds from event creation payload
+      };
+      
       const res = await fetch('/api/admin/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(eventData),
+        body: JSON.stringify(eventPayload),
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
         throw new Error(data?.error || 'Failed to create event');
       }
+      
+      // If organizers were selected, assign them to the event
+      if (organizerIds.length > 0 && data.event?.id) {
+        try {
+          const assignRes = await fetch(`/api/admin/events/${data.event.id}/organizers`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ organizerIds }),
+          });
+          
+          if (!assignRes.ok) {
+            const assignData = await assignRes.json();
+            console.warn('Failed to assign organizers:', assignData.error);
+            // Don't fail the entire operation, just warn
+            toast.warning('Event created but organizer assignment failed');
+          }
+        } catch (assignErr) {
+          console.warn('Error assigning organizers:', assignErr);
+          toast.warning('Event created but organizer assignment failed');
+        }
+      }
+      
       eventFeedback.create.success(eventName, toastId);
       setIsCreateOpen(false);
       await fetchEvents();
@@ -352,6 +426,7 @@ export function EventManagementSplitPane() {
             onViewDetails={handleEventSelect}
             onEditEvent={handleEditEvent}
             onDeleteEvent={handleDeleteEvent}
+            onAssignmentChange={fetchEvents}
             loading={loading}
           />
         )}
@@ -393,7 +468,6 @@ export function EventManagementSplitPane() {
               </div>
               <OrganizerAssignments 
                 eventId={selectedEvent.id}
-                eventName={selectedEvent.name}
                 className="pb-6"
               />
             </div>
@@ -405,8 +479,8 @@ export function EventManagementSplitPane() {
               onEditSession={() => {}}
               onDeleteSession={() => {}}
               onAssignOrganizer={() => setShowOrganizerAssignments(true)}
-              onViewOrganizer={() => {}}
-              onRemoveOrganizer={() => {}}
+              onViewOrganizer={handleViewOrganizer}
+              onRemoveOrganizer={handleRemoveOrganizer}
               className="pb-6"
             />
           )}

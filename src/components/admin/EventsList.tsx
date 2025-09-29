@@ -6,6 +6,7 @@ import { Calendar, Users, Clock, MapPin, Eye, Edit, Trash2 } from 'lucide-react'
 import { EventWithDetails } from '@/lib/types/event';
 import { cn } from '@/lib/utils';
 import { EventStatusBadge } from './EventStatusBadge';
+import { QuickOrganizerAssignment } from './QuickOrganizerAssignment';
 
 interface EventsListProps {
   events: EventWithDetails[];
@@ -14,6 +15,7 @@ interface EventsListProps {
   onViewDetails: (event: EventWithDetails) => void;
   onEditEvent: (event: EventWithDetails) => void;
   onDeleteEvent: (event: EventWithDetails) => void;
+  onAssignmentChange?: () => void;
   loading?: boolean;
   className?: string;
 }
@@ -25,6 +27,7 @@ export function EventsList({
   onViewDetails,
   onEditEvent,
   onDeleteEvent,
+  onAssignmentChange,
   loading,
   className,
 }: EventsListProps) {
@@ -82,10 +85,13 @@ export function EventsList({
                   <Clock className="h-3.5 w-3.5" />
                   <span>{event._count.sessions} sessions</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Users className="h-3.5 w-3.5" />
-                  <span>{event._count.organizerAssignments} organizers</span>
-                </div>
+                <QuickOrganizerAssignment
+                  eventId={event.id}
+                  eventName={event.name}
+                  assignedOrganizers={event.organizerAssignments}
+                  onAssignmentChange={onAssignmentChange}
+                  className="ml-auto"
+                />
               </div>
             </div>
             <div className="flex items-center gap-1">

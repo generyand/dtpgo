@@ -9,8 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
-import { MapPin, Save, X } from 'lucide-react';
+import { MultiSelect } from '@/components/ui/multi-select';
+import { MapPin, Save, X, Users, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 // import { createEventSchema, type CreateEventInput } from '@/lib/validations/event';
 import { EventWithDetails } from '@/lib/types/event';
 
@@ -22,6 +24,7 @@ type EventFormData = {
   endDate: Date;
   location?: string;
   isActive: boolean;
+  organizerIds?: string[];
 };
 
 interface EventFormProps {
@@ -30,8 +33,20 @@ interface EventFormProps {
   onCancel: () => void;
 }
 
+// Organizer type
+interface Organizer {
+  id: string;
+  email: string;
+  fullName: string;
+  role: 'organizer' | 'admin';
+  isActive: boolean;
+}
+
 export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [availableOrganizers, setAvailableOrganizers] = useState<Organizer[]>([]);
+  const [loadingOrganizers, setLoadingOrganizers] = useState(false);
+  const [organizerError, setOrganizerError] = useState<string | null>(null);
   const isEditing = !!event;
 
   const {
@@ -50,8 +65,44 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
       endDate: event?.endDate ? new Date(event.endDate) : new Date(Date.now() + 60 * 60 * 1000), // 1 hour later
       location: event?.location || undefined,
       isActive: event?.isActive ?? true,
+      organizerIds: event?.organizerAssignments?.map(a => a.organizer.id) || [],
     },
   });
+
+  // Fetch available organizers
+  const fetchOrganizers = async () => {
+    try {
+      setLoadingOrganizers(true);
+      setOrganizerError(null);
+      
+      const response = await fetch('/api/admin/organizers');
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch organizers');
+      }
+      
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to fetch organizers');
+      }
+      
+      // Filter only active organizers
+      const activeOrganizers = data.organizers.filter((org: Organizer) => org.isActive);
+      setAvailableOrganizers(activeOrganizers);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch organizers';
+      setOrganizerError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setLoadingOrganizers(false);
+    }
+  };
+
+  // Load organizers on mount
+  useEffect(() => {
+    fetchOrganizers();
+  }, []);
 
   const watchedStartDate = watch('startDate');
   const watchedEndDate = watch('endDate');
@@ -97,6 +148,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
         endDate: new Date(event.endDate),
         location: event.location || undefined,
         isActive: event.isActive,
+        organizerIds: event.organizerAssignments?.map(a => a.organizer.id) || [],
       });
     } else {
       reset();
@@ -191,6 +243,57 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
         {errors.location && (
           <p className="text-sm text-red-500">{errors.location.message}</p>
         )}
+      </div>
+
+      {/* Organizer Assignment */}
+      <div className="space-y-2">
+        <Label className="flex items-center gap-2">
+          <Users className="h-4 w-4" />
+          Assign Organizers
+        </Label>
+        
+        {organizerError && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              {organizerError}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchOrganizers}
+                className="ml-2 h-6"
+              >
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        <Controller
+          name="organizerIds"
+          control={control}
+          render={({ field }) => (
+            <MultiSelect
+              options={availableOrganizers.map(organizer => ({
+                value: organizer.id,
+                label: organizer.fullName,
+                description: `${organizer.email} • ${organizer.role}`,
+                disabled: !organizer.isActive,
+              }))}
+              value={field.value || []}
+              onChange={field.onChange}
+              placeholder="Select organizers to assign..."
+              searchPlaceholder="Search organizers..."
+              emptyMessage={loadingOrganizers ? "Loading organizers..." : "No organizers available"}
+              maxDisplay={3}
+              disabled={loadingOrganizers}
+            />
+          )}
+        />
+        
+        <p className="text-xs text-gray-500">
+          Select organizers who will manage this event and track attendance. You can assign organizers later if needed.
+        </p>
       </div>
 
       {/* Status (only for editing) */}
