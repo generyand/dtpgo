@@ -41,11 +41,13 @@ import {
   Trash2,
   RefreshCw,
   Grid3X3,
-  List
+  List,
+  MapPin
 } from 'lucide-react';
 import { useOrganizers, type Organizer } from '@/hooks/use-organizers';
 import { OrganizerCard } from './OrganizerCard';
 import { OrganizerActions } from './OrganizerActions';
+import { BulkAssignmentModal } from './BulkAssignmentModal';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
@@ -59,6 +61,7 @@ export function OrganizerList({ searchQuery = '' }: OrganizerListProps) {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const [page, setPage] = useState(1);
+  const [showBulkAssignmentModal, setShowBulkAssignmentModal] = useState(false);
   const limit = 10;
 
   const { 
@@ -172,10 +175,20 @@ export function OrganizerList({ searchQuery = '' }: OrganizerListProps) {
               Manage and view all organizers in the system
             </CardDescription>
           </div>
-          <Button onClick={refetch} variant="outline" size="sm">
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              onClick={() => setShowBulkAssignmentModal(true)} 
+              variant="outline" 
+              size="sm"
+            >
+              <MapPin className="mr-2 h-4 w-4" />
+              Bulk Assign
+            </Button>
+            <Button onClick={refetch} variant="outline" size="sm">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -377,7 +390,7 @@ export function OrganizerList({ searchQuery = '' }: OrganizerListProps) {
                               window.location.href = `/admin/organizers/${org.id}`;
                             }}
                             onManageAssignments={(org) => {
-                              toast.info(`Manage assignments for: ${org.fullName}`);
+                              setShowBulkAssignmentModal(true);
                             }}
                             onViewActivity={(org) => {
                               toast.info(`View activity for: ${org.fullName}`);
@@ -452,6 +465,15 @@ export function OrganizerList({ searchQuery = '' }: OrganizerListProps) {
           </>
         )}
       </CardContent>
+      
+      {/* Bulk Assignment Modal */}
+      <BulkAssignmentModal
+        isOpen={showBulkAssignmentModal}
+        onClose={() => setShowBulkAssignmentModal(false)}
+        onSuccess={() => {
+          refetch(); // Refresh the organizer list after successful operations
+        }}
+      />
     </Card>
   );
 }
