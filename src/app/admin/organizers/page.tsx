@@ -12,6 +12,8 @@ import Link from 'next/link';
 import { OrganizerList } from '@/components/admin/organizers/OrganizerList';
 import { OrganizerStats } from '@/components/admin/organizers/OrganizerStats';
 
+export const dynamic = 'force-dynamic';
+
 export default function OrganizersPage() {
   return (
     <div className="container mx-auto p-6 space-y-6">
