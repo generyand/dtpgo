@@ -31,26 +31,40 @@ const nextConfig: NextConfig = {
           // Content Security Policy
           {
             key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live",
-              "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https: blob:",
-              "font-src 'self' data:",
-              "connect-src 'self' https://*.supabase.co https://*.supabase.io wss://*.supabase.co wss://*.supabase.io",
-              "frame-src 'none'",
-              "object-src 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-              "frame-ancestors 'none'",
-              "upgrade-insecure-requests",
-            ].join('; '),
+            value: process.env.NODE_ENV === 'development' 
+              ? [
+                  "default-src 'self' localhost:* 192.168.*:* 172.16.*:* 10.*:*",
+                  "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live localhost:* 192.168.*:* 172.16.*:* 10.*:*",
+                  "style-src 'self' 'unsafe-inline' localhost:* 192.168.*:* 172.16.*:* 10.*:*",
+                  "img-src 'self' data: https: blob: localhost:* 192.168.*:* 172.16.*:* 10.*:*",
+                  "font-src 'self' data: localhost:* 192.168.*:* 172.16.*:* 10.*:*",
+                  "connect-src 'self' https://*.supabase.co https://*.supabase.io wss://*.supabase.co wss://*.supabase.io localhost:* 192.168.*:* 172.16.*:* 10.*:*",
+                  "frame-src 'none'",
+                  "object-src 'none'",
+                  "base-uri 'self' localhost:* 192.168.*:* 172.16.*:* 10.*:*",
+                  "form-action 'self' localhost:* 192.168.*:* 172.16.*:* 10.*:*",
+                  "frame-ancestors 'none'",
+                ].join('; ')
+              : [
+                  "default-src 'self'",
+                  "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live",
+                  "style-src 'self' 'unsafe-inline'",
+                  "img-src 'self' data: https: blob:",
+                  "font-src 'self' data:",
+                  "connect-src 'self' https://*.supabase.co https://*.supabase.io wss://*.supabase.co wss://*.supabase.io",
+                  "frame-src 'none'",
+                  "object-src 'none'",
+                  "base-uri 'self'",
+                  "form-action 'self'",
+                  "frame-ancestors 'none'",
+                  "upgrade-insecure-requests",
+                ].join('; '),
           },
           // Permissions Policy (formerly Feature Policy)
           {
             key: 'Permissions-Policy',
             value: [
-              'camera=()',
+              'camera=(self)', // Allow camera for QR scanning
               'microphone=()',
               'geolocation=()',
               'interest-cohort=()',
@@ -89,6 +103,24 @@ const nextConfig: NextConfig = {
 
   // External packages for server components
   serverExternalPackages: ['@prisma/client'],
+  
+  // Webpack configuration to handle Node.js modules in browser
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Exclude Node.js modules from client-side bundle
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+        child_process: false,
+        'detect-libc': false,
+        sharp: false,
+      };
+    }
+    return config;
+  },
 
   // Image optimization settings
   images: {

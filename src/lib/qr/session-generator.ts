@@ -1,18 +1,10 @@
+// Server-side only imports - these modules are not available in the browser
 import QRCode from 'qrcode';
 import sharp from 'sharp';
 import path from 'path';
 
-export interface SessionQRData {
-  sessionId: string;
-  eventId: string;
-  eventName: string;
-  sessionName: string;
-  startTime: string;
-  endTime: string;
-  location?: string;
-  organizerId?: string;
-  timestamp: string;
-}
+// Re-export types from client-safe module
+export type { SessionQRData, StudentQRData } from './client-safe';
 
 export interface SessionQROptions {
   width?: number;
@@ -26,16 +18,6 @@ export interface SessionQROptions {
   branding?: boolean;
 }
 
-export interface StudentQRData {
-  studentId: string;
-  studentIdNumber: string;
-  firstName: string;
-  lastName: string;
-  programName?: string;
-  year?: number;
-  timestamp: string;
-}
-
 export interface StudentQROptions {
   width?: number;
   margin?: number;
@@ -46,12 +28,6 @@ export interface StudentQROptions {
   includeStudentInfo?: boolean;
   branding?: boolean;
 }
-
-// Union type for QR code validation
-type QRCodeData = 
-  | { type: 'session_attendance'; sessionId: string; eventId: string; timestamp: string }
-  | { type: 'student_attendance'; studentId: string; studentIdNumber: string; timestamp: string }
-  | { type: 'session_info'; sessionId: string; eventId: string; sessionName: string; eventName: string };
 
 /**
  * Generate a session-specific QR code for attendance scanning
@@ -246,74 +222,4 @@ export async function createBrandedStudentQRCode(
   }
 }
 
-/**
- * Validate QR code data structure
- */
-export function validateQRCodeData(data: unknown): {
-  isValid: boolean;
-  type?: 'session_attendance' | 'student_attendance';
-  error?: string;
-} {
-  try {
-    if (!data || typeof data !== 'object') {
-      return { isValid: false, error: 'Invalid QR code data format' };
-    }
-
-    const qrData = data as QRCodeData;
-    
-    if (!qrData.type) {
-      return { isValid: false, error: 'Missing QR code type' };
-    }
-
-    if (qrData.type === 'session_attendance') {
-      const requiredFields = ['sessionId', 'eventId', 'timestamp'] as const;
-      for (const field of requiredFields) {
-        if (!qrData[field]) {
-          return { isValid: false, error: `Missing required field: ${field}` };
-        }
-      }
-      return { isValid: true, type: 'session_attendance' };
-    }
-
-    if (qrData.type === 'student_attendance') {
-      const requiredFields = ['studentId', 'studentIdNumber', 'timestamp'] as const;
-      for (const field of requiredFields) {
-        if (!qrData[field]) {
-          return { isValid: false, error: `Missing required field: ${field}` };
-        }
-      }
-      return { isValid: true, type: 'student_attendance' };
-    }
-
-    return { isValid: false, error: 'Unknown QR code type' };
-  } catch {
-    return { isValid: false, error: 'Failed to validate QR code data' };
-  }
-}
-
-/**
- * Parse QR code text and validate structure
- */
-export function parseQRCodeData(qrText: string): {
-  isValid: boolean;
-  data?: unknown;
-  type?: 'session_attendance' | 'student_attendance';
-  error?: string;
-} {
-  try {
-    const data = JSON.parse(qrText);
-    const validation = validateQRCodeData(data);
-    
-    if (!validation.isValid) {
-      return { isValid: false, error: validation.error };
-    }
-
-    return {
-      isValid: true,
-      data,
-      type: validation.type,
-    };
-  } catch {
-    return { isValid: false, error: 'Invalid JSON in QR code' };
-  }
-}
+// Validation functions moved to client-safe.ts for browser compatibility

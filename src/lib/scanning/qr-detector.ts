@@ -40,7 +40,84 @@ export class QRDetectorError extends Error {
  * Check if QR scanning is supported in the current environment
  */
 export async function isQRScanningSupported(): Promise<boolean> {
-  return await QrScanner.hasCamera();
+  try {
+    console.log('Checking QR scanning support...');
+    console.log('User Agent:', navigator.userAgent);
+    console.log('Is Brave:', navigator.userAgent.includes('Brave'));
+    
+    // Check basic browser support first
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.warn('MediaDevices API not supported');
+      return false;
+    }
+
+    // Check if we're in a secure context (required for camera access)
+    if (!window.isSecureContext && location.protocol !== 'https:' && location.hostname !== 'localhost') {
+      console.warn('Camera access requires secure context (HTTPS or localhost)');
+      return false;
+    }
+
+    // Check if QR scanner library is available
+    if (!QrScanner) {
+      console.warn('QR Scanner library not available');
+      return false;
+    }
+
+    // Special handling for Brave browser
+    const isBrave = navigator.userAgent.includes('Brave');
+    if (isBrave) {
+      console.log('Detected Brave browser - checking for specific compatibility issues');
+      
+      // Brave sometimes has issues with camera permissions
+      // Let's try a more direct approach
+      try {
+        // Test if we can enumerate devices
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        console.log('Video devices found in Brave:', videoDevices.length);
+        
+        if (videoDevices.length === 0) {
+          console.warn('No video devices found in Brave browser');
+          return false;
+        }
+      } catch (deviceError) {
+        console.warn('Could not enumerate devices in Brave:', deviceError);
+        // Continue anyway, as this might work with permission
+      }
+    }
+
+    // Check if camera is available using QrScanner
+    console.log('Checking camera availability with QrScanner...');
+    const hasCamera = await QrScanner.hasCamera();
+    console.log('Camera availability check result:', hasCamera);
+    
+    // If QrScanner says no camera but we're in Brave, try a more direct test
+    if (!hasCamera && isBrave) {
+      console.log('QrScanner reported no camera in Brave, trying direct test...');
+      try {
+        // Try to get a media stream directly
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          } 
+        });
+        console.log('Direct camera test in Brave succeeded');
+        // Stop the stream immediately
+        stream.getTracks().forEach(track => track.stop());
+        return true;
+      } catch (directError) {
+        console.warn('Direct camera test in Brave failed:', directError);
+        return false;
+      }
+    }
+    
+    return hasCamera;
+  } catch (error) {
+    console.error('Error checking QR scanning support:', error);
+    return false;
+  }
 }
 
 /**
@@ -48,8 +125,77 @@ export async function isQRScanningSupported(): Promise<boolean> {
  */
 export async function getQRCameras(): Promise<Record<string, unknown>[]> {
   try {
-    return await QrScanner.listCameras(true) as unknown as Record<string, unknown>[];
-  } catch {
+    console.log('Getting camera list...');
+    const cameras = await QrScanner.listCameras(true) as unknown as Record<string, unknown>[];
+    console.log('QR Scanner cameras found:', cameras);
+    
+    // If QrScanner returns empty array, try alternative detection
+    if (cameras.length === 0) {
+      console.log('QrScanner returned no cameras, trying alternative detection...');
+      return await getCamerasFallback();
+    }
+    
+    return cameras;
+  } catch (error) {
+    console.error('QR Scanner camera list failed:', error);
+    
+    // Always try fallback when QrScanner fails
+    console.log('QrScanner failed, trying fallback camera detection...');
+    return await getCamerasFallback();
+  }
+}
+
+async function getCamerasFallback(): Promise<Record<string, unknown>[]> {
+  try {
+    // Try to enumerate devices directly
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevices = devices.filter(device => device.kind === 'videoinput');
+    console.log('Direct device enumeration found:', videoDevices);
+    
+    if (videoDevices.length === 0) {
+      console.log('No video devices found via enumeration');
+      
+      // For Brave browser, try a more direct approach
+      if (navigator.userAgent.includes('Brave')) {
+        console.log('Brave browser detected, trying direct media stream test...');
+        try {
+          // Try to get a media stream to trigger permission and detect camera
+          const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { 
+              facingMode: 'environment',
+              width: { ideal: 640 },
+              height: { ideal: 480 }
+            } 
+          });
+          
+          const videoTrack = stream.getVideoTracks()[0];
+          if (videoTrack) {
+            const settings = videoTrack.getSettings();
+            console.log('Camera detected via direct stream:', settings);
+            
+            // Stop the stream
+            stream.getTracks().forEach(track => track.stop());
+            
+            // Return a camera object based on the stream
+            return [{
+              id: settings.deviceId || 'default-camera',
+              label: 'Default Camera',
+              kind: 'videoinput',
+            }];
+          }
+        } catch (streamError) {
+          console.warn('Direct media stream test failed:', streamError);
+        }
+      }
+    }
+    
+    return videoDevices.map(device => ({
+      id: device.deviceId,
+      label: device.label || `Camera ${device.deviceId.slice(0, 8)}`,
+      kind: device.kind,
+    }));
+  } catch (enumError) {
+    console.warn('Fallback camera detection failed:', enumError);
     throw new QRDetectorError(
       'Failed to get camera list',
       'CAMERA_LIST_FAILED',
@@ -66,6 +212,9 @@ export function createQRScanner(
   config: QRDetectorConfig
 ): QrScanner {
   const { onDetect, onError, options = {} } = config;
+
+  console.log('Creating QR scanner with video element:', videoElement);
+  console.log('Scanner options:', options);
 
   // Configure scanner options
   const scannerOptions: Record<string, unknown> = {
@@ -90,12 +239,14 @@ export function createQRScanner(
     scannerOptions
   );
 
+
   // Set up error handling
   if (onError) {
     // Note: qr-scanner doesn't have addEventListener, we'll handle errors differently
     // The scanner will call the onDetect callback with error information
   }
 
+  console.log('QR scanner created:', scanner);
   return scanner;
 }
 
@@ -145,6 +296,18 @@ export function stopQRScanning(scanner: QrScanner | null): void {
   if (scanner) {
     scanner.stop();
     scanner.destroy();
+  }
+}
+
+/**
+ * Stop camera stream
+ */
+export function stopCameraStream(stream: MediaStream | null): void {
+  if (stream) {
+    stream.getTracks().forEach(track => {
+      track.stop();
+      console.log('Stopped camera track:', track.kind);
+    });
   }
 }
 

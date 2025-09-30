@@ -258,7 +258,7 @@ export function QuickOrganizerAssignment({
           
           {/* Available Organizers */}
           {!loading && !error && availableOrganizers.length > 0 && (
-            <>
+            <React.Fragment key="available-organizers">
               <DropdownMenuLabel className="text-xs text-gray-500">
                 Available Organizers ({availableOrganizers.length})
               </DropdownMenuLabel>
@@ -307,7 +307,7 @@ export function QuickOrganizerAssignment({
                   )}
                 </DropdownMenuItem>
               ))}
-            </>
+            </React.Fragment>
           )}
           
           {/* No Available Organizers */}
@@ -321,7 +321,7 @@ export function QuickOrganizerAssignment({
           
           {/* Assigned Organizers */}
           {assignedOrganizers.length > 0 && (
-            <>
+            <React.Fragment key="assigned-organizers">
               <DropdownMenuSeparator />
               <DropdownMenuLabel className="text-xs text-gray-500">
                 Assigned Organizers ({assignedOrganizers.length})
@@ -371,7 +371,7 @@ export function QuickOrganizerAssignment({
                   )}
                 </DropdownMenuItem>
               ))}
-            </>
+            </React.Fragment>
           )}
         </DropdownMenuContent>
       </DropdownMenu>

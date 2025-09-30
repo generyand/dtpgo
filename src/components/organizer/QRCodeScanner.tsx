@@ -26,7 +26,7 @@ import {
   VolumeX
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { parseQRCodeData } from '@/lib/qr/session-generator';
+import { parseQRCodeData } from '@/lib/qr/client-safe';
 import { 
   createQRScanner, 
   startQRScanning, 
@@ -94,6 +94,7 @@ export function QRCodeScanner({
   const [flashlightEnabled, setFlashlightEnabled] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [scanHistory, setScanHistory] = useState<Array<{data: StudentAttendanceData | SessionAttendanceData, timestamp: Date}>>([]);
+  const [cameraStreamActive, setCameraStreamActive] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -129,8 +130,37 @@ export function QRCodeScanner({
     initializeScanner();
   }, []);
 
+  // Monitor video element availability and stream state
+  useEffect(() => {
+    const checkVideoElement = () => {
+      if (videoRef.current) {
+        const hasStream = !!videoRef.current.srcObject;
+        const hasDimensions = videoRef.current.videoWidth > 0 && videoRef.current.videoHeight > 0;
+        const isActive = hasStream && hasDimensions;
+        
+        setCameraStreamActive(prevActive => {
+          if (isActive !== prevActive) {
+            console.log('Camera stream state changed:', { hasStream, hasDimensions, isActive });
+            return isActive;
+          }
+          return prevActive;
+        });
+      }
+    };
+
+    // Check immediately
+    checkVideoElement();
+
+    // Check periodically
+    const interval = setInterval(checkVideoElement, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Enhanced QR detection handler
   const handleQRDetection = useCallback((result: { data: string; cornerPoints: unknown[] }) => {
+    console.log('QR Code detected:', result.data);
+    
     if (isProcessing) return; // Prevent multiple simultaneous scans
     
     setIsProcessing(true);
@@ -174,24 +204,97 @@ export function QRCodeScanner({
   const startScanning = async () => {
     try {
       setError(null);
+      setIsProcessing(true);
       
-      // Check permissions first
-      if (permissionStatus !== 'granted') {
-        const permissionResult = await requestCameraPermission();
-        if (!permissionResult.granted) {
-          setPermissionStatus('denied');
-          setError('Camera access is required for QR scanning');
+      console.log('Starting QR scanner...');
+
+      // Wait for video element to be available with retry mechanism
+      let attempts = 0;
+      while (!videoRef.current && attempts < 10) {
+        console.log(`Waiting for video element... attempt ${attempts + 1}`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+      
+      if (!videoRef.current) {
+        // Try to find the video element by ID as a fallback
+        const videoElement = document.getElementById('qr-scanner-video') as HTMLVideoElement;
+        if (videoElement) {
+          console.log('Found video element via getElementById, updating ref');
+          videoRef.current = videoElement;
+        } else {
+          setError('Video element not available. Please try refreshing the page.');
+          setIsProcessing(false);
           return;
         }
-        setPermissionStatus('granted');
       }
+      
+      console.log('Video element found:', videoRef.current);
 
-      if (!videoRef.current) {
-        setError('Video element not available');
+      // Get camera stream and set it up first
+      console.log('Getting camera stream...');
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          } 
+        });
+        
+        console.log('Camera access granted');
+        setPermissionStatus('granted');
+        
+        // Set the stream to the video element immediately
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          streamRef.current = stream;
+          setCameraStreamActive(true);
+          console.log('Camera stream set to video element');
+          
+          // Wait for video to be ready
+          await new Promise((resolve) => {
+            if (videoRef.current) {
+              videoRef.current.onloadedmetadata = () => {
+                console.log('Video metadata loaded');
+                resolve(void 0);
+              };
+            }
+          });
+          
+          // Ensure video is playing
+          if (videoRef.current) {
+            videoRef.current.play().then(() => {
+              console.log('Video is playing');
+            }).catch(err => {
+              console.error('Failed to play video:', err);
+            });
+          }
+        }
+        
+      } catch (permissionError) {
+        console.error('Camera permission denied:', permissionError);
+        setPermissionStatus('denied');
+        
+        if (permissionError instanceof Error) {
+          if (permissionError.name === 'NotAllowedError') {
+            setError('Camera access was denied. Please allow camera access and try again.');
+          } else if (permissionError.name === 'NotFoundError') {
+            setError('No camera found. Please ensure a camera is connected.');
+          } else if (permissionError.name === 'NotReadableError') {
+            setError('Camera is already in use by another application.');
+          } else {
+            setError(`Camera access failed: ${permissionError.message}`);
+          }
+        } else {
+          setError('Camera access failed. Please check your camera permissions.');
+        }
+        setIsProcessing(false);
         return;
       }
 
       // Create QR scanner
+      console.log('Creating QR scanner...');
       const scanner = createQRScanner(videoRef.current, {
         onDetect: handleQRDetection,
         onError: (err) => {
@@ -202,13 +305,48 @@ export function QRCodeScanner({
           maxScansPerSecond: 3,
           highlightScanRegion: true,
           highlightCodeOutline: true,
-          preferredCamera: selectedCameraId || 'environment',
+          preferredCamera: (selectedCameraId as 'environment' | 'user') || 'environment',
         }
       });
 
       scannerRef.current = scanner;
+      console.log('Starting QR scanner...');
       await scanner.start();
+      console.log('QR scanner started successfully');
       setIsScanning(true);
+      
+      // Verify video stream is working
+      setTimeout(() => {
+        if (videoRef.current) {
+          console.log('Video element final check:', {
+            srcObject: !!videoRef.current.srcObject,
+            videoWidth: videoRef.current.videoWidth,
+            videoHeight: videoRef.current.videoHeight,
+            readyState: videoRef.current.readyState
+          });
+        }
+      }, 500);
+      
+      // Ensure video element is visible
+      if (videoRef.current) {
+        videoRef.current.style.display = 'block';
+        console.log('Video element made visible');
+        
+        // Check video element state after scanner starts
+        setTimeout(() => {
+          if (videoRef.current) {
+            console.log('Video element state after scanner start:', {
+              readyState: videoRef.current.readyState,
+              paused: videoRef.current.paused,
+              ended: videoRef.current.ended,
+              srcObject: !!videoRef.current.srcObject,
+              videoWidth: videoRef.current.videoWidth,
+              videoHeight: videoRef.current.videoHeight,
+              currentTime: videoRef.current.currentTime
+            });
+          }
+        }, 1000);
+      }
       
       toast.success('QR Scanner Started', {
         description: 'Point the camera at a QR code to scan',
@@ -223,6 +361,8 @@ export function QRCodeScanner({
       if (onError) {
         onError(errorMessage);
       }
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -246,10 +386,10 @@ export function QRCodeScanner({
     
     try {
       if (flashlightEnabled) {
-        await scannerRef.current.turnFlashlightOff();
+        await scannerRef.current.turnFlashOff();
         setFlashlightEnabled(false);
       } else {
-        await scannerRef.current.turnFlashlightOn();
+        await scannerRef.current.turnFlashOn();
         setFlashlightEnabled(true);
       }
     } catch (err) {
@@ -472,29 +612,53 @@ export function QRCodeScanner({
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {/* Camera View */}
+            {/* Camera Status */}
             {isScanning && (
-              <div className="relative">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  className="w-full h-64 bg-gray-100 rounded-lg object-cover"
-                />
-                <canvas
-                  ref={canvasRef}
-                  className="hidden"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-48 h-48 border-2 border-blue-500 rounded-lg bg-transparent">
-                    <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-blue-500 rounded-tl-lg"></div>
-                    <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-blue-500 rounded-tr-lg"></div>
-                    <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-blue-500 rounded-bl-lg"></div>
-                    <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-blue-500 rounded-br-lg"></div>
-                  </div>
-                </div>
+              <div className="flex items-center justify-center space-x-2 text-sm">
+                <div className={`w-2 h-2 rounded-full ${cameraStreamActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span className="text-gray-600">
+                  {cameraStreamActive ? 'Camera Active' : 'Camera Inactive'}
+                </span>
               </div>
             )}
+            
+            {/* Camera View */}
+            <div className="relative">
+              <video
+                id="qr-scanner-video"
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className={`w-full h-96 bg-gray-100 rounded-lg object-cover ${isScanning ? 'block' : 'hidden'}`}
+                style={{ 
+                  display: isScanning ? 'block' : 'none',
+                  transform: 'scaleX(-1)' // Mirror the video
+                }}
+              />
+              <canvas
+                ref={canvasRef}
+                className="hidden"
+              />
+              {isScanning && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-72 h-72 border-2 border-blue-500 rounded-lg bg-transparent">
+                    <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-blue-500 rounded-tl-lg"></div>
+                    <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-blue-500 rounded-tr-lg"></div>
+                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-blue-500 rounded-bl-lg"></div>
+                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-blue-500 rounded-br-lg"></div>
+                  </div>
+                </div>
+              )}
+              {!isScanning && (
+                <div className="w-full h-96 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <Camera className="h-16 w-16 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Camera view will appear here when scanning starts</p>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Scanner Controls */}
             <div className="space-y-3">
