@@ -5,6 +5,13 @@ export interface SendEmailOptions {
   subject: string
   text?: string
   html?: string
+  attachments?: Array<{
+    filename?: string
+    content?: string | Buffer
+    path?: string
+    cid?: string
+    contentType?: string
+  }>
 }
 
 export async function sendEmail(options: SendEmailOptions): Promise<{ messageId: string }> {
@@ -18,6 +25,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<{ messageId:
     subject: options.subject,
     text: options.text,
     html: options.html,
+    attachments: options.attachments,
     replyTo: defaults.replyTo,
   })
 

@@ -142,17 +142,17 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
 
               // Call the onScan callback first (this does the database validation)
               try {
-                let finalResult: ScanResult | null = null;
+                let finalResult: Partial<ScanResult> | null = null;
                 
                 // Show processing state
-                setLastScanResult({
-                  studentId: studentData.studentId,
-                  studentIdNumber: studentData.studentIdNumber || studentData.studentId,
+            setLastScanResult({
+              studentId: studentData.studentId,
+              studentIdNumber: studentData.studentIdNumber || studentData.studentId,
                   firstName: 'Processing',
                   lastName: '...',
-                  timestamp: new Date().toISOString()
-                });
-                setShowResultDialog(true);
+              timestamp: new Date().toISOString()
+            });
+            setShowResultDialog(true);
                 
                 // Wait for API response
                 await onScan(decodedText, (updatedData) => {
@@ -162,33 +162,37 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
                 
                 // Now update with the final result
                 if (finalResult) {
-                  if (finalResult.isDuplicate) {
+                  const fr = finalResult as Partial<ScanResult>;
+                  const completed: ScanResult = {
+                    studentId: fr.studentId ?? studentData.studentId,
+                    studentIdNumber: fr.studentIdNumber ?? (studentData.studentIdNumber || studentData.studentId),
+                    firstName: fr.firstName ?? 'Student',
+                    lastName: fr.lastName ?? '',
+                    timestamp: new Date().toISOString(),
+                    isDuplicate: fr.isDuplicate,
+                    isError: fr.isError,
+                    errorMessage: fr.errorMessage,
+                  };
+                  if (completed.isDuplicate) {
                     console.log('🟡 Duplicate scan detected - showing yellow dialog');
-                    console.log('🔍 Using finalResult data:', finalResult);
+                    console.log('🔍 Using finalResult data:', completed);
                     // Show duplicate dialog (yellow/orange) using the data from API response
-                    setLastScanResult({
-                      ...finalResult,
-                      timestamp: new Date().toISOString(),
-                      isDuplicate: true
-                    });
+                    setLastScanResult({ ...completed, isDuplicate: true });
                   } else {
                     console.log('🟢 Success scan - showing green dialog');
-                    console.log('🔍 Using finalResult data for success:', finalResult);
+                    console.log('🔍 Using finalResult data for success:', completed);
                     // Show success dialog (green) using the data from API response
-                    setLastScanResult({
-                      ...finalResult,
-                      timestamp: new Date().toISOString()
-                    });
+                    setLastScanResult(completed);
                   }
                 }
-              
-              // Auto-dismiss dialog after 3 seconds
-              if (dialogTimerRef.current) {
-                clearTimeout(dialogTimerRef.current);
-              }
-              dialogTimerRef.current = setTimeout(() => {
-                setShowResultDialog(false);
-              }, 3000);
+            
+            // Auto-dismiss dialog after 3 seconds
+            if (dialogTimerRef.current) {
+              clearTimeout(dialogTimerRef.current);
+            }
+            dialogTimerRef.current = setTimeout(() => {
+              setShowResultDialog(false);
+            }, 3000);
 
               // Play success sound
               if (successAudioRef.current) {
@@ -296,8 +300,8 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
             lastScanResult?.isError
               ? 'bg-gradient-to-br from-red-500/30 to-red-600/30 border-red-500/50'
               : lastScanResult?.isDuplicate 
-                ? 'bg-gradient-to-br from-amber-500/30 to-orange-500/30 border-amber-500/50' 
-                : 'bg-gradient-to-br from-emerald-500/30 to-green-500/30 border-emerald-500/50'
+              ? 'bg-gradient-to-br from-amber-500/30 to-orange-500/30 border-amber-500/50' 
+              : 'bg-gradient-to-br from-emerald-500/30 to-green-500/30 border-emerald-500/50'
           } shadow-2xl ${
             lastScanResult?.isError 
               ? 'shadow-red-500/30' 
@@ -345,8 +349,8 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
                   lastScanResult?.isError 
                     ? 'bg-gradient-to-br from-red-500 to-red-600' 
                     : lastScanResult?.isDuplicate 
-                      ? 'bg-gradient-to-br from-amber-500 to-orange-500' 
-                      : 'bg-gradient-to-br from-emerald-500 to-green-500'
+                    ? 'bg-gradient-to-br from-amber-500 to-orange-500' 
+                    : 'bg-gradient-to-br from-emerald-500 to-green-500'
                 }`}>
                   {lastScanResult?.isError ? (
                     <X className="h-16 w-16 text-white" />
@@ -399,19 +403,19 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
                   </div>
                 ) : (
                   <>
-                    <div className="flex items-center justify-center gap-3 text-white">
-                      <User className="h-6 w-6 text-white/80" />
-                      <span className="font-bold text-2xl">
-                        {lastScanResult?.firstName} {lastScanResult?.lastName}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center justify-center gap-3 text-white/90">
-                      <Hash className="h-5 w-5 text-white/70" />
-                      <span className="font-mono text-xl">
-                        {lastScanResult?.studentIdNumber}
-                      </span>
-                    </div>
+                <div className="flex items-center justify-center gap-3 text-white">
+                  <User className="h-6 w-6 text-white/80" />
+                  <span className="font-bold text-2xl">
+                    {lastScanResult?.firstName} {lastScanResult?.lastName}
+                  </span>
+                </div>
+                
+                <div className="flex items-center justify-center gap-3 text-white/90">
+                  <Hash className="h-5 w-5 text-white/70" />
+                  <span className="font-mono text-xl">
+                    {lastScanResult?.studentIdNumber}
+                  </span>
+                </div>
                   </>
                 )}
               </div>
@@ -427,8 +431,8 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
                 {lastScanResult?.isError 
                   ? `Error occurred at ${lastScanResult ? new Date(lastScanResult.timestamp).toLocaleTimeString() : ''}`
                   : lastScanResult?.isDuplicate 
-                    ? `Previously scanned at ${lastScanResult ? new Date(lastScanResult.timestamp).toLocaleTimeString() : ''}`
-                    : `Scanned at ${lastScanResult ? new Date(lastScanResult.timestamp).toLocaleTimeString() : ''}`
+                  ? `Previously scanned at ${lastScanResult ? new Date(lastScanResult.timestamp).toLocaleTimeString() : ''}`
+                  : `Scanned at ${lastScanResult ? new Date(lastScanResult.timestamp).toLocaleTimeString() : ''}`
                 }
               </div>
 

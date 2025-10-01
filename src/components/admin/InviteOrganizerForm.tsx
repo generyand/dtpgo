@@ -133,23 +133,23 @@ export function InviteOrganizerForm({
       <div className="py-2 sm:py-4">
         <div className="relative">
           <div className="mb-6">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-green-50 border border-green-200 text-green-700 text-xs font-medium mb-3">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-900/50 text-green-700 dark:text-green-300 text-xs font-medium mb-3">
               <CheckCircle className="size-3.5" />
               <span>Invitation Sent</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Invitation Sent Successfully</h1>
-            <p className="mt-1 text-sm text-gray-600 max-w-prose">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">Invitation Sent Successfully</h1>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 max-w-prose">
               The organizer invitation has been sent and they will receive an email with instructions.
             </p>
           </div>
           
-          <div className="group relative overflow-hidden rounded-xl border bg-white shadow-sm">
+          <div className="group relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
             <div className="p-6 sm:p-8 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                <CheckCircle className="h-8 w-8 text-green-600" />
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Invitation Delivered</h3>
-              <p className="text-gray-600 mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Invitation Delivered</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
                 The organizer will receive an email with login instructions and can start managing events once they accept the invitation.
               </p>
               <Button
@@ -173,12 +173,12 @@ export function InviteOrganizerForm({
       <div className="py-2 sm:py-4">
         <div className="relative">
           <div className="mb-6">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium mb-3">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium mb-3">
               <UserPlus className="size-3.5" />
               <span>Admin Invitation</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Invite Organizer</h1>
-            <p className="mt-1 text-sm text-gray-600 max-w-prose">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">Invite Organizer</h1>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 max-w-prose">
               Loading events...
             </p>
           </div>
@@ -195,20 +195,20 @@ export function InviteOrganizerForm({
       <div className="relative">
         {/* Header Section */}
         <div className="mb-6">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium mb-3">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium mb-3">
             <UserPlus className="size-3.5" />
             <span>Admin Invitation</span>
           </div>
           
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Invite Organizer</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">Invite Organizer</h1>
           
-          <p className="mt-1 text-sm text-gray-600 max-w-prose">
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 max-w-prose">
             Send an invitation to a new organizer to join the system and manage events.
           </p>
         </div>
 
         {/* Invitation Form Card */}
-        <div className="group relative overflow-hidden rounded-xl border bg-white shadow-sm">
+        <div className="group relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleFormSubmit)} className="relative p-6 sm:p-8 space-y-6">
               {/* Email */}
@@ -219,14 +219,14 @@ export function InviteOrganizerForm({
                   <FormItem className="space-y-2">
                     <div className="flex items-center gap-2 mb-2">
                       <Mail className="size-4 text-yellow-600" />
-                      <FormLabel className="font-semibold text-gray-900">Email Address</FormLabel>
+                      <FormLabel className="font-semibold text-gray-900 dark:text-gray-100">Email Address</FormLabel>
                     </div>
                     <FormControl>
                       <Input 
                         {...field}
                         type="email"
                         placeholder="organizer@dtp.edu.my"
-                        className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors"
+                        className="h-12 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-yellow-400/20 dark:focus:ring-yellow-500/20 transition-colors placeholder:text-gray-500 dark:placeholder:text-gray-400"
                       />
                     </FormControl>
                     <FormMessage />
@@ -242,13 +242,13 @@ export function InviteOrganizerForm({
                   <FormItem className="space-y-2">
                     <div className="flex items-center gap-2 mb-2">
                       <User className="size-4 text-yellow-600" />
-                      <FormLabel className="font-semibold text-gray-900">Full Name</FormLabel>
+                      <FormLabel className="font-semibold text-gray-900 dark:text-gray-100">Full Name</FormLabel>
                     </div>
                     <FormControl>
                       <Input 
                         {...field}
                         placeholder="John Doe"
-                        className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors"
+                        className="h-12 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-yellow-400/20 dark:focus:ring-yellow-500/20 transition-colors placeholder:text-gray-500 dark:placeholder:text-gray-400"
                       />
                     </FormControl>
                     <FormMessage />
@@ -264,24 +264,24 @@ export function InviteOrganizerForm({
                   <FormItem className="space-y-2">
                     <div className="flex items-center gap-2 mb-2">
                       <Shield className="size-4 text-yellow-600" />
-                      <FormLabel className="font-semibold text-gray-900">Role</FormLabel>
+                      <FormLabel className="font-semibold text-gray-900 dark:text-gray-100">Role</FormLabel>
                     </div>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20">
+                        <SelectTrigger className="h-12 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-yellow-400/20 dark:focus:ring-yellow-500/20">
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="organizer" className="hover:bg-yellow-50">
+                      <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                        <SelectItem value="organizer" className="hover:bg-yellow-50 dark:hover:bg-yellow-900/20 text-gray-900 dark:text-gray-100">
                           <div className="flex items-center gap-2">
-                            <Users className="size-4 text-blue-600" />
+                            <Users className="size-4 text-blue-600 dark:text-blue-400" />
                             <span>Event Organizer</span>
                           </div>
                         </SelectItem>
-                        <SelectItem value="admin" className="hover:bg-yellow-50">
+                        <SelectItem value="admin" className="hover:bg-yellow-50 dark:hover:bg-yellow-900/20 text-gray-900 dark:text-gray-100">
                           <div className="flex items-center gap-2">
-                            <Shield className="size-4 text-red-600" />
+                            <Shield className="size-4 text-red-600 dark:text-red-400" />
                             <span>Administrator</span>
                           </div>
                         </SelectItem>
@@ -296,38 +296,38 @@ export function InviteOrganizerForm({
               {roleValue === 'organizer' && events.length > 0 && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="size-4 text-yellow-600" />
-                    <FormLabel className="font-semibold text-gray-900">Assign to Events (Optional)</FormLabel>
+                    <Calendar className="size-4 text-yellow-600 dark:text-yellow-500" />
+                    <FormLabel className="font-semibold text-gray-900 dark:text-gray-100">Assign to Events (Optional)</FormLabel>
                   </div>
-                  <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                  <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-3">
                     {events.map((event) => (
                       <label
                         key={event.id}
-                        className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
+                        className="flex items-center space-x-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded cursor-pointer"
                       >
                         <input
                           type="checkbox"
                           checked={selectedEvents.includes(event.id)}
                           onChange={() => toggleEventSelection(event.id)}
-                          className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                          className="h-4 w-4 text-yellow-600 dark:text-yellow-500 focus:ring-yellow-500 dark:focus:ring-yellow-500/50 border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700"
                         />
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-gray-900 truncate">
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                             {event.name}
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
                             {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
                           </div>
                         </div>
                         {!event.isActive && (
-                          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                          <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded">
                             Inactive
                           </span>
                         )}
                       </label>
                     ))}
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     Select events that this organizer should have access to. Leave empty to assign later.
                   </p>
                 </div>
@@ -366,14 +366,14 @@ export function InviteOrganizerForm({
               </div>
 
               {/* Trust Indicators */}
-              <div className="pt-4 border-t border-gray-100">
-                <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
+              <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+                <div className="flex items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                   <div className="flex items-center gap-1">
-                    <CheckCircle className="size-3 text-green-500" />
+                    <CheckCircle className="size-3 text-green-500 dark:text-green-400" />
                     <span>Admin Access</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <CheckCircle className="size-3 text-green-500" />
+                    <CheckCircle className="size-3 text-green-500 dark:text-green-400" />
                     <span>Email Invitation</span>
                   </div>
                 </div>
