@@ -142,17 +142,17 @@ export function ScanPage({ className: _className }: ScanPageProps) {
 
   if (loading) {
     return (
-      <Card className="w-full max-w-5xl mx-auto bg-white/10 backdrop-blur-xl border-white/20">
+      <Card className="w-full max-w-5xl mx-auto bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/20 dark:border-gray-700">
         <CardHeader className="text-center">
-          <CardTitle className="text-white">Loading Sessions...</CardTitle>
-          <CardDescription className="text-blue-200/70">Please wait while we load your available sessions.</CardDescription>
+          <CardTitle className="text-gray-900 dark:text-gray-100">Loading Sessions...</CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-400">Please wait while we load your available sessions.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-white/10 rounded"></div>
-            <div className="h-10 bg-white/10 rounded"></div>
-            <div className="h-10 bg-white/10 rounded"></div>
-            <div className="h-10 bg-white/10 rounded"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
           </div>
         </CardContent>
       </Card>
@@ -161,19 +161,19 @@ export function ScanPage({ className: _className }: ScanPageProps) {
 
   if (error) {
     return (
-      <Card className="w-full max-w-5xl mx-auto bg-white/10 backdrop-blur-xl border-white/20">
+      <Card className="w-full max-w-5xl mx-auto bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/20 dark:border-gray-700">
         <CardHeader>
-          <CardTitle className="text-red-400">Error Loading Sessions</CardTitle>
+          <CardTitle className="text-red-600 dark:text-red-400">Error Loading Sessions</CardTitle>
         </CardHeader>
         <CardContent>
-          <Alert className="border-red-500/50 bg-red-500/10">
-            <AlertCircle className="h-4 w-4 text-red-400" />
-            <AlertDescription className="text-red-200">
+          <Alert className="border-red-500/50 bg-red-500/10 dark:border-red-900/50 dark:bg-red-900/20">
+            <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+            <AlertDescription className="text-red-600 dark:text-red-300">
               {error}
             </AlertDescription>
           </Alert>
           <div className="mt-4">
-            <Button onClick={loadSessions} variant="outline" className="border-white/20 text-white hover:bg-white/10">
+            <Button onClick={loadSessions} variant="outline" className="border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800">
               Try Again
             </Button>
           </div>
@@ -187,12 +187,12 @@ export function ScanPage({ className: _className }: ScanPageProps) {
       <div className="space-y-4 sm:space-y-6">
         {/* Floating Stats Counter */}
         <div className="fixed top-4 right-4 z-50 hidden sm:block">
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl shadow-blue-500/50">
+          <div className="bg-gradient-to-br from-yellow-500 to-amber-500 dark:from-yellow-600 dark:to-amber-600 backdrop-blur-xl border border-white/20 rounded-xl p-3 shadow-lg shadow-yellow-500/30 dark:shadow-yellow-900/30">
             <div className="text-center">
-              <div className="text-3xl font-bold text-white mb-1">
+              <div className="text-2xl font-bold text-white mb-0.5">
                 {attendanceStats.totalScanned}
               </div>
-              <div className="text-xs text-blue-100 uppercase tracking-wider">
+              <div className="text-[10px] text-white/90 uppercase tracking-wider">
                 Scanned Today
               </div>
             </div>
@@ -200,21 +200,21 @@ export function ScanPage({ className: _className }: ScanPageProps) {
         </div>
 
         {/* Compact Session Header */}
-        <Card className="w-full max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border-white/10">
-          <CardContent className="p-4">
+        <Card className="w-full bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/10 dark:border-gray-700">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3 flex-1">
                 <Button
                   onClick={handleBackToSessions}
                   variant="outline"
                   size="sm"
-                  className="border-white/20 text-white hover:bg-white/10 flex-shrink-0"
+                  className="border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 flex-shrink-0"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <div className="flex-1 min-w-0">
-                  <CardTitle className="text-lg sm:text-xl text-white truncate">{selectedSession.event.name}</CardTitle>
-                  <CardDescription className="text-sm text-blue-200/70 truncate">
+                  <CardTitle className="text-lg sm:text-xl text-gray-900 dark:text-gray-100 truncate">{selectedSession.event.name}</CardTitle>
+                  <CardDescription className="text-sm text-gray-600 dark:text-gray-400 truncate">
                     {selectedSession.name}
                   </CardDescription>
                 </div>
@@ -237,7 +237,7 @@ export function ScanPage({ className: _className }: ScanPageProps) {
             
             {/* Compact Info Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 text-xs sm:text-sm">
-              <div className="flex items-center gap-2 text-blue-200/80">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                 <Calendar className="h-4 w-4 flex-shrink-0" />
                 <span className="truncate">
                   {new Date(selectedSession.timeInStart).toLocaleDateString('en-PH', {
@@ -247,7 +247,7 @@ export function ScanPage({ className: _className }: ScanPageProps) {
                   })}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-blue-200/80">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                 <Clock className="h-4 w-4 flex-shrink-0" />
                 <span className="truncate">
                   {new Date(selectedSession.timeInStart).toLocaleTimeString('en-PH', {
@@ -259,7 +259,7 @@ export function ScanPage({ className: _className }: ScanPageProps) {
                 </span>
               </div>
               {selectedSession.event.location && (
-                <div className="flex items-center gap-2 text-blue-200/80">
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <MapPin className="h-4 w-4 flex-shrink-0" />
                   <span className="truncate">{selectedSession.event.location}</span>
                 </div>
@@ -267,20 +267,20 @@ export function ScanPage({ className: _className }: ScanPageProps) {
             </div>
             
             {/* Mobile Stats */}
-            <div className="mt-3 p-2.5 bg-blue-500/10 border border-blue-500/20 rounded-xl sm:hidden">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-blue-300" />
-                  <span className="text-blue-200 font-medium">Scanned</span>
+            <div className="mt-3 p-2 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg sm:hidden">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5">
+                  <Users className="h-3.5 w-3.5 text-gray-600 dark:text-gray-400" />
+                  <span className="text-gray-900 dark:text-gray-100 font-medium">Scanned</span>
                 </div>
-                <span className="text-white font-semibold">{attendanceStats.totalScanned}</span>
+                <span className="text-gray-900 dark:text-gray-100 font-semibold">{attendanceStats.totalScanned}</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* QR Scanner - Modern Glassmorphic Design */}
-        <Card className="bg-white/5 backdrop-blur-xl border-white/10 overflow-hidden">
+        <Card className="w-full bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/10 dark:border-gray-700 overflow-hidden">
           <CardContent className="p-4 sm:p-6">
             <QRScanner
               sessionId={selectedSession.id}
@@ -351,17 +351,34 @@ export function ScanPage({ className: _className }: ScanPageProps) {
 
                   console.log('📍 Step 4: Fetch completed');
                   console.log('📥 Response status:', response.status, response.statusText);
+                  console.log('📥 Request details:', {
+                    sessionId: selectedSession.id,
+                    eventId: selectedSession.eventId,
+                    studentId: studentId,
+                    scanType: 'time_in'
+                  });
 
                   // Handle duplicate attendance (409 Conflict)
                   if (response.status === 409) {
                     console.log('⚠️ Duplicate scan detected');
                     const errorData = await response.json();
+                    console.log('🔍 API Response for duplicate:', errorData);
+                    
+                    // Use student information from API response instead of QR data
+                    const studentInfo = errorData.student || {};
+                    console.log('🔍 Student info from API:', studentInfo);
                     
                     // Update scanner display to show the student with duplicate flag
                     updateScanResult({
-                      firstName: (studentData.firstName as string) || 'Student',
-                      lastName: (studentData.lastName as string) || studentId,
-                      studentIdNumber: studentId,
+                      firstName: studentInfo.firstName || 'Student',
+                      lastName: studentInfo.lastName || studentId,
+                      studentIdNumber: studentInfo.studentIdNumber || studentId,
+                      isDuplicate: true,
+                    });
+                    console.log('🔍 Updated scan result with:', {
+                      firstName: studentInfo.firstName || 'Student',
+                      lastName: studentInfo.lastName || studentId,
+                      studentIdNumber: studentInfo.studentIdNumber || studentId,
                       isDuplicate: true,
                     });
                     
@@ -389,12 +406,20 @@ export function ScanPage({ className: _className }: ScanPageProps) {
                   console.log('✅ Attendance recorded successfully:', result);
                   
                   // Update scanner display with real student data
-                  if (result.student?.firstName && result.student?.lastName) {
+                  if (result.student) {
                     updateScanResult({
                       firstName: result.student.firstName,
                       lastName: result.student.lastName,
                       studentIdNumber: result.student.studentIdNumber,
                       isDuplicate: false, // Explicitly mark as not duplicate
+                    });
+                  } else {
+                    // If no student data in response, use QR data
+                    updateScanResult({
+                      firstName: studentData.firstName as string || 'Student',
+                      lastName: studentData.lastName as string || studentId,
+                      studentIdNumber: studentData.studentIdNumber as string || studentId,
+                      isDuplicate: false,
                     });
                   }
                   
@@ -438,10 +463,10 @@ export function ScanPage({ className: _className }: ScanPageProps) {
   // Session Selection Mode
   return (
     <div className="space-y-6">
-      <Card className="w-full max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border-white/10">
+      <Card className="w-full bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/10 dark:border-gray-700">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl sm:text-3xl text-white">Select a Session</CardTitle>
-          <CardDescription className="text-blue-200/70">
+          <CardTitle className="text-2xl sm:text-3xl text-gray-900 dark:text-gray-100">Select a Session</CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-400">
             Choose an active session to start scanning QR codes
           </CardDescription>
         </CardHeader>

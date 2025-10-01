@@ -23,6 +23,7 @@ interface RegisterFormProps {
   onSubmit: (data: StudentFormInput) => Promise<{ studentId?: string } | void>;
   isSubmitting: boolean;
   initialData?: Partial<StudentFormInput>;
+  hideHeader?: boolean;
 }
 
 // Popular email domains with gmail.com at top
@@ -35,7 +36,7 @@ const EMAIL_DOMAINS = [
   'protonmail.com',
 ];
 
-export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFormProps) {
+export function RegisterForm({ onSubmit, isSubmitting, initialData, hideHeader = false }: RegisterFormProps) {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registeredStudentId, setRegisteredStudentId] = useState<string | null>(null);
@@ -162,12 +163,12 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
       <div className="py-2 sm:py-4">
         <div className="relative">
           <div className="mb-6">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium mb-3">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium mb-3">
               <UserPlus className="size-3.5" />
               <span>Admin Registration</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Register New Student</h1>
-            <p className="mt-1 text-sm text-gray-600 max-w-prose">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">Register New Student</h1>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 max-w-prose">
               Loading programs...
             </p>
           </div>
@@ -183,21 +184,23 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
     <div className="py-2 sm:py-4">
       <div className="relative">
         {/* Header Section */}
-        <div className="mb-6">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium mb-3">
-            <UserPlus className="size-3.5" />
-            <span>Admin Registration</span>
+        {!hideHeader && (
+          <div className="mb-6">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium mb-3">
+              <UserPlus className="size-3.5" />
+              <span>Admin Registration</span>
+            </div>
+            
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">Register New Student</h1>
+            
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 max-w-prose">
+              Add a student to the system and automatically generate a QR code for event access.
+            </p>
           </div>
-          
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Register New Student</h1>
-          
-          <p className="mt-1 text-sm text-gray-600 max-w-prose">
-            Add a student to the system and automatically generate a QR code for event access.
-          </p>
-        </div>
+        )}
 
         {/* Registration Form Card */}
-        <div className="group relative overflow-hidden rounded-xl border bg-white shadow-sm">
+        <div className="group relative overflow-hidden rounded-xl border bg-white dark:bg-gray-800 dark:border-gray-700 shadow-sm">
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleFormSubmit)} className="relative p-6 sm:p-8 space-y-6">
@@ -209,7 +212,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                   <FormItem className="space-y-2">
                     <div className="flex items-center gap-2 mb-2">
                       <User className="size-4 text-yellow-600" />
-                      <FormLabel className="font-semibold text-gray-900">Student ID Number</FormLabel>
+                      <FormLabel className="font-semibold text-gray-900 dark:text-gray-100">Student ID Number</FormLabel>
                     </div>
                     <FormControl>
                       <Input 
@@ -233,7 +236,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                   name="firstName"
                   render={({ field }) => (
                     <FormItem className="space-y-2">
-                      <FormLabel className="font-semibold text-gray-900">First Name</FormLabel>
+                      <FormLabel className="font-semibold text-gray-900 dark:text-gray-100">First Name</FormLabel>
                       <FormControl>
                         <Input 
                           {...field}
@@ -252,7 +255,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                   name="lastName"
                   render={({ field }) => (
                     <FormItem className="space-y-2">
-                      <FormLabel className="font-semibold text-gray-900">Last Name</FormLabel>
+                      <FormLabel className="font-semibold text-gray-900 dark:text-gray-100">Last Name</FormLabel>
                       <FormControl>
                         <Input 
                           {...field}
@@ -275,7 +278,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                   <FormItem className="space-y-2 relative">
                     <div className="flex items-center gap-2 mb-2">
                       <Mail className="size-4 text-yellow-600" />
-                      <FormLabel className="font-semibold text-gray-900">Email Address</FormLabel>
+                      <FormLabel className="font-semibold text-gray-900 dark:text-gray-100">Email Address</FormLabel>
                     </div>
                     <FormControl>
                       <Input 
@@ -290,19 +293,19 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                     
                     {/* Email Suggestions Dropdown */}
                     {showEmailSuggestions && emailSuggestions.length > 0 && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                      <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                         {emailSuggestions.slice(0, 6).map((suggestion, index) => (
                           <button
                             key={suggestion}
                             type="button"
-                            className="w-full text-left px-4 py-2 hover:bg-yellow-50 hover:text-yellow-800 transition-colors text-sm border-b border-gray-100 last:border-b-0"
+                            className="w-full text-left px-4 py-2 hover:bg-yellow-50 dark:hover:bg-gray-700 hover:text-yellow-800 dark:hover:text-gray-200 transition-colors text-sm border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                             onClick={() => selectEmailSuggestion(suggestion)}
                           >
                             <span className="flex items-center gap-2">
-                              <Mail className="size-3 text-gray-400" />
+                              <Mail className="size-3 text-gray-400 dark:text-gray-500" />
                               {suggestion}
                               {index === 0 && suggestion.includes('gmail.com') && (
-                                <span className="ml-auto text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Popular</span>
+                                <span className="ml-auto text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 px-2 py-0.5 rounded">Popular</span>
                               )}
                             </span>
                           </button>
@@ -324,7 +327,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                     <FormItem className="space-y-2">
                       <div className="flex items-center gap-2 mb-2">
                         <GraduationCap className="size-4 text-yellow-600" />
-                        <FormLabel className="font-semibold text-gray-900">Program</FormLabel>
+                        <FormLabel className="font-semibold text-gray-900 dark:text-gray-100">Program</FormLabel>
                       </div>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -359,7 +362,7 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
                     <FormItem className="space-y-2">
                       <div className="flex items-center gap-2 mb-2">
                         <Calendar className="size-4 text-yellow-600" />
-                        <FormLabel className="font-semibold text-gray-900">Year Level</FormLabel>
+                        <FormLabel className="font-semibold text-gray-900 dark:text-gray-100">Year Level</FormLabel>
                       </div>
                       <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} defaultValue={String(field.value)}>
                         <FormControl>
@@ -414,8 +417,8 @@ export function RegisterForm({ onSubmit, isSubmitting, initialData }: RegisterFo
               </div>
 
               {/* Trust Indicators */}
-              <div className="pt-4 border-t border-gray-100">
-                <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
+              <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+                <div className="flex items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                   <div className="flex items-center gap-1">
                     <CheckCircle className="size-3 text-green-500" />
                     <span>Admin Access</span>

@@ -105,11 +105,11 @@ export function EventDetailTabs({
           </div>
 
           {event.sessions.length === 0 ? (
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="text-center py-10">
-                <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h4 className="text-base font-medium text-gray-900 mb-2">No sessions created</h4>
-                <p className="text-sm text-gray-600 mb-4">Create your first session to start tracking attendance.</p>
+                <Clock className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-2">No sessions created</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Create your first session to start tracking attendance.</p>
                 <Button onClick={onCreateSession}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create First Session
@@ -121,36 +121,36 @@ export function EventDetailTabs({
               {event.sessions.map((session) => {
                 const status = getSessionStatus(session);
                 return (
-                  <Card key={session.id} className="hover:shadow-md transition-shadow">
+                  <Card key={session.id} className="hover:shadow-md transition-shadow dark:bg-gray-800 dark:border-gray-700">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-3 mb-2">
-                            <h4 className="font-semibold text-gray-900 truncate" title={session.name}>{session.name}</h4>
+                            <h4 className="font-semibold text-gray-900 dark:text-gray-100 truncate" title={session.name}>{session.name}</h4>
                             <Badge variant={getStatusBadgeVariant(status)}>{getStatusDisplayName(status)}</Badge>
                           </div>
                           {session.description && (
-                            <p className="text-gray-600 text-sm mb-3 line-clamp-2" title={session.description}>{session.description}</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2" title={session.description}>{session.description}</p>
                           )}
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
-                              <span className="text-gray-500">Time-In:</span>
-                              <p className="font-medium">{formatTime(session.timeInStart)} - {formatTime(session.timeInEnd)}</p>
+                              <span className="text-gray-500 dark:text-gray-400">Time-In:</span>
+                              <p className="font-medium dark:text-gray-200">{formatTime(session.timeInStart)} - {formatTime(session.timeInEnd)}</p>
                             </div>
                             <div>
-                              <span className="text-gray-500">Time-Out:</span>
-                              <p className="font-medium">
+                              <span className="text-gray-500 dark:text-gray-400">Time-Out:</span>
+                              <p className="font-medium dark:text-gray-200">
                                 {session.timeOutStart ? formatTime(session.timeOutStart) : 'N/A'} - 
                                 {session.timeOutEnd ? formatTime(session.timeOutEnd) : 'N/A'}
                               </p>
                             </div>
                             <div>
-                              <span className="text-gray-500">Date:</span>
-                              <p className="font-medium">{formatDate(session.timeInStart)}</p>
+                              <span className="text-gray-500 dark:text-gray-400">Date:</span>
+                              <p className="font-medium dark:text-gray-200">{formatDate(session.timeInStart)}</p>
                             </div>
                             <div>
-                              <span className="text-gray-500">Status:</span>
-                              <p className="font-medium">{getStatusDisplayName(status)}</p>
+                              <span className="text-gray-500 dark:text-gray-400">Status:</span>
+                              <p className="font-medium dark:text-gray-200">{getStatusDisplayName(status)}</p>
                             </div>
                           </div>
                         </div>
@@ -184,11 +184,11 @@ export function EventDetailTabs({
           </div>
 
           {event.organizerAssignments.length === 0 ? (
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardContent className="text-center py-10">
-                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h4 className="text-base font-medium text-gray-900 mb-2">No organizers assigned</h4>
-                <p className="text-sm text-gray-600 mb-4">Assign organizers to manage this event and track attendance.</p>
+                <Users className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-2">No organizers assigned</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Assign organizers to manage this event and track attendance.</p>
                 <Button onClick={onAssignOrganizer}>
                   <Plus className="h-4 w-4 mr-2" />
                   Assign First Organizer
@@ -198,17 +198,17 @@ export function EventDetailTabs({
           ) : (
             <div className="space-y-3">
               {event.organizerAssignments.map((assignment) => (
-                <Card key={assignment.id} className="hover:shadow-md transition-shadow">
+                <Card key={assignment.id} className="hover:shadow-md transition-shadow dark:bg-gray-800 dark:border-gray-700">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Users className="h-5 w-5 text-gray-600" />
+                        <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Users className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                         </div>
                         <div className="min-w-0">
-                          <h4 className="font-semibold text-gray-900 truncate" title={assignment.organizer.fullName}>{assignment.organizer.fullName}</h4>
-                          <p className="text-sm text-gray-600 truncate" title={assignment.organizer.email}>{assignment.organizer.email}</p>
-                          <p className="text-xs text-gray-500">Assigned {new Date(assignment.assignedAt).toLocaleDateString()}</p>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 truncate" title={assignment.organizer.fullName}>{assignment.organizer.fullName}</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 truncate" title={assignment.organizer.email}>{assignment.organizer.email}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-500">Assigned {new Date(assignment.assignedAt).toLocaleDateString()}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -280,47 +280,47 @@ export function EventDetailTabs({
               </CardContent>
             </Card>
           </div>
-          <Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
-              <CardTitle>Event Overview</CardTitle>
+              <CardTitle className="dark:text-gray-100">Event Overview</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Event Details</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Event Details</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Name:</span>
-                      <span className="font-medium">{event.name}</span>
+                      <span className="text-gray-600 dark:text-gray-400">Name:</span>
+                      <span className="font-medium dark:text-gray-200">{event.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Status:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Status:</span>
                       <Badge variant={event.isActive ? 'default' : 'secondary'}>{event.isActive ? 'Active' : 'Inactive'}</Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Location:</span>
-                      <span className="font-medium">{event.location || 'Not specified'}</span>
+                      <span className="text-gray-600 dark:text-gray-400">Location:</span>
+                      <span className="font-medium dark:text-gray-200">{event.location || 'Not specified'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Created:</span>
-                      <span className="font-medium">{new Date(event.createdAt).toLocaleDateString()}</span>
+                      <span className="text-gray-600 dark:text-gray-400">Created:</span>
+                      <span className="font-medium dark:text-gray-200">{new Date(event.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Performance Metrics</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Performance Metrics</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Session Coverage:</span>
-                      <span className="font-medium">{event._count.sessions > 0 ? 'Good' : 'Needs Sessions'}</span>
+                      <span className="text-gray-600 dark:text-gray-400">Session Coverage:</span>
+                      <span className="font-medium dark:text-gray-200">{event._count.sessions > 0 ? 'Good' : 'Needs Sessions'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Organizer Coverage:</span>
-                      <span className="font-medium">{event._count.organizerAssignments > 0 ? 'Good' : 'Needs Organizers'}</span>
+                      <span className="text-gray-600 dark:text-gray-400">Organizer Coverage:</span>
+                      <span className="font-medium dark:text-gray-200">{event._count.organizerAssignments > 0 ? 'Good' : 'Needs Organizers'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Data Collection:</span>
-                      <span className="font-medium">{event._count.attendance > 0 ? 'Active' : 'No Data'}</span>
+                      <span className="text-gray-600 dark:text-gray-400">Data Collection:</span>
+                      <span className="font-medium dark:text-gray-200">{event._count.attendance > 0 ? 'Active' : 'No Data'}</span>
                     </div>
                   </div>
                 </div>

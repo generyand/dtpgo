@@ -110,15 +110,15 @@ export default async function DashboardPage() {
         <div className="space-y-5 p-4 pb-24">
           {/* Header */}
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-2xl font-bold tracking-tight dark:text-gray-100">Dashboard</h1>
+            <p className="text-sm text-muted-foreground dark:text-gray-400">
               Overview of metrics and activity
             </p>
           </div>
 
           {/* Database Error Alert */}
           {dbError && (
-            <div className="flex items-start gap-3 rounded-lg border border-yellow-300 bg-yellow-50 p-3 text-yellow-800">
+            <div className="flex items-start gap-3 rounded-lg border border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700 p-3 text-yellow-800 dark:text-yellow-300">
               <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
               <div className="space-y-1">
                 <p className="text-sm font-medium">Limited data: {dbError}</p>
@@ -172,15 +172,15 @@ export default async function DashboardPage() {
             <div className="space-y-6 p-4 sm:p-6 xl:p-8">
               {/* Header */}
               <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-                <p className="text-muted-foreground">
+                <h1 className="text-3xl font-bold tracking-tight dark:text-gray-100">Dashboard</h1>
+                <p className="text-muted-foreground dark:text-gray-400">
                   Overview of student registration system metrics and activity
                 </p>
               </div>
 
               {/* Database Error Alert */}
               {dbError && (
-                <div className="flex items-start gap-3 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-yellow-800">
+                <div className="flex items-start gap-3 rounded-lg border border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700 p-4 text-yellow-800 dark:text-yellow-300">
                   <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0" />
                   <div className="space-y-1">
                     <p className="font-medium">Limited data: {dbError}</p>
@@ -208,24 +208,24 @@ export default async function DashboardPage() {
               <div className="grid gap-6 lg:grid-cols-2">
                 {/* Admin-Only Quick Actions */}
                 <AdminOnly showError={false}>
-                  <div className="bg-white rounded-lg border shadow-sm p-6">
+                  <div className="bg-white dark:bg-gray-800 rounded-lg border shadow-sm p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100">
                         <Shield className="h-5 w-5 text-red-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">Admin Controls</h3>
-                        <p className="text-sm text-gray-600">Administrative functions</p>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">Admin Controls</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Administrative functions</p>
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         • Manage user roles and permissions
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         • Access system settings and configuration
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         • View detailed user activity logs
                       </div>
                     </div>
@@ -234,24 +234,24 @@ export default async function DashboardPage() {
 
                 {/* Organizer-Accessible Section */}
                 <OrganizerOrAdmin showError={false}>
-                  <div className="bg-white rounded-lg border shadow-sm p-6">
+                  <div className="bg-white dark:bg-gray-800 rounded-lg border shadow-sm p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
                         <UserPlus className="h-5 w-5 text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">Registration Tools</h3>
-                        <p className="text-sm text-gray-600">Student management access</p>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">Registration Tools</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Student management access</p>
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         • Register new students
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         • Generate QR codes for attendance
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         • View registration analytics
                       </div>
                     </div>

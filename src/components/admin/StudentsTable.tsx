@@ -125,19 +125,19 @@ export function StudentsTable({ searchQuery = '', filters = {} }: StudentsTableP
       <div className="block sm:hidden space-y-3">
         {safeStudents.length > 0 ? (
           safeStudents.map((student) => (
-            <div key={student.id} className="rounded-lg border bg-white p-4 shadow-sm">
+            <div key={student.id} className="rounded-lg border bg-white dark:bg-gray-800 p-4 shadow-sm">
               <div className="flex items-start justify-between">
                 <div className="space-y-1 flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-medium text-gray-900 truncate">
+                    <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
                       {student.fullName}
                     </p>
-                    <span className="inline-flex items-center rounded-full bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800">
+                    <span className="inline-flex items-center rounded-full bg-yellow-50 dark:bg-yellow-900/30 px-2 py-1 text-xs font-medium text-yellow-800 dark:text-yellow-300">
                       {student.studentId}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 truncate">{student.email}</p>
-                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{student.email}</p>
+                  <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                     <span>{getProgramName(student.program)}</span>
                     <span>Year {student.year}</span>
                   </div>
@@ -174,7 +174,7 @@ export function StudentsTable({ searchQuery = '', filters = {} }: StudentsTableP
 
       {/* Desktop Table View */}
       <div className="hidden sm:block">
-        <div className="rounded-lg border bg-white overflow-hidden shadow-sm">
+        <div className="rounded-lg border bg-white dark:bg-gray-800 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -190,14 +190,14 @@ export function StudentsTable({ searchQuery = '', filters = {} }: StudentsTableP
               <TableBody>
                 {safeStudents.length > 0 ? (
                   safeStudents.map((student) => (
-                    <TableRow key={student.id} className="hover:bg-yellow-50/40">
-                      <TableCell className="font-medium">{student.studentId}</TableCell>
-                      <TableCell className="font-medium">
+                    <TableRow key={student.id} className="hover:bg-yellow-50/40 dark:hover:bg-yellow-900/20">
+                      <TableCell className="font-medium dark:text-gray-100">{student.studentId}</TableCell>
+                      <TableCell className="font-medium dark:text-gray-100">
                         {student.fullName}
                       </TableCell>
-                      <TableCell className="text-gray-600 max-w-[260px] truncate">{student.email}</TableCell>
-                      <TableCell>{getProgramName(student.program)}</TableCell>
-                      <TableCell>{student.year}</TableCell>
+                      <TableCell className="text-gray-600 dark:text-gray-400 max-w-[260px] truncate">{student.email}</TableCell>
+                      <TableCell className="dark:text-gray-300">{getProgramName(student.program)}</TableCell>
+                      <TableCell className="dark:text-gray-300">{student.year}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -223,7 +223,7 @@ export function StudentsTable({ searchQuery = '', filters = {} }: StudentsTableP
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400">
                       {students === undefined ? 'Loading...' : 'No students found'}
                     </TableCell>
                   </TableRow>

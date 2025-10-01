@@ -193,6 +193,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for existing attendance record (use student.id which is the database ID)
+    console.log('🔍 Checking for duplicate attendance:', {
+      studentId: student.id,
+      studentIdNumber: student.studentIdNumber,
+      sessionId,
+      scanType
+    });
+    
     const existingAttendance = await prisma.attendance.findFirst({
       where: {
         studentId: student.id,
@@ -200,6 +207,17 @@ export async function POST(request: NextRequest) {
         scanType,
       },
     });
+
+    console.log('🔍 Existing attendance found:', existingAttendance);
+    
+    // Also check if there are any attendance records for this student in this session (regardless of scanType)
+    const allAttendanceForStudent = await prisma.attendance.findMany({
+      where: {
+        studentId: student.id,
+        sessionId,
+      },
+    });
+    console.log('🔍 All attendance records for this student in this session:', allAttendanceForStudent);
 
     if (existingAttendance) {
       await logSystemEvent(
@@ -222,6 +240,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         error: 'Attendance already recorded',
         message: `${scanType === 'time_in' ? 'Time in' : 'Time out'} already recorded for this student in this session`,
+        student: {
+          id: student.id,
+          studentIdNumber: student.studentIdNumber,
+          firstName: student.firstName,
+          lastName: student.lastName,
+          email: student.email,
+        },
+        existingAttendance: {
+          timeIn: existingAttendance.timeIn,
+          timeOut: existingAttendance.timeOut,
+          createdAt: existingAttendance.createdAt,
+        }
       }, { status: 409 });
     }
 

@@ -17,15 +17,16 @@ export const dynamic = 'force-dynamic';
 
 export default function OrganizersPage() {
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Organizer Management</h1>
-          <p className="text-muted-foreground">
-            Manage organizers, invitations, and event assignments
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50/40 via-white to-amber-50/40 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+      <div className="container mx-auto p-6 space-y-6">
+        {/* Page Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Organizer Management</h1>
+            <p className="text-muted-foreground dark:text-gray-400">
+              Manage organizers, invitations, and event assignments
+            </p>
+          </div>
         <Link href="/admin/organizers/invite">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
@@ -39,6 +40,7 @@ export default function OrganizersPage() {
 
       {/* Organizer List Section */}
       <OrganizerList />
+      </div>
     </div>
   );
 }

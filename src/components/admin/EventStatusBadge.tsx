@@ -45,35 +45,35 @@ export function EventStatusBadge({
       case 'active':
         return {
           variant: 'default' as const,
-          className: 'bg-green-100 text-green-800 border-green-200',
+          className: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-900/50',
           icon: CheckCircle,
           iconClassName: 'text-green-600',
         };
       case 'upcoming':
         return {
           variant: 'secondary' as const,
-          className: 'bg-blue-100 text-blue-800 border-blue-200',
+          className: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-900/50',
           icon: Calendar,
           iconClassName: 'text-blue-600',
         };
       case 'ended':
         return {
           variant: 'secondary' as const,
-          className: 'bg-gray-100 text-gray-800 border-gray-200',
+          className: 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700',
           icon: XCircle,
           iconClassName: 'text-gray-600',
         };
       case 'inactive':
         return {
           variant: 'secondary' as const,
-          className: 'bg-red-100 text-red-800 border-red-200',
+          className: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-900/50',
           icon: XCircle,
           iconClassName: 'text-red-600',
         };
       default:
         return {
           variant: 'secondary' as const,
-          className: 'bg-gray-100 text-gray-800 border-gray-200',
+          className: 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700',
           icon: AlertCircle,
           iconClassName: 'text-gray-600',
         };
@@ -128,10 +128,10 @@ export function EventStatusBadge({
         </Badge>
         
         {/* Session count indicator */}
-        <div className="flex items-center gap-1 text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded-md border">
+        <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded-md border dark:border-gray-700">
           <Clock className="h-3 w-3" />
           <span className="font-medium">{sessionCount}</span>
-          <span className="text-gray-500">sessions</span>
+          <span className="text-gray-500 dark:text-gray-400">sessions</span>
         </div>
       </div>
     );
@@ -154,23 +154,23 @@ export function EventStatusBadge({
       </Badge>
       
       {/* Session count indicator */}
-      <div className="flex items-center gap-1.5 text-sm text-gray-700 bg-gray-50 px-3 py-1.5 rounded-md border">
+      <div className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 rounded-md border dark:border-gray-700">
         <Clock className="h-4 w-4 text-gray-500" />
         <span className="font-semibold">{sessionCount}</span>
-        <span className="text-gray-600">sessions</span>
+        <span className="text-gray-600 dark:text-gray-400">sessions</span>
       </div>
       
       {/* Organizer count indicator */}
-      <div className="flex items-center gap-1.5 text-sm text-gray-700 bg-gray-50 px-3 py-1.5 rounded-md border">
+      <div className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 rounded-md border dark:border-gray-700">
         <Users className="h-4 w-4 text-gray-500" />
         <span className="font-semibold">{organizerCount}</span>
-        <span className="text-gray-600">organizers</span>
+        <span className="text-gray-600 dark:text-gray-400">organizers</span>
       </div>
       
       {/* Date range indicator */}
-      <div className="flex items-center gap-1.5 text-sm text-gray-700 bg-gray-50 px-3 py-1.5 rounded-md border">
+      <div className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 rounded-md border dark:border-gray-700">
         <Calendar className="h-4 w-4 text-gray-500" />
-        <span className="text-gray-600">
+        <span className="text-gray-600 dark:text-gray-400">
           {start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
         </span>
       </div>

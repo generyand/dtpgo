@@ -51,14 +51,15 @@ export default function AdminRegisterPage() {
 
   return (
     <>
-      <Card className="w-full bg-white rounded-none">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50/40 via-white to-amber-50/40 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-6">
+        <Card className="w-full max-w-[2000px] mx-auto bg-white dark:bg-gray-800 border dark:border-gray-700">
         <CardHeader>
-          <CardTitle className="text-gray-900">Register Student</CardTitle>
-          <CardDescription className="text-gray-600">Fill in the student details below.</CardDescription>
+          <CardTitle className="text-gray-900 dark:text-gray-100">Register Student</CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-400">Fill in the student details below.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <RegisterForm key={formKey} onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+            <RegisterForm key={formKey} onSubmit={handleSubmit} isSubmitting={isSubmitting} hideHeader={true} />
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm text-muted-foreground">
                 <input
@@ -83,6 +84,7 @@ export default function AdminRegisterPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
       <Toaster richColors />
     </>
   )
