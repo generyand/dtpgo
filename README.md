@@ -1,43 +1,63 @@
-# DTP Attendance - Hybrid Student Registration System
+# DTP Go - Hybrid Student Registration System
 
-A comprehensive attendance tracking and student registration system built with Next.js 15, TypeScript, and Tailwind CSS. The system supports two distinct registration workflows: secure admin-managed registration via a protected dashboard, and rapid self-registration by students during live events.
+DTP Go is a comprehensive attendance tracking and student registration system built with Next.js 15, TypeScript, and Tailwind CSS. The system supports two distinct registration workflows: secure admin-managed registration via a protected dashboard, and rapid self-registration by students during live events.
 
-## 🌟 Features
+## 🎯 Project Overview
 
-### Core Functionality
+**Main Purpose**: DTP Go provides comprehensive attendance tracking and student registration for educational events
+
+**Problem Solved**: DTP Go streamlines event attendance management by providing a one-time student registration system with QR code-based attendance tracking for multiple events
+
+**Target Audience**: 
+- **Administrators**: Manage students, events, organizers, and view analytics
+- **Organizers**: Scan student QR codes for attendance tracking at events
+- **Students**: Register once to receive a permanent QR code that works for all future events
+
+### 📱 Application Screenshots
+
+*Screenshots and GIFs showcasing the different user interfaces:*
+
+#### Admin Dashboard
+![Admin Dashboard](https://via.placeholder.com/800x400/1e40af/ffffff?text=Admin+Dashboard+-+Student+Management+%26+Analytics)
+
+#### Organizer Scanning Interface
+![Organizer Scanning](https://via.placeholder.com/400x600/059669/ffffff?text=QR+Scanner+-+Real-time+Attendance+Tracking)
+
+#### Student Registration
+![Student Registration](https://via.placeholder.com/400x600/7c3aed/ffffff?text=Student+Registration+-+Mobile+Optimized)
+
+#### QR Code Display
+![QR Code Display](https://via.placeholder.com/400x500/dc2626/ffffff?text=QR+Code+Generated+-+Ready+for+Events)
+
+## ✨ Core Features
+
+- **One-Time Student Registration**: Students register once and receive a permanent QR code for all future events
 - **Dual Registration Workflows**: Admin dashboard and public self-registration
-- **QR Code Generation**: Static QR codes for attendance tracking
-- **Real-time Analytics**: Registration metrics and student demographics
-- **Email Notifications**: Automated welcome emails with QR codes
-- **Mobile-First Design**: Optimized for portrait mobile devices
+- **QR Code Generation**: Static QR codes containing student IDs for attendance tracking
+- **Real-time QR Scanning**: Organizers scan student QR codes using device cameras
+- **Event & Session Management**: Create events with multiple attendance sessions and time windows
+- **Organizer Management**: Invite and assign organizers to specific events
+- **Analytics Dashboard**: Real-time registration metrics and attendance statistics
+- **Role-based Authentication**: Secure Supabase Auth with Admin/Organizer permissions
 
-### Admin Features
-- 🔐 **Secure Authentication**: Supabase Auth integration
-- 👥 **Student Management**: Register, view, and edit student records
-- 📊 **Analytics Dashboard**: Real-time registration statistics
-- 🔍 **Searchable Tables**: Paginated student listings
-- 🛡️ **IP Whitelisting**: Optional security enhancement
+## 🛠️ Technology Stack
 
-### Student Features
-- 📱 **Quick Registration**: Mobile-optimized registration form
-- 🎯 **Instant QR Codes**: Immediate QR code generation post-registration
-- 📧 **Email Delivery**: QR code backup via email
-- ✅ **Real-time Validation**: Duplicate prevention and format checking
-
-### Technical Highlights
-- **Framework**: Next.js 15 with App Router
+- **Frontend**: Next.js 15 (App Router), React 19, TypeScript 5
+- **Styling**: Tailwind CSS 4, shadcn/ui components, Lucide React icons
 - **Database**: Supabase PostgreSQL with Prisma ORM
-- **Authentication**: Supabase Auth for secure admin access
-- **Styling**: Tailwind CSS 4 with shadcn/ui components
-- **Type Safety**: TypeScript 5 with strict configuration
-- **Performance**: Rate limiting and optimized queries
+- **Authentication**: Supabase Auth with role-based access control
+- **QR Code**: qrcode library for generation, html5-qrcode for scanning
+- **Email**: Nodemailer for notifications
+- **Validation**: Zod schemas for data validation
+
+## 📋 Prerequisites
+
+- Node.js 18+ and pnpm package manager
+- Supabase account and project setup
+- PostgreSQL database access
+- Camera access for QR scanning functionality
 
 ## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+ and pnpm
-- Supabase account and project
-- PostgreSQL database access
 
 ### Environment Setup
 
@@ -49,7 +69,7 @@ Create a `.env.local` file in your project root:
 # =============================================================================
 # PostgreSQL Database Connection String
 # Get this from: Supabase Dashboard > Settings > Database > Connection string > URI
-DATABASE_URL="postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres"
+DATABASE_URL=
 
 # =============================================================================
 # SUPABASE AUTHENTICATION
@@ -57,43 +77,33 @@ DATABASE_URL="postgresql://postgres:[password]@db.[project-ref].supabase.co:5432
 # Get these from: Supabase Dashboard > Settings > API
 
 # Your Supabase project URL
-NEXT_PUBLIC_SUPABASE_URL="https://your-project-ref.supabase.co"
+NEXT_PUBLIC_SUPABASE_URL=
 
 # Your Supabase anon/public key
-NEXT_PUBLIC_SUPABASE_ANON_KEY="your_supabase_anon_key_here"
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
 # Optional: Supabase service role key (for admin operations)
-SUPABASE_SERVICE_ROLE_KEY="your_service_role_key_here"
-
-# =============================================================================
-# IP WHITELISTING SECURITY (Optional)
-# =============================================================================
-# Enable IP whitelisting for admin routes
-IP_WHITELIST_ENABLED=false
-
-# Comma-separated list of allowed IP addresses
-IP_WHITELIST_IPS=""
-
-# Comma-separated list of allowed IP ranges (CIDR notation or ranges)
-IP_WHITELIST_RANGES=""
-
-# Allow localhost access (default: true)
-IP_WHITELIST_ALLOW_LOCALHOST=true
-
-# Allow private network access (default: true)
-IP_WHITELIST_ALLOW_PRIVATE=true
+SUPABASE_SERVICE_ROLE_KEY=
 
 # =============================================================================
 # EMAIL SERVICE (For future implementation)
 # =============================================================================
-RESEND_API_KEY="your_resend_api_key_here"
-FROM_EMAIL="noreply@yourdomain.com"
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=cylqbhnlazehbfxx
+EMAIL_FROM=DTP Go <your@gmail.com>
+EMAIL_REPLY_TO=youremail@gmail.com
 
 # =============================================================================
 # APPLICATION CONFIGURATION
 # =============================================================================
 NODE_ENV=development
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+ADMIN_EMAIL=""
+ADMIN_PASSWORD=""
 ```
 
 ### Installation & Setup
@@ -110,176 +120,162 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
    
    # Apply database migrations
    pnpm db:migrate
-   
-   # Test database connection
-   pnpm db:test
    ```
 
-3. **Start development server**:
+3. **Create admin user in Supabase**:
+   - Go to your Supabase project dashboard
+   - Navigate to Authentication > Users
+   - Click "Add user" and create an admin account
+   - Note the user's email address
+
+4. **Set admin role in Supabase**:
+   - Go to Supabase SQL Editor
+   - Run the following SQL command to set admin role:
+   ```sql
+   UPDATE auth.users 
+   SET raw_user_meta_data = jsonb_set(
+     COALESCE(raw_user_meta_data, '{}'), 
+     '{role}', 
+     '"admin"'
+   ) 
+   WHERE email = 'your-admin-email@example.com';
+   ```
+
+5. **Start development server**:
    ```bash
    pnpm dev
    ```
 
-4. **Open your browser**: [http://localhost:3000](http://localhost:3000)
+6. **Open your browser**: [http://localhost:3000](http://localhost:3000)
 
-### Database Options
+## 📖 Basic Usage
 
-#### Option 1: Supabase Database (Recommended)
-1. Go to your Supabase project dashboard
-2. Navigate to Settings > Database
-3. Copy the connection string
-4. Replace `[password]` with your actual database password
+### For Administrators
+- Login at `/auth/login` → Access admin dashboard
+- Manage students, events, and organizers
+- View analytics and registration statistics
 
-#### Option 2: Local PostgreSQL
-```env
-DATABASE_URL="postgresql://postgres:password@localhost:5432/dtp_attendance"
-```
+### For Organizers
+- Login → Select event/session
+- Scan student QR codes for attendance tracking
+- Real-time attendance recording
 
-#### Option 3: Docker PostgreSQL
-```bash
-docker run --name dtp-postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=dtp_attendance -p 5432:5432 -d postgres:15
+### For Students
+- Register once at `/join` → Receive permanent QR code
+- Present QR code at any future event for attendance
+- No need to re-register for each event
+
+## 🔄 User Flow Diagram
+
+```mermaid
+graph TD
+    %% Admin Flow
+    A[Admin Login] --> B[Admin Dashboard]
+    B --> C[Manage Students]
+    B --> D[Create Events]
+    B --> E[Invite Organizers]
+    B --> F[View Analytics]
+    
+    %% Organizer Flow
+    G[Organizer Login] --> H[Select Event/Session]
+    H --> I[QR Scanner Interface]
+    I --> J[Scan Student QR Code]
+    J --> K[Record Attendance]
+    K --> L[Real-time Updates]
+    
+    %% Student Flow
+    M[Student Registration] --> N[Fill Registration Form]
+    N --> O[Receive QR Code]
+    O --> P[Save QR Code]
+    P --> Q[Attend Event]
+    Q --> R[Present QR Code]
+    R --> S[Get Scanned by Organizer]
+    
+    %% Connections between flows
+    E --> T[Organizer Receives Invitation]
+    T --> G
+    D --> H
+    S --> J
+    
+    %% Styling
+    classDef adminFlow fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    classDef organizerFlow fill:#059669,stroke:#047857,stroke-width:2px,color:#fff
+    classDef studentFlow fill:#7c3aed,stroke:#6d28d9,stroke-width:2px,color:#fff
+    classDef connection fill:#f3f4f6,stroke:#6b7280,stroke-width:1px,color:#374151
+    
+    class A,B,C,D,E,F adminFlow
+    class G,H,I,J,K,L,T organizerFlow
+    class M,N,O,P,Q,R,S studentFlow
+    class E,D,S connection
 ```
 
 ## 📁 Project Structure
 
-To view the project structure, you can use one of these commands:
-
-### Using pnpm (if PowerShell execution policy allows):
-```bash
-pnpm structure          # Shows clean project structure
-pnpm structure:full     # Shows complete structure including node_modules
 ```
-
-### Using Node.js directly:
-```bash
-node scripts/list-structure.js           # Shows clean project structure
-node scripts/list-structure.js --full    # Shows complete structure including node_modules
+src/
+├── app/                 # Next.js App Router
+│   ├── admin/          # Admin dashboard pages
+│   ├── organizer/      # Organizer scanning interface
+│   ├── join/           # Public student registration
+│   └── api/            # API routes
+├── components/         # React components
+│   ├── admin/          # Admin-specific components
+│   ├── organizer/      # Organizer-specific components
+│   └── ui/             # Reusable UI components
+├── lib/                # Utilities and configurations
+│   ├── auth/           # Authentication logic
+│   ├── db/             # Database queries
+│   ├── qr/             # QR code generation
+│   └── scanning/       # QR scanning logic
+└── prisma/             # Database schema
 ```
-
-### Using Windows batch file:
-```bash
-scripts\structure.bat           # Shows clean project structure  
-scripts\structure.bat --full    # Shows complete structure including node_modules
-```
-
-The structure command intelligently excludes build artifacts, dependencies, and temporary files while showing the essential project organization.
 
 ## 🛠️ Available Scripts
 
 ```bash
 # Development
-pnpm dev                # Start development server with Turbopack
+pnpm dev                # Start development server
 pnpm build              # Build for production
 pnpm start              # Start production server
 pnpm lint               # Run ESLint
 
 # Database Management
-pnpm db:test            # Test database connection
 pnpm db:generate        # Generate Prisma client
 pnpm db:migrate         # Run database migrations
 pnpm db:studio          # Open Prisma Studio
 pnpm db:reset           # Reset database
-pnpm db:push            # Push schema changes
 
-# Project Structure
-pnpm structure          # View project structure
-pnpm structure:full     # View complete structure
+# Testing
+pnpm test               # Run tests
+pnpm test:watch         # Run tests in watch mode
+pnpm test:coverage      # Run tests with coverage
 ```
 
-## 🏗️ Architecture
+## 🚀 Deployment
 
-### Tech Stack
-- **Frontend**: Next.js 15 (App Router), React 19, TypeScript 5
-- **Styling**: Tailwind CSS 4, shadcn/ui, Lucide React icons
-- **Database**: Supabase PostgreSQL, Prisma ORM
-- **Authentication**: Supabase Auth
-- **Email**: Resend (planned)
-- **Deployment**: Vercel (recommended)
+### Recommended Platform
+- **Vercel**: Optimized for Next.js applications
+- **Database**: Supabase PostgreSQL
+- **Environment**: Set all required environment variables in deployment platform
 
-### Data Model
-- **Students**: Core registration data with unique ID and email
-- **Programs**: Configurable academic programs (BSIT, BSCPE)
-- **Dual Source Tracking**: Admin vs. public registration analytics
-- **QR Code Integration**: Static codes containing student ID numbers
+### Deployment Steps
+1. Connect your repository to Vercel
+2. Configure environment variables
+3. Deploy automatically on push to main branch
 
-## 🔒 Security Features
+## 🤝 Contributing
 
-- **Admin Authentication**: Supabase Auth with secure session management
-- **IP Whitelisting**: Optional IP restrictions for admin routes
-- **Rate Limiting**: API protection against abuse (10 req/min per IP)
-- **Input Validation**: Strict format validation and sanitization
-- **Row Level Security**: Database-level access control via Supabase RLS
+- **Repository**: GitHub-based development
+- **Issues**: Report bugs and feature requests through GitHub Issues
+- **Documentation**: Comprehensive PRDs and task lists in `/docs` folder
 
-## 📊 Student Data Schema
+## 📞 Support
 
-Students must provide:
-- **Student ID**: Format `S###-####-###` (e.g., S123-4567-890)
-- **Full Name**: First and last name
-- **Email**: Unique, valid email address
-- **Program**: Academic program (BSIT, BSCPE)
-- **Year Level**: 1-5 academic year
+For support and questions:
+- Create an issue in the GitHub repository
+- Check the documentation in the `/docs` folder
+- Review the comprehensive PRDs for feature details
 
-## 🎯 Use Cases
+---
 
-### For Administrators
-- Pre-register students before events
-- Manage existing student records
-- View registration analytics in real-time
-- Sequential student registration workflow
-
-### For Students
-- Quick self-registration during live events
-- Instant QR code generation for attendance
-- Email backup of QR codes
-- Mobile-optimized experience
-
-## 📱 Mobile Optimization
-
-The public registration interface is specifically designed for:
-- Portrait mobile device orientation
-- Touch-friendly form inputs
-- Immediate visual feedback
-- Quick registration flow (<60 seconds)
-
-## 🔮 Roadmap
-
-### Phase 1 (Core System) ✅
-- Database schema and API endpoints
-- Admin authentication and dashboard
-- Single student registration
-- Basic student management
-
-### Phase 2 (Public Registration) 🚧
-- Mobile-optimized registration interface
-- QR code generation and display
-- Email notification system
-- Security measures and rate limiting
-
-### Phase 3 (Analytics & Polish) 📋
-- Registration analytics dashboard
-- Comprehensive logging system
-- Performance optimization
-- Error handling improvements
-
-## 📈 Performance Targets
-
-- **Registration Rate**: Handle 100+ registrations per minute
-- **Response Time**: <2 seconds during peak usage
-- **Completion Rate**: >95% successful registrations
-- **Email Delivery**: >98% successful delivery rate
-- **System Uptime**: 99.9% during event periods
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built with ❤️ using Next.js 15, TypeScript, and Tailwind CSS
