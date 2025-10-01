@@ -237,9 +237,9 @@ export function MetricsGrid({
       {/* Empty state */}
       {metrics.length === 0 && !isLoading && (
         <div className="text-center py-12">
-          <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Metrics Available</h3>
-          <p className="text-gray-600">Metrics will appear here once data is available.</p>
+          <TrendingUp className="h-12 w-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No Metrics Available</h3>
+          <p className="text-gray-600 dark:text-gray-400">Metrics will appear here once data is available.</p>
         </div>
       )}
     </div>

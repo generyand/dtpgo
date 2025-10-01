@@ -11,76 +11,76 @@ export const metadata: Metadata = {
 
 export default function OrganizerSessionsPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Calendar className="h-8 w-8 text-blue-600" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">My Sessions</h1>
-              <p className="text-gray-600">Manage your assigned attendance sessions</p>
-            </div>
-          </div>
+    <div className="w-full max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 min-w-[800px]">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">My Sessions</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Manage your assigned attendance sessions
+          </p>
         </div>
+        <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+          <Calendar className="h-4 w-4" />
+          <span>Organizer Portal</span>
+        </div>
+      </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
-              <Clock className="h-4 w-4 text-green-600" />
+              <CardTitle className="text-sm font-medium text-gray-900 dark:text-gray-100">Active Sessions</CardTitle>
+              <Clock className="h-4 w-4 text-green-600 dark:text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">0</div>
-              <p className="text-xs text-muted-foreground">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-500">0</div>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
                 Currently running
               </p>
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Upcoming Sessions</CardTitle>
-              <Calendar className="h-4 w-4 text-blue-600" />
+              <CardTitle className="text-sm font-medium text-gray-900 dark:text-gray-100">Upcoming Sessions</CardTitle>
+              <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">0</div>
-              <p className="text-xs text-muted-foreground">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-500">0</div>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
                 Scheduled for later
               </p>
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Scanned</CardTitle>
-              <Users className="h-4 w-4 text-purple-600" />
+              <CardTitle className="text-sm font-medium text-gray-900 dark:text-gray-100">Total Scanned</CardTitle>
+              <Users className="h-4 w-4 text-purple-600 dark:text-purple-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">0</div>
-              <p className="text-xs text-muted-foreground">
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-500">0</div>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
                 Students scanned today
               </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Session Selector */}
+      {/* Session Selector */}
         <Suspense fallback={
-          <Card>
+          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardHeader>
-              <CardTitle>Loading Sessions...</CardTitle>
-              <CardDescription>Please wait while we load your assigned sessions.</CardDescription>
+              <CardTitle className="text-gray-900 dark:text-gray-100">Loading Sessions...</CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-400">Please wait while we load your assigned sessions.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="animate-pulse space-y-4">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-24 bg-gray-200 rounded"></div>
-                <div className="h-24 bg-gray-200 rounded"></div>
-                <div className="h-24 bg-gray-200 rounded"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-md w-3/4"></div>
+                <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
               </div>
             </CardContent>
           </Card>
@@ -88,38 +88,38 @@ export default function OrganizerSessionsPage() {
           <SessionSelector />
         </Suspense>
 
-        {/* Help Section */}
-        <div className="mt-8">
-          <Card>
+      {/* Help Section */}
+      <div className="mt-8">
+          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardHeader>
-              <CardTitle className="text-lg">Need Help?</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Need Help?</CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-400">
                 Here are some quick tips for using the session management system
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <h4 className="font-medium text-gray-900">Active Sessions</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">Active Sessions</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Click on any active session to start scanning QR codes. Make sure you have camera permissions enabled.
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-medium text-gray-900">Session Status</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">Session Status</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Sessions are color-coded: Green for active time-in, Orange for active time-out, Blue for upcoming.
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-medium text-gray-900">Time Windows</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">Time Windows</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Students can only scan during the configured time windows. Check the session details for exact times.
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-medium text-gray-900">Support</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">Support</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     If you encounter any issues, contact your administrator or check the system status.
                   </p>
                 </div>
@@ -127,7 +127,6 @@ export default function OrganizerSessionsPage() {
             </CardContent>
           </Card>
         </div>
-      </div>
     </div>
   );
 }

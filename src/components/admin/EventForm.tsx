@@ -167,7 +167,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
           className={errors.name ? 'border-red-500' : ''}
         />
         {errors.name && (
-          <p className="text-sm text-red-500">{errors.name.message}</p>
+          <p className="text-sm text-red-500 dark:text-red-400">{errors.name.message}</p>
         )}
       </div>
 
@@ -182,7 +182,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
           className={errors.description ? 'border-red-500' : ''}
         />
         {errors.description && (
-          <p className="text-sm text-red-500">{errors.description.message}</p>
+          <p className="text-sm text-red-500 dark:text-red-400">{errors.description.message}</p>
         )}
       </div>
 
@@ -241,7 +241,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
           />
         </div>
         {errors.location && (
-          <p className="text-sm text-red-500">{errors.location.message}</p>
+          <p className="text-sm text-red-500 dark:text-red-400">{errors.location.message}</p>
         )}
       </div>
 
@@ -291,7 +291,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
           )}
         />
         
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-500 dark:text-gray-400">
           Select organizers who will manage this event and track attendance. You can assign organizers later if needed.
         </p>
       </div>
@@ -305,20 +305,20 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
               id="isActive"
               type="checkbox"
               {...register('isActive')}
-              className="rounded border-gray-300"
+              className="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
             />
-            <Label htmlFor="isActive" className="text-sm font-normal">
+            <Label htmlFor="isActive" className="text-sm font-normal dark:text-gray-300">
               Event is active
             </Label>
           </div>
           {errors.isActive && (
-            <p className="text-sm text-red-500">{errors.isActive.message}</p>
+            <p className="text-sm text-red-500 dark:text-red-400">{errors.isActive.message}</p>
           )}
         </div>
       )}
 
       {/* Form Actions */}
-      <div className="flex items-center justify-end space-x-3 pt-4 border-t">
+      <div className="flex items-center justify-end space-x-3 pt-4 border-t dark:border-gray-700">
         <Button
           type="button"
           variant="outline"

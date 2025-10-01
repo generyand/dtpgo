@@ -80,16 +80,16 @@ export function SimplifiedActivityFeed({
   return (
     <div className={cn('flex flex-col h-full', className)}>
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b bg-gray-50/50">
+      <div className="flex items-center justify-between p-3 border-b bg-gray-50/50 dark:bg-gray-800/50 dark:border-gray-700">
         <div className="flex items-center gap-2">
-          <ActivityIcon className="w-4 h-4 text-gray-600" />
-          <h3 className="font-medium text-sm text-gray-900">Recent Activity</h3>
+          <ActivityIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+          <h3 className="font-medium text-sm text-gray-900 dark:text-gray-100">Recent Activity</h3>
         </div>
         {onRefresh && (
           <button
             onClick={onRefresh}
             disabled={loading}
-            className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
             title="Refresh"
           >
             <RefreshCw className={cn('w-3 h-3', loading && 'animate-spin')} />
@@ -135,11 +135,11 @@ export function SimplifiedActivityFeed({
 
         {/* Activities list */}
         {!loading && !error && recentActivities.length > 0 && (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
             {recentActivities.map((activity) => (
               <div
                 key={activity.id}
-                className="p-3 hover:bg-gray-50 transition-colors cursor-pointer group"
+                className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer group"
               >
                 <div className="flex items-start gap-3">
                   {/* Icon */}
@@ -149,19 +149,19 @@ export function SimplifiedActivityFeed({
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-900 leading-relaxed">
+                    <p className="text-xs text-gray-900 dark:text-gray-100 leading-relaxed">
                       {truncateText(activity.description)}
                     </p>
                     
                     {/* User name if available */}
                     {activity.userName && (
-                      <p className="text-xs text-yellow-700 font-medium mt-0.5">
+                      <p className="text-xs text-yellow-700 dark:text-yellow-400 font-medium mt-0.5">
                         {activity.userName}
                       </p>
                     )}
                     
                     {/* Timestamp */}
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {formatTimeAgo(activity.createdAt)}
                     </p>
                   </div>
@@ -176,8 +176,8 @@ export function SimplifiedActivityFeed({
 
         {/* Show more indicator */}
         {activities.length > 10 && (
-          <div className="p-3 border-t bg-gray-50/50">
-            <button className="w-full text-xs text-yellow-700 hover:text-yellow-800 transition-colors">
+          <div className="p-3 border-t bg-gray-50/50 dark:bg-gray-800/50 dark:border-gray-700">
+            <button className="w-full text-xs text-yellow-700 hover:text-yellow-800 dark:text-yellow-400 dark:hover:text-yellow-300 transition-colors">
               View all {activities.length} activities
             </button>
           </div>

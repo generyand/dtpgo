@@ -8,13 +8,13 @@ import { cn } from '@/lib/utils';
 
 // Enhanced metric card variants using CVA
 const metricCardVariants = cva(
-  "rounded-sm border bg-white shadow-sm transition-all duration-200 hover:shadow-md",
+  "rounded-sm border bg-white dark:bg-gray-800 shadow-sm transition-all duration-200 hover:shadow-md",
   {
     variants: {
       trend: {
-        up: "bg-gradient-to-br from-yellow-50 via-white to-amber-50",
-        down: "bg-gradient-to-br from-yellow-50 via-white to-amber-50",
-        neutral: "bg-gradient-to-br from-yellow-50 via-white to-amber-50",
+        up: "bg-gradient-to-br from-yellow-50 via-white to-amber-50 dark:from-yellow-900/20 dark:via-gray-800 dark:to-amber-900/20",
+        down: "bg-gradient-to-br from-yellow-50 via-white to-amber-50 dark:from-yellow-900/20 dark:via-gray-800 dark:to-amber-900/20",
+        neutral: "bg-gradient-to-br from-yellow-50 via-white to-amber-50 dark:from-yellow-900/20 dark:via-gray-800 dark:to-amber-900/20",
       },
       size: {
         default: "p-0",
@@ -33,9 +33,9 @@ const trendVariants = cva(
   {
     variants: {
       trend: {
-        up: "text-yellow-700",
-        down: "text-yellow-700",
-        neutral: "text-yellow-700",
+        up: "text-yellow-700 dark:text-yellow-400",
+        down: "text-yellow-700 dark:text-yellow-400",
+        neutral: "text-yellow-700 dark:text-yellow-400",
       }
     },
     defaultVariants: {
@@ -72,7 +72,7 @@ export function EnhancedMetricCard({
 }: EnhancedMetricCardProps) {
   // Determine trend icon based on trend prop
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus;
-  const iconAccent = 'bg-yellow-100 text-yellow-800';
+  const iconAccent = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
   
   // Format percentage change display
   const formatPercentageChange = (change: number) => {
@@ -107,14 +107,14 @@ export function EnhancedMetricCard({
         <Icon className="h-4 w-4" />
       </div>
       <CardHeader className="space-y-0 pt-3 pb-3 px-4">
-        <CardTitle className="text-sm font-medium text-gray-600">
+        <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-300">
           {title}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col pt-1 pb-4 px-4">
         <div className="space-y-2 flex-1">
           {/* Main metric value */}
-          <div className="text-3xl font-extrabold tracking-tight text-gray-900 leading-none">
+          <div className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100 leading-none">
             {typeof value === 'number' ? value.toLocaleString('en-PH') : value}
           </div>
           
@@ -131,7 +131,7 @@ export function EnhancedMetricCard({
 
           {/* Additional details */}
           {(previousValue !== undefined || description) && (
-            <div className="mt-2 pt-2 border-t border-gray-100 space-y-1">
+            <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 space-y-1">
               {previousValue !== undefined && percentageChange === undefined && (
                 <p className="text-xs text-muted-foreground">
                   Previous: {typeof previousValue === 'number' ? previousValue.toLocaleString('en-PH') : previousValue}

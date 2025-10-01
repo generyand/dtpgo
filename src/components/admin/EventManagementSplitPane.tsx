@@ -358,8 +358,8 @@ export function EventManagementSplitPane() {
   };
 
   const LeftPane = (
-    <div className="border-r h-full overflow-hidden flex flex-col bg-white">
-      <div className="p-4 border-b sticky top-0 bg-white z-10 space-y-3">
+    <div className="border-r h-full overflow-hidden flex flex-col bg-white dark:bg-gray-900 dark:border-gray-800">
+      <div className="p-4 border-b sticky top-0 bg-white dark:bg-gray-900 dark:border-gray-800 z-10 space-y-3">
         {loading ? (
           <EventFiltersSkeleton />
         ) : (
@@ -431,7 +431,7 @@ export function EventManagementSplitPane() {
           />
         )}
       </div>
-      <div className="p-3 border-t bg-white">
+      <div className="p-3 border-t bg-white dark:bg-gray-900 dark:border-gray-800">
         <Button className="w-full" onClick={() => setIsCreateOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Create Event
@@ -441,7 +441,7 @@ export function EventManagementSplitPane() {
   );
 
   const RightPane = (
-    <div className="h-full overflow-auto bg-white">
+    <div className="h-full overflow-auto bg-white dark:bg-gray-900">
       {loading ? (
         <div className="p-6">
           <EventDetailsSkeleton />
@@ -491,7 +491,7 @@ export function EventManagementSplitPane() {
 
   return (
     <>
-      <div className="h-[calc(100vh-220px)] grid grid-cols-1 lg:grid-cols-[360px_1fr] bg-white border rounded-md overflow-hidden relative">
+      <div className="h-[calc(100vh-220px)] grid grid-cols-1 lg:grid-cols-[360px_1fr] bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-md overflow-hidden relative">
         {LeftPane}
         {RightPane}
         <EventManagementLoadingOverlay isLoading={loading} />

@@ -33,14 +33,14 @@ import { OrganizerActions } from './OrganizerActions';
 
 // Card variants using CVA
 const organizerCardVariants = cva(
-  "rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer",
+  "rounded-lg border bg-white dark:bg-gray-800 shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer",
   {
     variants: {
       status: {
-        active: "border-green-200 bg-gradient-to-br from-green-50 via-white to-emerald-50",
-        inactive: "border-red-200 bg-gradient-to-br from-red-50 via-white to-rose-50",
-        pending: "border-yellow-200 bg-gradient-to-br from-yellow-50 via-white to-amber-50",
-        neverLoggedIn: "border-gray-200 bg-gradient-to-br from-gray-50 via-white to-slate-50",
+        active: "border-green-200 dark:border-green-900/50 bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-green-900/30 dark:via-gray-800 dark:to-emerald-900/30",
+        inactive: "border-red-200 dark:border-red-900/50 bg-gradient-to-br from-red-50 via-white to-rose-50 dark:from-red-900/30 dark:via-gray-800 dark:to-rose-900/30",
+        pending: "border-yellow-200 dark:border-yellow-900/50 bg-gradient-to-br from-yellow-50 via-white to-amber-50 dark:from-yellow-900/30 dark:via-gray-800 dark:to-amber-900/30",
+        neverLoggedIn: "border-gray-200 dark:border-gray-700 bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-700",
       },
       size: {
         default: "w-full",
@@ -59,10 +59,10 @@ const statusIconVariants = cva(
   {
     variants: {
       status: {
-        active: "bg-green-100 text-green-700",
-        inactive: "bg-red-100 text-red-700",
-        pending: "bg-yellow-100 text-yellow-700",
-        neverLoggedIn: "bg-gray-100 text-gray-700",
+        active: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+        inactive: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+        pending: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+        neverLoggedIn: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
       }
     },
     defaultVariants: {
@@ -190,8 +190,8 @@ export function OrganizerCard({
               {getStatusIcon()}
             </div>
             <div className="space-y-1">
-              <h3 className="font-semibold text-lg leading-none">{organizer.fullName}</h3>
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <h3 className="font-semibold text-lg leading-none text-gray-900 dark:text-gray-100">{organizer.fullName}</h3>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground dark:text-gray-400">
                 <Mail className="h-3 w-3" />
                 <span className="truncate">{organizer.email}</span>
               </div>
@@ -231,7 +231,7 @@ export function OrganizerCard({
           </div>
 
           {/* Stats Row */}
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex items-center justify-between text-sm text-muted-foreground dark:text-gray-400">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-1">
                 <Calendar className="h-3 w-3" />
@@ -246,12 +246,12 @@ export function OrganizerCard({
 
           {/* Assignments */}
           {showAssignments && (
-            <div className="flex items-center justify-between pt-2 border-t">
-              <div className="flex items-center space-x-1 text-sm text-muted-foreground">
+            <div className="flex items-center justify-between pt-2 border-t dark:border-gray-700">
+              <div className="flex items-center space-x-1 text-sm text-muted-foreground dark:text-gray-400">
                 <Settings className="h-3 w-3" />
                 <span>Event Assignments</span>
               </div>
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs dark:border-gray-600 dark:text-gray-300">
                 {assignmentCount} events
               </Badge>
             </div>

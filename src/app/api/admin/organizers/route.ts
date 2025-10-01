@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/client';
+import type { Prisma } from '@prisma/client';
 import { authenticateAdminApi, createAuthErrorResponse } from '@/lib/auth/api-auth';
 // import { logActivity } from '@/lib/utils/activity-logger';
 
@@ -15,24 +16,57 @@ export async function GET(request: NextRequest) {
       return createAuthErrorResponse(authResult);
     }
 
-    // Fetch organizers from database
-    const organizers = await prisma.organizer.findMany({
-      where: {
-        isActive: true,
-      },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+    // Parse query parameters
+    const searchParams = request.nextUrl.searchParams;
+    const search = searchParams.get('search') || '';
+    const role = searchParams.get('role') || 'all';
+    const status = searchParams.get('status') || 'all';
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '10', 10);
+    const skip = (page - 1) * limit;
+
+    // Build where clause
+    const where: Prisma.OrganizerWhereInput = {};
+    
+    if (search) {
+      where.OR = [
+        { email: { contains: search, mode: 'insensitive' } },
+        { fullName: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (role !== 'all') {
+      where.role = role;
+    }
+
+    if (status !== 'all') {
+      where.isActive = status === 'active';
+    }
+
+    // Fetch organizers from database with pagination
+    const [organizers, totalCount] = await Promise.all([
+      prisma.organizer.findMany({
+        where,
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          role: true,
+          isActive: true,
+          createdAt: true,
+          updatedAt: true,
+          lastLoginAt: true,
+          invitedAt: true,
+          invitedBy: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take: limit,
+      }),
+      prisma.organizer.count({ where }),
+    ]);
 
     // Log the activity
     // await logActivity({
@@ -47,7 +81,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       organizers,
-      count: organizers.length,
+      count: totalCount,
     });
 
   } catch (error) {
@@ -97,8 +131,26 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingOrganizer) {
+      if (!existingOrganizer.isActive) {
+        // Reactivate the organizer
+        const reactivatedOrganizer = await prisma.organizer.update({
+          where: { id: existingOrganizer.id },
+          data: {
+            isActive: true,
+            fullName, // Update name if provided
+            updatedAt: new Date(),
+          },
+        });
+
+        return NextResponse.json({
+          success: true,
+          organizer: reactivatedOrganizer,
+          message: 'Organizer reactivated successfully',
+        });
+      }
+
       return NextResponse.json(
-        { error: 'Organizer with this email already exists' },
+        { error: 'An organizer with this email address already exists.' },
         { status: 409 }
       );
     }

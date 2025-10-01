@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, UserPlus, Users, BarChart3, Menu, LogOut, User, Calendar, UserCheck } from 'lucide-react';
+import { LayoutDashboard, UserPlus, Users, BarChart3, Menu, LogOut, User, Calendar, UserCheck, Laptop } from 'lucide-react';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { useUser } from '@/hooks/use-auth';
@@ -128,10 +129,11 @@ export function AdminNav() {
                 Sign Out
               </Button>
             </div>
-            <div className="p-3">
+            <div className="p-3 flex items-center justify-between">
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 DTP Attendance System
               </div>
+              <ThemeToggle />
             </div>
           </div>
         </div>
@@ -223,10 +225,11 @@ export function AdminNav() {
                   Sign Out
                 </Button>
               </div>
-              <div className="p-4">
+              <div className="p-4 flex items-center justify-between">
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   DTP Attendance System
                 </div>
+                <ThemeToggle />
               </div>
             </div>
           </SheetContent>

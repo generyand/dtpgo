@@ -35,7 +35,7 @@ export function EventsList({
     return (
       <div className={cn('space-y-2', className)}>
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-20 bg-gray-100 rounded animate-pulse" />
+          <div key={i} className="h-20 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
         ))}
       </div>
     );
@@ -48,14 +48,14 @@ export function EventsList({
           key={event.id}
           onClick={() => onEventSelect(event)}
           className={cn(
-            'border rounded-md p-3 cursor-pointer transition-shadow hover:shadow-sm bg-white',
+            'border rounded-md p-3 cursor-pointer transition-shadow hover:shadow-sm bg-white dark:bg-gray-800 dark:border-gray-700',
             selectedEventId === event.id && 'ring-2 ring-primary'
           )}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h4 className="font-semibold text-gray-900 truncate" title={event.name}>{event.name}</h4>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 truncate" title={event.name}>{event.name}</h4>
                 <EventStatusBadge
                   isActive={event.isActive}
                   sessionCount={event._count.sessions}
@@ -66,9 +66,9 @@ export function EventsList({
                 />
               </div>
               {event.description && (
-                <p className="text-xs text-gray-600 truncate" title={event.description}>{event.description}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 truncate" title={event.description}>{event.description}</p>
               )}
-              <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-600">
+              <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
                 <div className="flex items-center gap-1 min-w-0">
                   <Calendar className="h-3.5 w-3.5" />
                   <span className="truncate" title={`${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`}>

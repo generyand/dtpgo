@@ -135,12 +135,21 @@ const nextConfig: NextConfig = {
   },
 
   // Environment-specific configurations
-  ...(process.env.NODE_ENV === 'production' && {
-    // Production-only settings
-    output: 'standalone',
-    compress: true,
-    poweredByHeader: false,
-  }),
+  ...(process.env.NODE_ENV === 'production'
+    ? (process.platform !== 'win32'
+        ? {
+            // Use standalone output only on non-Windows to avoid symlink issues
+            output: 'standalone',
+            compress: true,
+            poweredByHeader: false,
+          }
+        : {
+            // On Windows, avoid standalone to prevent EPERM symlink errors
+            compress: true,
+            poweredByHeader: false,
+          }
+      )
+    : {}),
 };
 
 export default nextConfig;

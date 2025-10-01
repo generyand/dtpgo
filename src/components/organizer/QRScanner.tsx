@@ -5,7 +5,7 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { Camera, X, CheckCircle, User, Hash, Zap, Scan, Sparkles } from 'lucide-react';
+import { Camera, X, CheckCircle, User, Hash, Zap, Scan, Sparkles, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface QRScannerProps {
@@ -22,6 +22,8 @@ interface ScanResult {
   lastName: string;
   timestamp: string;
   isDuplicate?: boolean;
+  isError?: boolean;
+  errorMessage?: string;
 }
 
 export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, onError }: QRScannerProps) {
@@ -138,23 +140,51 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
               };
             }
 
-            // Play success sound
-            if (successAudioRef.current) {
-              successAudioRef.current.currentTime = 0;
-              successAudioRef.current.play().catch(err => console.warn('Could not play sound:', err));
-            }
-
-            // Set temporary scan result and show dialog
+              // Call the onScan callback first (this does the database validation)
+              try {
+                let finalResult: Partial<ScanResult> | null = null;
+                
+                // Show processing state
             setLastScanResult({
               studentId: studentData.studentId,
               studentIdNumber: studentData.studentIdNumber || studentData.studentId,
-              firstName: studentData.firstName || 'Processing',
-              lastName: studentData.lastName || '...',
+                  firstName: 'Processing',
+                  lastName: '...',
               timestamp: new Date().toISOString()
             });
-            
-            // Show result dialog
             setShowResultDialog(true);
+                
+                // Wait for API response
+                await onScan(decodedText, (updatedData) => {
+                  finalResult = updatedData;
+                });
+                console.log('✅ onScan callback completed successfully');
+                
+                // Now update with the final result
+                if (finalResult) {
+                  const fr = finalResult as Partial<ScanResult>;
+                  const completed: ScanResult = {
+                    studentId: fr.studentId ?? studentData.studentId,
+                    studentIdNumber: fr.studentIdNumber ?? (studentData.studentIdNumber || studentData.studentId),
+                    firstName: fr.firstName ?? 'Student',
+                    lastName: fr.lastName ?? '',
+                    timestamp: new Date().toISOString(),
+                    isDuplicate: fr.isDuplicate,
+                    isError: fr.isError,
+                    errorMessage: fr.errorMessage,
+                  };
+                  if (completed.isDuplicate) {
+                    console.log('🟡 Duplicate scan detected - showing yellow dialog');
+                    console.log('🔍 Using finalResult data:', completed);
+                    // Show duplicate dialog (yellow/orange) using the data from API response
+                    setLastScanResult({ ...completed, isDuplicate: true });
+                  } else {
+                    console.log('🟢 Success scan - showing green dialog');
+                    console.log('🔍 Using finalResult data for success:', completed);
+                    // Show success dialog (green) using the data from API response
+                    setLastScanResult(completed);
+                  }
+                }
             
             // Auto-dismiss dialog after 3 seconds
             if (dialogTimerRef.current) {
@@ -164,14 +194,37 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
               setShowResultDialog(false);
             }, 3000);
 
-            // Call the onScan callback
-            try {
-              await onScan(decodedText, (updatedData) => {
-                setLastScanResult(prev => prev ? { ...prev, ...updatedData } : null);
-              });
-              console.log('✅ onScan callback completed successfully');
+              // Play success sound
+              if (successAudioRef.current) {
+                successAudioRef.current.currentTime = 0;
+                successAudioRef.current.play().catch(err => console.warn('Could not play sound:', err));
+              }
+              
             } catch (callbackErr) {
               console.error('❌ Error in onScan callback:', callbackErr);
+              
+              // Show error dialog instead of success
+              setLastScanResult({
+                studentId: studentData.studentId,
+                studentIdNumber: studentData.studentIdNumber || studentData.studentId,
+                firstName: 'Error',
+                lastName: '',
+                timestamp: new Date().toISOString(),
+                isError: true,
+                errorMessage: callbackErr instanceof Error ? callbackErr.message : 'Failed to record attendance'
+              });
+              
+              // Show error dialog
+              setShowResultDialog(true);
+              
+              // Auto-dismiss error dialog after 4 seconds (longer for errors)
+              if (dialogTimerRef.current) {
+                clearTimeout(dialogTimerRef.current);
+              }
+              dialogTimerRef.current = setTimeout(() => {
+                setShowResultDialog(false);
+              }, 4000);
+              
               toast.error('Recording Failed', {
                 description: callbackErr instanceof Error ? callbackErr.message : 'Failed to record attendance'
               });
@@ -236,27 +289,49 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
         <DialogContent className="sm:max-w-md border-0 bg-transparent shadow-none p-0" showCloseButton={false}>
           {/* Screen reader only title for accessibility */}
           <DialogTitle className="sr-only">
-            {lastScanResult?.isDuplicate ? 'Duplicate Scan Result' : 'Successful Scan Result'}
+            {lastScanResult?.isError 
+              ? 'Error Scan Result' 
+              : lastScanResult?.isDuplicate 
+                ? 'Duplicate Scan Result' 
+                : 'Successful Scan Result'}
           </DialogTitle>
           
           <div className={`relative overflow-hidden rounded-3xl backdrop-blur-xl border-2 ${
-            lastScanResult?.isDuplicate 
+            lastScanResult?.isError
+              ? 'bg-gradient-to-br from-red-500/30 to-red-600/30 border-red-500/50'
+              : lastScanResult?.isDuplicate 
               ? 'bg-gradient-to-br from-amber-500/30 to-orange-500/30 border-amber-500/50' 
               : 'bg-gradient-to-br from-emerald-500/30 to-green-500/30 border-emerald-500/50'
           } shadow-2xl ${
-            lastScanResult?.isDuplicate ? 'shadow-amber-500/30' : 'shadow-emerald-500/30'
+            lastScanResult?.isError 
+              ? 'shadow-red-500/30' 
+              : lastScanResult?.isDuplicate 
+                ? 'shadow-amber-500/30' 
+                : 'shadow-emerald-500/30'
           } animate-in zoom-in-95 duration-300`}>
             
             {/* Animated background sparkles */}
             <div className="absolute inset-0 overflow-hidden">
               <div className={`absolute top-0 left-1/4 w-2 h-2 ${
-                lastScanResult?.isDuplicate ? 'bg-amber-400' : 'bg-emerald-400'
+                lastScanResult?.isError 
+                  ? 'bg-red-400' 
+                  : lastScanResult?.isDuplicate 
+                    ? 'bg-amber-400' 
+                    : 'bg-emerald-400'
               } rounded-full animate-ping`}></div>
               <div className={`absolute top-1/4 right-1/4 w-1 h-1 ${
-                lastScanResult?.isDuplicate ? 'bg-orange-400' : 'bg-green-400'
+                lastScanResult?.isError 
+                  ? 'bg-red-500' 
+                  : lastScanResult?.isDuplicate 
+                    ? 'bg-orange-400' 
+                    : 'bg-green-400'
               } rounded-full animate-ping delay-75`}></div>
               <div className={`absolute bottom-1/4 left-1/3 w-1.5 h-1.5 ${
-                lastScanResult?.isDuplicate ? 'bg-amber-300' : 'bg-emerald-300'
+                lastScanResult?.isError 
+                  ? 'bg-red-300' 
+                  : lastScanResult?.isDuplicate 
+                    ? 'bg-amber-300' 
+                    : 'bg-emerald-300'
               } rounded-full animate-ping delay-150`}></div>
             </div>
 
@@ -264,14 +339,22 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
               {/* Icon with glow */}
               <div className="relative inline-block">
                 <div className={`absolute inset-0 ${
-                  lastScanResult?.isDuplicate ? 'bg-amber-500' : 'bg-emerald-500'
+                  lastScanResult?.isError 
+                    ? 'bg-red-500' 
+                    : lastScanResult?.isDuplicate 
+                      ? 'bg-amber-500' 
+                      : 'bg-emerald-500'
                 } rounded-full blur-2xl opacity-50 animate-pulse`}></div>
                 <div className={`relative p-6 rounded-full ${
-                  lastScanResult?.isDuplicate 
+                  lastScanResult?.isError 
+                    ? 'bg-gradient-to-br from-red-500 to-red-600' 
+                    : lastScanResult?.isDuplicate 
                     ? 'bg-gradient-to-br from-amber-500 to-orange-500' 
                     : 'bg-gradient-to-br from-emerald-500 to-green-500'
                 }`}>
-                  {lastScanResult?.isDuplicate ? (
+                  {lastScanResult?.isError ? (
+                    <X className="h-16 w-16 text-white" />
+                  ) : lastScanResult?.isDuplicate ? (
                     <Zap className="h-16 w-16 text-white" />
                   ) : (
                     <CheckCircle className="h-16 w-16 text-white" />
@@ -282,11 +365,25 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
               {/* Title */}
               <div>
                 <h2 className={`text-3xl font-bold mb-2 ${
-                  lastScanResult?.isDuplicate ? 'text-amber-100' : 'text-emerald-100'
+                  lastScanResult?.isError 
+                    ? 'text-red-100' 
+                    : lastScanResult?.isDuplicate 
+                      ? 'text-amber-100' 
+                      : 'text-emerald-100'
                 }`}>
-                  {lastScanResult?.isDuplicate ? 'Already Recorded!' : 'Success!'}
+                  {lastScanResult?.isError 
+                    ? 'Error!' 
+                    : lastScanResult?.isDuplicate 
+                      ? 'Already Recorded!' 
+                      : 'Success!'}
                 </h2>
-                {!lastScanResult?.isDuplicate && (
+                {lastScanResult?.isError ? (
+                  <div className="flex items-center justify-center gap-2 text-red-200/80">
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="text-sm">Scan Failed</span>
+                    <AlertCircle className="h-4 w-4" />
+                  </div>
+                ) : !lastScanResult?.isDuplicate && (
                   <div className="flex items-center justify-center gap-2 text-emerald-200/80">
                     <Sparkles className="h-4 w-4" />
                     <span className="text-sm">Attendance Recorded</span>
@@ -297,6 +394,15 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
 
               {/* Student Info */}
               <div className="space-y-3">
+                {lastScanResult?.isError ? (
+                  <div className="flex items-center justify-center gap-3 text-white">
+                    <AlertCircle className="h-6 w-6 text-white/80" />
+                    <span className="font-bold text-2xl">
+                      {lastScanResult?.errorMessage || 'Scan Error'}
+                    </span>
+                  </div>
+                ) : (
+                  <>
                 <div className="flex items-center justify-center gap-3 text-white">
                   <User className="h-6 w-6 text-white/80" />
                   <span className="font-bold text-2xl">
@@ -310,13 +416,21 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
                     {lastScanResult?.studentIdNumber}
                   </span>
                 </div>
+                  </>
+                )}
               </div>
 
               {/* Timestamp */}
               <div className={`text-sm ${
-                lastScanResult?.isDuplicate ? 'text-amber-200/60' : 'text-emerald-200/60'
+                lastScanResult?.isError 
+                  ? 'text-red-200/60' 
+                  : lastScanResult?.isDuplicate 
+                    ? 'text-amber-200/60' 
+                    : 'text-emerald-200/60'
               }`}>
-                {lastScanResult?.isDuplicate 
+                {lastScanResult?.isError 
+                  ? `Error occurred at ${lastScanResult ? new Date(lastScanResult.timestamp).toLocaleTimeString() : ''}`
+                  : lastScanResult?.isDuplicate 
                   ? `Previously scanned at ${lastScanResult ? new Date(lastScanResult.timestamp).toLocaleTimeString() : ''}`
                   : `Scanned at ${lastScanResult ? new Date(lastScanResult.timestamp).toLocaleTimeString() : ''}`
                 }
@@ -364,23 +478,23 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
         #qr-shaded-region::after {
           content: '';
           position: absolute;
-          width: 60px;
-          height: 60px;
-          border: 3px solid #3b82f6;
-          border-radius: 8px;
+          width: 80px;
+          height: 80px;
+          border: 4px solid #eab308;
+          border-radius: 12px;
           animation: pulse-border 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
         
         #qr-shaded-region::before {
-          top: -3px;
-          left: -3px;
+          top: -4px;
+          left: -4px;
           border-right: none;
           border-bottom: none;
         }
         
         #qr-shaded-region::after {
-          bottom: -3px;
-          right: -3px;
+          bottom: -4px;
+          right: -4px;
           border-left: none;
           border-top: none;
         }
@@ -388,11 +502,11 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
         @keyframes pulse-border {
           0%, 100% {
             opacity: 1;
-            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+            filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.8));
           }
           50% {
             opacity: 0.6;
-            filter: drop-shadow(0 0 12px rgba(59, 130, 246, 1));
+            filter: drop-shadow(0 0 16px rgba(234, 179, 8, 1));
           }
         }
         
@@ -408,10 +522,10 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
           left: 0;
           right: 0;
           height: 3px;
-          background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+          background: linear-gradient(90deg, transparent, #eab308, transparent);
           animation: scan-line 2s linear infinite;
           opacity: 0.8;
-          box-shadow: 0 0 10px #3b82f6;
+          box-shadow: 0 0 10px #eab308;
         }
         
         @keyframes scan-line {
@@ -426,15 +540,15 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
 
       {/* Processing Indicator - Animated */}
       {isProcessing && (
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border-2 border-blue-500/40">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-500/10 animate-pulse"></div>
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-yellow-500/20 to-amber-500/20 dark:from-yellow-900/20 dark:to-amber-900/20 border-2 border-yellow-500/40 dark:border-yellow-900/40">
+          <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/10 via-amber-500/10 to-yellow-500/10 dark:from-yellow-900/10 dark:via-amber-900/10 dark:to-yellow-900/10 animate-pulse"></div>
           <Alert className="border-0 bg-transparent relative">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="absolute inset-0 bg-blue-500 rounded-full blur-lg opacity-50 animate-ping"></div>
-                <Scan className="h-5 w-5 text-blue-400 relative animate-spin" />
+                <div className="absolute inset-0 bg-yellow-500 dark:bg-yellow-600 rounded-full blur-lg opacity-50 animate-ping"></div>
+                <Scan className="h-6 w-6 text-yellow-600 dark:text-yellow-400 relative animate-spin" />
               </div>
-              <AlertDescription className="text-blue-200 font-medium">
+              <AlertDescription className="text-yellow-800 dark:text-yellow-300 font-medium text-base">
                 Processing QR code...
               </AlertDescription>
             </div>
@@ -451,45 +565,49 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
           } ${scanAnimation ? 'scale-[1.02]' : 'scale-100'}`}
           style={{ 
             minHeight: '400px',
-            maxHeight: '600px',
+            maxHeight: '500px',
             maxWidth: '600px',
-            margin: '0 auto'
+            margin: '0 auto',
+            aspectRatio: '4/3'
           }}
         />
         {!isScanning && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-900/95 via-blue-900/95 to-indigo-900/95 rounded-2xl backdrop-blur-sm">
-            <div className="text-center text-white px-4">
-              <div className="relative inline-block mb-6">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full blur-2xl opacity-50 animate-pulse"></div>
-                <div className="relative bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full p-6 shadow-2xl">
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900/95 via-gray-900/95 to-gray-900/95 dark:from-gray-950/95 dark:via-gray-950/95 dark:to-gray-950/95 rounded-2xl backdrop-blur-sm">
+            <div className="text-center px-4">
+              <div className="relative inline-block mb-8">
+                <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 to-amber-500 dark:from-yellow-600 dark:to-amber-600 rounded-full blur-2xl opacity-50 animate-pulse"></div>
+                <div className="relative bg-gradient-to-r from-yellow-500 to-amber-500 dark:from-yellow-600 dark:to-amber-600 rounded-full p-6 shadow-2xl">
                   <Camera className="h-12 w-12 text-white" />
                 </div>
               </div>
-              <p className="text-xl font-semibold mb-2">Ready to Scan</p>
-              <p className="text-sm text-blue-200/70">Click start to begin scanning</p>
+              <h2 className="text-xl font-bold text-gray-100 dark:text-gray-100 mb-2">Ready to Scan</h2>
+              <p className="text-sm text-gray-400 dark:text-gray-400">Position QR code within the frame</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Click start to begin scanning</p>
             </div>
           </div>
         )}
         
         {/* Scanning Tips - Elegant */}
         {isScanning && !lastScanResult && !isProcessing && (
-          <div className="mt-4 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 backdrop-blur-sm">
+          <div className="mt-4 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
             <div className="flex items-start gap-3">
-              <Camera className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+              <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+                <Camera className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+              </div>
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-blue-200 mb-2">Scanning Tips</h4>
-                <ul className="text-xs text-blue-300/80 space-y-1.5">
-                  <li className="flex items-center gap-2">
-                    <span className="w-1 h-1 bg-blue-400 rounded-full"></span>
-                    Position QR code within the blue corners
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Scanning Tips</h4>
+                <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-2">
+                  <li className="flex items-center gap-3">
+                    <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
+                    Position QR code within the highlighted frame
                   </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-1 h-1 bg-blue-400 rounded-full"></span>
+                  <li className="flex items-center gap-3">
+                    <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
                     Hold steady for 1-2 seconds
                   </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-1 h-1 bg-blue-400 rounded-full"></span>
-                    Ensure good lighting
+                  <li className="flex items-center gap-3">
+                    <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
+                    Ensure good lighting for better scanning
                   </li>
                 </ul>
               </div>
@@ -504,7 +622,7 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
           <Button
             onClick={startScanning}
             disabled={!cameraId}
-            className="flex-1 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-lg rounded-xl shadow-lg shadow-blue-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 h-11 bg-gradient-to-r from-yellow-500 to-amber-500 dark:from-yellow-600 dark:to-amber-600 hover:from-yellow-600 hover:to-amber-600 dark:hover:from-yellow-700 dark:hover:to-amber-700 text-white font-semibold text-base rounded-xl shadow-lg shadow-yellow-500/30 dark:shadow-yellow-900/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-500/40 dark:hover:shadow-yellow-900/40 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Camera className="mr-2 h-5 w-5" />
             Start Scanner
