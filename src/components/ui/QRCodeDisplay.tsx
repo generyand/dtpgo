@@ -26,8 +26,8 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
     setIsLoading(true);
     setError(null);
     try {
-      // Fetch QR code
-      const qrResponse = await fetch(`/api/students/${studentId}/qr`);
+      // Fetch QR code from public endpoint (no authentication required)
+      const qrResponse = await fetch(`/api/public/students/${studentId}/qr`);
       if (!qrResponse.ok) {
         if (qrResponse.status === 404) {
           throw new Error('Student record not found. Please verify your registration.');
@@ -40,8 +40,8 @@ export function QRCodeDisplay({ studentId }: QRCodeDisplayProps) {
       const blob = await qrResponse.blob();
       setQrCodeUrl(URL.createObjectURL(blob));
 
-      // Fetch student data
-      const studentResponse = await fetch(`/api/students/${studentId}`);
+      // Fetch student data from public endpoint (no authentication required)
+      const studentResponse = await fetch(`/api/public/students/${studentId}`);
       if (studentResponse.ok) {
         const student = await studentResponse.json();
         setStudentData({

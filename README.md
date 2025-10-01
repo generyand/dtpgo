@@ -1,12 +1,16 @@
 # DTP Go - Hybrid Student Registration System
 
-DTP Go is a comprehensive attendance tracking and student registration system built with Next.js 15, TypeScript, and Tailwind CSS. The system supports two distinct registration workflows: secure admin-managed registration via a protected dashboard, and rapid self-registration by students during live events.
+DTP Go is a comprehensive attendance tracking and student registration system built with Next.js 15, TypeScript, and Tailwind CSS. **We solve the problem of long queues during events and eliminate manual report generation** through our innovative QR code-based system that enables instant student registration and lightning-fast attendance scanning.
 
 ## 🎯 Project Overview
 
-**Main Purpose**: DTP Go provides comprehensive attendance tracking and student registration for educational events
+**Main Purpose**: DTP Go eliminates event queues and automates report generation through instant QR code-based attendance tracking
 
-**Problem Solved**: DTP Go streamlines event attendance management by providing a one-time student registration system with QR code-based attendance tracking for multiple events
+**Problem Solved**: 
+- **🚫 No More Long Queues**: Students register once and receive permanent QR codes, eliminating repetitive registration lines
+- **⚡ Lightning-Fast Scanning**: Organizers scan QR codes in seconds instead of manual roll calls
+- **📊 Automated Reports**: Real-time analytics and instant CSV exports replace manual report generation
+- **🎯 One-Time Registration**: Students register once and use their QR code for all future events
 
 **Target Audience**: 
 - **Administrators**: Manage students, events, organizers, and view analytics
@@ -18,26 +22,36 @@ DTP Go is a comprehensive attendance tracking and student registration system bu
 *Screenshots and GIFs showcasing the different user interfaces:*
 
 #### Admin Dashboard
-![Admin Dashboard](https://via.placeholder.com/800x400/1e40af/ffffff?text=Admin+Dashboard+-+Student+Management+%26+Analytics)
+![Admin Dashboard](./docs/screenshots/admin-dashboard.webp)
 
 #### Organizer Scanning Interface
-![Organizer Scanning](https://via.placeholder.com/400x600/059669/ffffff?text=QR+Scanner+-+Real-time+Attendance+Tracking)
+![Organizer Scanning](./docs/screenshots/organizer-scanning.gif)
+*Placeholder: Add your QR scanning GIF to `./docs/screenshots/organizer-scanning.gif`*
 
 #### Student Registration
-![Student Registration](https://via.placeholder.com/400x600/7c3aed/ffffff?text=Student+Registration+-+Mobile+Optimized)
+<img src="./docs/screenshots/student-registration.webp" alt="Student Registration" width="200">
 
 #### QR Code Display
-![QR Code Display](https://via.placeholder.com/400x500/dc2626/ffffff?text=QR+Code+Generated+-+Ready+for+Events)
+<img src="./docs/screenshots/qr-code-display.webp" alt="QR Code Display" width="200">
 
 ## ✨ Core Features
 
+### 🚀 **Queue Elimination & Speed**
 - **One-Time Student Registration**: Students register once and receive a permanent QR code for all future events
+- **Instant QR Code Generation**: Immediate QR code creation upon registration
+- **Lightning-Fast QR Scanning**: Organizers scan QR codes in under 2 seconds using device cameras
+- **No More Manual Roll Calls**: Replace time-consuming manual attendance with instant scanning
+
+### 📊 **Automated Reporting**
+- **Real-time Analytics Dashboard**: Live registration metrics and attendance statistics
+- **Instant CSV Exports**: Generate attendance reports in seconds, not hours
+- **Automated Report Generation**: Eliminate manual data compilation and report creation
+- **Live Attendance Tracking**: Real-time updates during events
+
+### 🛠️ **System Management**
 - **Dual Registration Workflows**: Admin dashboard and public self-registration
-- **QR Code Generation**: Static QR codes containing student IDs for attendance tracking
-- **Real-time QR Scanning**: Organizers scan student QR codes using device cameras
 - **Event & Session Management**: Create events with multiple attendance sessions and time windows
 - **Organizer Management**: Invite and assign organizers to specific events
-- **Analytics Dashboard**: Real-time registration metrics and attendance statistics
 - **Role-based Authentication**: Secure Supabase Auth with Admin/Organizer permissions
 
 ## 🛠️ Technology Stack

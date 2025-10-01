@@ -42,10 +42,10 @@ export function EnhancedQRCodeDisplay({
     setIsLoading(true);
     setError(null);
     try {
-      // Choose between enhanced and regular QR code endpoint
+      // Choose between enhanced and regular QR code endpoint (using public endpoints)
       const qrEndpoint = useEnhanced 
-        ? `/api/students/${studentId}/qr-enhanced`
-        : `/api/students/${studentId}/qr`;
+        ? `/api/public/students/${studentId}/qr-enhanced`
+        : `/api/public/students/${studentId}/qr`;
 
       // Fetch QR code
       const qrResponse = await fetch(qrEndpoint);
@@ -66,8 +66,8 @@ export function EnhancedQRCodeDisplay({
         onQRGenerated(qrUrl);
       }
 
-      // Fetch student data
-      const studentResponse = await fetch(`/api/students/${studentId}`);
+      // Fetch student data from public endpoint
+      const studentResponse = await fetch(`/api/public/students/${studentId}`);
       if (studentResponse.ok) {
         const student = await studentResponse.json();
         setStudentData(student);
