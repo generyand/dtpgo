@@ -8,7 +8,6 @@ import {
   Calendar, 
   Clock, 
   Users, 
-  MapPin, 
   Play, 
   Eye, 
   TrendingUp,
@@ -112,7 +111,7 @@ export function OrganizerDashboard({ className }: OrganizerDashboardProps) {
 
             const totalAttendance = sessions.reduce((sum, session) => sum + session._count.attendance, 0);
             
-            const todayAttendance = statsData.attendance?.filter((record: any) => {
+            const todayAttendance = statsData.attendance?.filter((record: { createdAt: Date | string }) => {
               const recordDate = new Date(record.createdAt);
               return recordDate >= today;
             }).length || 0;
@@ -136,7 +135,7 @@ export function OrganizerDashboard({ className }: OrganizerDashboardProps) {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [sessions]);
 
   // Get session status
   const getSessionStatus = (session: Session) => {
@@ -244,7 +243,7 @@ export function OrganizerDashboard({ className }: OrganizerDashboardProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Organizer Dashboard</h1>
-          <p className="text-gray-600">Welcome back! Here's your session overview</p>
+          <p className="text-gray-600">Welcome back! Here&apos;s your session overview</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => router.push('/organizer/sessions')}>
@@ -301,7 +300,7 @@ export function OrganizerDashboard({ className }: OrganizerDashboardProps) {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Attendance</CardTitle>
+            <CardTitle className="text-sm font-medium">Today&apos;s Attendance</CardTitle>
             <Users className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>

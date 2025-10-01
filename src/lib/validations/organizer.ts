@@ -1,13 +1,11 @@
 import { z } from 'zod';
 import { prisma } from '@/lib/db/client';
+import { Prisma } from '@prisma/client';
 
 /**
  * Organizer role enum validation
  */
-export const organizerRoleSchema = z.enum(['organizer', 'admin'], {
-  required_error: 'Please select a role',
-  invalid_type_error: 'Role must be either "organizer" or "admin"',
-});
+export const organizerRoleSchema = z.enum(['organizer', 'admin']);
 
 /**
  * Base organizer validation schema for creation
@@ -57,10 +55,7 @@ export const organizerUpdateSchema = z.object({
  * Organizer status update schema
  */
 export const organizerStatusUpdateSchema = z.object({
-  isActive: z.boolean({
-    required_error: 'Status is required',
-    invalid_type_error: 'Status must be a boolean value',
-  }),
+  isActive: z.boolean(),
   reason: z
     .string()
     .min(1, 'Reason is required for status changes')
@@ -150,7 +145,7 @@ export async function validateEmailUniqueness(
   excludeOrganizerId?: string
 ): Promise<EmailUniquenessResult> {
   try {
-    const whereClause: any = {
+    const whereClause: Prisma.OrganizerWhereInput = {
       email: email.toLowerCase().trim(),
     };
 
@@ -229,7 +224,7 @@ export async function validateOrganizer(
     const validationResult = schema.safeParse(data);
 
     if (!validationResult.success) {
-      validationResult.error.errors.forEach((error) => {
+      validationResult.error.issues.forEach((error) => {
         errors.push({
           field: error.path.join('.'),
           message: error.message,
@@ -328,7 +323,7 @@ export function validateOrganizerSearch(data: unknown): OrganizerValidationResul
     const validationResult = organizerSearchSchema.safeParse(data);
 
     if (!validationResult.success) {
-      validationResult.error.errors.forEach((error) => {
+      validationResult.error.issues.forEach((error) => {
         errors.push({
           field: error.path.join('.'),
           message: error.message,
@@ -369,7 +364,7 @@ export async function validateBulkOrganizerOperation(
     const validationResult = organizerBulkOperationSchema.safeParse(data);
 
     if (!validationResult.success) {
-      validationResult.error.errors.forEach((error) => {
+      validationResult.error.issues.forEach((error) => {
         errors.push({
           field: error.path.join('.'),
           message: error.message,
@@ -470,21 +465,21 @@ export function generateValidationErrorSummary(errors: OrganizerValidationResult
 /**
  * Sanitize organizer input data
  */
-export function sanitizeOrganizerInput(data: any): any {
+export function sanitizeOrganizerInput(data: Record<string, unknown>): Record<string, unknown> {
   const sanitized = { ...data };
 
   // Sanitize email
-  if (sanitized.email) {
+  if (sanitized.email && typeof sanitized.email === 'string') {
     sanitized.email = sanitized.email.toLowerCase().trim();
   }
 
   // Sanitize full name
-  if (sanitized.fullName) {
+  if (sanitized.fullName && typeof sanitized.fullName === 'string') {
     sanitized.fullName = sanitized.fullName.trim();
   }
 
   // Sanitize reason
-  if (sanitized.reason) {
+  if (sanitized.reason && typeof sanitized.reason === 'string') {
     sanitized.reason = sanitized.reason.trim();
   }
 

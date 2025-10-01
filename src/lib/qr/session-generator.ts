@@ -3,8 +3,9 @@ import QRCode from 'qrcode';
 import sharp from 'sharp';
 import path from 'path';
 
-// Re-export types from client-safe module
-export type { SessionQRData, StudentQRData } from './client-safe';
+// Import and re-export types from client-safe module
+import type { SessionQRData, StudentQRData } from './client-safe';
+export type { SessionQRData, StudentQRData };
 
 export interface SessionQROptions {
   width?: number;

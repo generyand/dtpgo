@@ -90,8 +90,8 @@ export async function middleware(request: NextRequest) {
     // Use our centralized Supabase middleware client
     const { supabase, response } = createSupabaseMiddlewareClient(request)
 
-    // Get session and refresh if needed
-    const { data: { session }, error } = await supabase.auth.getSession()
+    // Get authenticated user (secure method)
+    const { data: { user }, error } = await supabase.auth.getUser()
 
     if (error) {
       console.error('Middleware auth error:', error.message)
@@ -104,22 +104,22 @@ export async function middleware(request: NextRequest) {
       return res
     }
 
-    if (!session?.user) {
+    if (!user) {
       // Redirect to the unified login page
       const redirectUrl = new URL('/auth/login', request.url)
       redirectUrl.searchParams.set('redirectTo', pathname)
       const res = NextResponse.redirect(redirectUrl)
-      res.headers.set('X-Auth-Reason', 'no-session')
+      res.headers.set('X-Auth-Reason', 'no-user')
       return res
     }
 
     // Check if user has required role for protected routes
-    const userRole = session.user.user_metadata?.role
+    const userRole = user.user_metadata?.role
     
     // Admin route access control
     if (isAdminRoute(pathname)) {
       if (userRole !== 'admin' && userRole !== 'organizer') {
-        console.warn(`User ${session.user.email} attempted to access admin route without proper role`)
+        console.warn(`User ${user.email} attempted to access admin route without proper role`)
         const redirectUrl = new URL('/auth/login', request.url)
         redirectUrl.searchParams.set('error', 'insufficient_permissions')
         redirectUrl.searchParams.set('message', 'Admin access required')
@@ -132,7 +132,7 @@ export async function middleware(request: NextRequest) {
     // Organizer route access control
     if (isOrganizerRoute(pathname)) {
       if (userRole !== 'organizer' && userRole !== 'admin') {
-        console.warn(`User ${session.user.email} attempted to access organizer route without proper role`)
+        console.warn(`User ${user.email} attempted to access organizer route without proper role`)
         const redirectUrl = new URL('/auth/login', request.url)
         redirectUrl.searchParams.set('error', 'insufficient_permissions')
         redirectUrl.searchParams.set('message', 'Organizer access required')

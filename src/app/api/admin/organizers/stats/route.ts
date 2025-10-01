@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/auth/supabase-server';
 import { getOrganizerStats, getOrganizerAssignmentStats } from '@/lib/db/queries/organizers';
+import { authenticateAdminApi, createAuthErrorResponse } from '@/lib/auth/api-auth';
 
 /**
  * GET /api/admin/organizers/stats
@@ -8,26 +8,10 @@ import { getOrganizerStats, getOrganizerAssignmentStats } from '@/lib/db/queries
  */
 export async function GET(request: NextRequest) {
   try {
-    // Create Supabase client for server-side operations
-    const supabase = await createSupabaseServerClient();
-    
-    // Get the current user session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Check if user is admin
-    const userRole = session.user.user_metadata?.role;
-    if (userRole !== 'admin') {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+    // Authenticate admin user
+    const authResult = await authenticateAdminApi(request);
+    if (!authResult.success) {
+      return createAuthErrorResponse(authResult);
     }
 
     // Fetch organizer statistics

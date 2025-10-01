@@ -4,7 +4,7 @@ import { authenticateAdminApi, createAuthErrorResponse } from '@/lib/auth/api-au
 import { prisma } from '@/lib/db/client'
 import { sendOrganizerInvitationEmail } from '@/lib/email/invitation-service'
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await authenticateAdminApi(request)
     if (!authResult.success) {
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     const adminUser = authResult.user!
-    const organizerId = params.id
+    const { id: organizerId } = await params
 
     const organizer = await prisma.organizer.findUnique({ where: { id: organizerId } })
     if (!organizer) {

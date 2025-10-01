@@ -41,19 +41,19 @@ export async function authenticateApiRequest(
     // Get Supabase client for API routes
     const supabase = createSupabaseApiClient(request)
 
-    // Get session from request
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    // Get authenticated user from request (secure method)
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
 
-    if (sessionError) {
+    if (authError) {
       return {
         success: false,
-        error: 'Authentication error: ' + sessionError.message,
+        error: 'Authentication error: ' + authError.message,
         statusCode: 401,
       }
     }
 
     // Check if authentication is required
-    if (requireAuth && !session?.user) {
+    if (requireAuth && !authUser) {
       return {
         success: false,
         error: 'Authentication required',
@@ -62,11 +62,11 @@ export async function authenticateApiRequest(
     }
 
     // If no authentication required and no user, allow access
-    if (!requireAuth && !session?.user) {
+    if (!requireAuth && !authUser) {
       return { success: true }
     }
 
-    const user = session?.user as UserWithRole
+    const user = authUser as UserWithRole
 
     // Check specific required role
     if (requiredRole && !hasRole(user, requiredRole)) {

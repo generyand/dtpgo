@@ -1,38 +1,23 @@
-import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/auth/supabase-server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/client';
+import { authenticateOrganizerApi, createAuthErrorResponse } from '@/lib/auth/api-auth';
 
 /**
  * GET /api/organizer/sessions
  * Fetch sessions assigned to the current organizer
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Create Supabase client for server-side operations
-    const supabase = await createSupabaseServerClient();
-    
-    // Get the current user session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Authenticate organizer user
+    const authResult = await authenticateOrganizerApi(request);
+    if (!authResult.success) {
+      return createAuthErrorResponse(authResult);
     }
-
-    // Check if user is organizer
-    const userRole = session.user.user_metadata?.role;
-    if (userRole !== 'organizer') {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
-    }
+    const user = authResult.user!;
 
     // Get organizer by email
     const organizer = await prisma.organizer.findUnique({
-      where: { email: session.user.email! },
+      where: { email: user.email! },
       select: { id: true }
     });
 

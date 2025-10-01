@@ -7,23 +7,18 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Calendar, 
   Users, 
-  Clock, 
   Download, 
   Search, 
-  Filter, 
   RefreshCw,
   Eye,
-  BarChart3,
-  FileText,
   TrendingUp,
   AlertCircle,
   CheckCircle,
   User,
-  MapPin,
   Activity
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -103,7 +98,7 @@ export function SessionManager({ sessionId, className }: SessionManagerProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
-  const router = useRouter();
+  const _router = useRouter();
 
   const pageSize = 20;
 
@@ -609,7 +604,7 @@ export function SessionManager({ sessionId, className }: SessionManagerProps) {
               <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No Sessions Available</h3>
               <p className="text-gray-600 mb-4">
-                You don't have any sessions assigned to you yet.
+                You don&apos;t have any sessions assigned to you yet.
               </p>
             </CardContent>
           </Card>

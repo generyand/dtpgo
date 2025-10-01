@@ -531,7 +531,7 @@ export function validateDTPQRFormat(qrData: string): {
 /**
  * Get current time in specified timezone
  */
-export function getCurrentTimeInTimezone(timezone: string = 'UTC'): Date {
+export function getCurrentTimeInTimezone(_timezone: string = 'UTC'): Date {
   const now = new Date();
   
   // For now, we'll use the local time

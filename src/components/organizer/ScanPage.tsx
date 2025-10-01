@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { QRCodeScanner } from './QRCodeScanner';
+import { QRScanner } from './QRScanner';
 import { SessionSelector } from './SessionSelector';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { 
   ArrowLeft, 
-  QrCode, 
   Calendar, 
   Clock, 
   MapPin, 
@@ -46,9 +45,9 @@ interface ScanPageProps {
   className?: string;
 }
 
-export function ScanPage({ className }: ScanPageProps) {
+export function ScanPage({ className: _className }: ScanPageProps) {
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const _router = useRouter();
   
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -122,7 +121,7 @@ export function ScanPage({ className }: ScanPageProps) {
     window.history.replaceState({}, '', url.toString());
   };
 
-  const handleAttendanceRecorded = (attendanceData: Record<string, unknown>) => {
+  const handleAttendanceRecorded = (_attendanceData: Record<string, unknown>) => {
     setAttendanceStats(prev => ({
       totalScanned: prev.totalScanned + 1,
       lastScanTime: new Date(),
@@ -133,26 +132,27 @@ export function ScanPage({ className }: ScanPageProps) {
     });
   };
 
-  const handleError = (errorMessage: string) => {
-    setError(errorMessage);
-    toast.error('Scanner Error', {
-      description: errorMessage,
-    });
-  };
+  // Error handling is done inline in the QRScanner component
+  // const handleError = (errorMessage: string) => {
+  //   setError(errorMessage);
+  //   toast.error('Scanner Error', {
+  //     description: errorMessage,
+  //   });
+  // };
 
   if (loading) {
     return (
-      <Card className="w-full max-w-4xl mx-auto">
+      <Card className="w-full max-w-5xl mx-auto bg-white/10 backdrop-blur-xl border-white/20">
         <CardHeader className="text-center">
-          <CardTitle>Loading Sessions...</CardTitle>
-          <CardDescription>Please wait while we load your available sessions.</CardDescription>
+          <CardTitle className="text-white">Loading Sessions...</CardTitle>
+          <CardDescription className="text-blue-200/70">Please wait while we load your available sessions.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 rounded"></div>
-            <div className="h-10 bg-gray-200 rounded"></div>
-            <div className="h-10 bg-gray-200 rounded"></div>
-            <div className="h-10 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-white/10 rounded"></div>
+            <div className="h-10 bg-white/10 rounded"></div>
+            <div className="h-10 bg-white/10 rounded"></div>
+            <div className="h-10 bg-white/10 rounded"></div>
           </div>
         </CardContent>
       </Card>
@@ -161,19 +161,19 @@ export function ScanPage({ className }: ScanPageProps) {
 
   if (error) {
     return (
-      <Card className="w-full max-w-4xl mx-auto">
+      <Card className="w-full max-w-5xl mx-auto bg-white/10 backdrop-blur-xl border-white/20">
         <CardHeader>
-          <CardTitle className="text-red-600">Error Loading Sessions</CardTitle>
+          <CardTitle className="text-red-400">Error Loading Sessions</CardTitle>
         </CardHeader>
         <CardContent>
-          <Alert className="border-red-200 bg-red-50">
-            <AlertCircle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">
+          <Alert className="border-red-500/50 bg-red-500/10">
+            <AlertCircle className="h-4 w-4 text-red-400" />
+            <AlertDescription className="text-red-200">
               {error}
             </AlertDescription>
           </Alert>
           <div className="mt-4">
-            <Button onClick={loadSessions} variant="outline">
+            <Button onClick={loadSessions} variant="outline" className="border-white/20 text-white hover:bg-white/10">
               Try Again
             </Button>
           </div>
@@ -184,67 +184,73 @@ export function ScanPage({ className }: ScanPageProps) {
 
   if (scanMode === 'scan' && selectedSession) {
     return (
-      <div className="space-y-6">
-        {/* Session Header */}
-        <Card className="w-full max-w-4xl mx-auto">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+      <div className="space-y-4 sm:space-y-6">
+        {/* Floating Stats Counter */}
+        <div className="fixed top-4 right-4 z-50 hidden sm:block">
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl shadow-blue-500/50">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white mb-1">
+                {attendanceStats.totalScanned}
+              </div>
+              <div className="text-xs text-blue-100 uppercase tracking-wider">
+                Scanned Today
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Compact Session Header */}
+        <Card className="w-full max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border-white/10">
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3 flex-1">
                 <Button
                   onClick={handleBackToSessions}
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-2"
+                  className="border-white/20 text-white hover:bg-white/10 flex-shrink-0"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  Back to Sessions
                 </Button>
-                <div className="h-6 w-px bg-gray-300" />
-                <div>
-                  <CardTitle className="text-xl">{selectedSession.event.name}</CardTitle>
-                  <CardDescription className="text-base">
+                <div className="flex-1 min-w-0">
+                  <CardTitle className="text-lg sm:text-xl text-white truncate">{selectedSession.event.name}</CardTitle>
+                  <CardDescription className="text-sm text-blue-200/70 truncate">
                     {selectedSession.name}
                   </CardDescription>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge 
-                  variant={selectedSession.isActive ? 'default' : 'secondary'}
-                  className={selectedSession.isActive ? 'bg-green-100 text-green-800' : ''}
-                >
-                  {selectedSession.isActive ? (
-                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                  ) : (
-                    <Clock className="h-3 w-3 mr-1" />
-                  )}
-                  {selectedSession.isActive ? 'Active' : 'Inactive'}
-                </Badge>
-              </div>
+              <Badge 
+                variant={selectedSession.isActive ? 'default' : 'secondary'}
+                className={selectedSession.isActive 
+                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 backdrop-blur-sm' 
+                  : 'bg-white/10 text-white/60 border-white/20'
+                }
+              >
+                {selectedSession.isActive ? (
+                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                ) : (
+                  <Clock className="h-3 w-3 mr-1" />
+                )}
+                {selectedSession.isActive ? 'Active' : 'Inactive'}
+              </Badge>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-gray-500" />
-                <span className="text-gray-600">
+            
+            {/* Compact Info Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 text-xs sm:text-sm">
+              <div className="flex items-center gap-2 text-blue-200/80">
+                <Calendar className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">
                   {new Date(selectedSession.timeInStart).toLocaleDateString('en-PH', {
                     timeZone: 'Asia/Manila',
-                    weekday: 'long',
                     month: 'short',
                     day: 'numeric',
-                    year: 'numeric',
                   })}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-gray-500" />
-                <span className="text-gray-600">
+              <div className="flex items-center gap-2 text-blue-200/80">
+                <Clock className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">
                   {new Date(selectedSession.timeInStart).toLocaleTimeString('en-PH', {
-                    timeZone: 'Asia/Manila',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                  })} - {new Date(selectedSession.timeInEnd).toLocaleTimeString('en-PH', {
                     timeZone: 'Asia/Manila',
                     hour: 'numeric',
                     minute: '2-digit',
@@ -253,48 +259,178 @@ export function ScanPage({ className }: ScanPageProps) {
                 </span>
               </div>
               {selectedSession.event.location && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-gray-500" />
-                  <span className="text-gray-600">{selectedSession.event.location}</span>
+                <div className="flex items-center gap-2 text-blue-200/80">
+                  <MapPin className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{selectedSession.event.location}</span>
                 </div>
               )}
             </div>
             
-            {/* Attendance Stats */}
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-              <div className="flex items-center justify-between">
+            {/* Mobile Stats */}
+            <div className="mt-3 p-2.5 bg-blue-500/10 border border-blue-500/20 rounded-xl sm:hidden">
+              <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-blue-600" />
-                  <span className="text-blue-800 font-medium">Attendance Stats</span>
+                  <Users className="h-4 w-4 text-blue-300" />
+                  <span className="text-blue-200 font-medium">Scanned</span>
                 </div>
-                <div className="text-blue-800">
-                  <span className="font-semibold">{attendanceStats.totalScanned}</span>
-                  <span className="text-sm ml-1">scanned</span>
-                </div>
+                <span className="text-white font-semibold">{attendanceStats.totalScanned}</span>
               </div>
-              {attendanceStats.lastScanTime && (
-                <div className="text-xs text-blue-600 mt-1">
-                  Last scan: {attendanceStats.lastScanTime.toLocaleTimeString('en-PH', {
-                    timeZone: 'Asia/Manila',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                  })}
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* QR Scanner */}
-        <QRCodeScanner
-          sessionId={selectedSession.id}
-          eventId={selectedSession.eventId}
-          sessionName={selectedSession.name}
-          eventName={selectedSession.event.name}
-          onAttendanceRecorded={handleAttendanceRecorded}
-          onError={handleError}
-        />
+        {/* QR Scanner - Modern Glassmorphic Design */}
+        <Card className="bg-white/5 backdrop-blur-xl border-white/10 overflow-hidden">
+          <CardContent className="p-4 sm:p-6">
+            <QRScanner
+              sessionId={selectedSession.id}
+              eventId={selectedSession.eventId}
+              onScan={async (qrData, updateScanResult) => {
+                console.log('🔍 Processing scanned QR data:', qrData);
+                
+                try {
+                  console.log('📍 Step 1: Parsing QR data...');
+                  let studentId: string;
+                  let studentData: Record<string, unknown> = {};
+
+                  // Parse the QR data - handle both JSON and plain text
+                  try {
+                    const parsed = JSON.parse(qrData);
+                    // Check if it's actually a JSON object with studentId property
+                    if (typeof parsed === 'object' && parsed !== null && parsed.studentId) {
+                      studentId = parsed.studentId;
+                      studentData = parsed;
+                      console.log('✅ Parsed as JSON object:', studentData);
+                    } else {
+                      // Parsed successfully but it's not a student object (e.g., just a number)
+                      console.log('📝 Parsed value is not a student object, treating QR as plain student ID');
+                      studentId = qrData.trim();
+                    }
+                  } catch {
+                    // Plain text QR code (just the student ID)
+                    console.log('📝 JSON parse failed, treating as plain text student ID');
+                    studentId = qrData.trim();
+                  }
+                  
+                  console.log('🔍 Final studentId value:', studentId);
+                  console.log('🔍 studentId truthy check:', !!studentId);
+                  
+                  if (!studentId) {
+                    console.error('❌ No student ID found');
+                    console.error('❌ studentId value:', studentId);
+                    console.error('❌ studentId type:', typeof studentId);
+                    toast.error('Invalid QR Code', {
+                      description: 'No student ID found in QR code'
+                    });
+                    throw new Error('No student ID found in QR code');
+                  }
+
+                  console.log('📍 Step 2: Student ID validated:', studentId);
+
+                  // Record attendance via API
+                  console.log('📍 Step 3: Sending attendance request...');
+                  console.log('📤 Request data:', {
+                    sessionId: selectedSession.id,
+                    eventId: selectedSession.eventId,
+                    studentId: studentId,
+                    scanType: 'time_in',
+                  });
+
+                  const response = await fetch('/api/organizer/attendance', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      sessionId: selectedSession.id,
+                      eventId: selectedSession.eventId,
+                      studentId: studentId,
+                      scanType: 'time_in',
+                    }),
+                  });
+
+                  console.log('📍 Step 4: Fetch completed');
+                  console.log('📥 Response status:', response.status, response.statusText);
+
+                  // Handle duplicate attendance (409 Conflict)
+                  if (response.status === 409) {
+                    console.log('⚠️ Duplicate scan detected');
+                    const errorData = await response.json();
+                    
+                    // Update scanner display to show the student with duplicate flag
+                    updateScanResult({
+                      firstName: (studentData.firstName as string) || 'Student',
+                      lastName: (studentData.lastName as string) || studentId,
+                      studentIdNumber: studentId,
+                      isDuplicate: true,
+                    });
+                    
+                    // Show warning toast (not error)
+                    toast.warning('Already Recorded', {
+                      description: errorData.message || 'This student has already been recorded for this session',
+                      duration: 4000,
+                    });
+                    
+                    // Don't throw error - this is expected behavior
+                    console.log('✅ Duplicate scan handled gracefully');
+                    return;
+                  }
+
+                  if (!response.ok) {
+                    console.log('📍 Step 5: Response not OK, parsing error...');
+                    const errorData = await response.json();
+                    console.error('❌ API Error Response:', errorData);
+                    throw new Error(errorData.message || errorData.error || 'Failed to record attendance');
+                  }
+
+                  console.log('📍 Step 5: Parsing success response...');
+                  const result = await response.json();
+                  console.log('📍 Step 6: Response parsed successfully');
+                  console.log('✅ Attendance recorded successfully:', result);
+                  
+                  // Update scanner display with real student data
+                  if (result.student?.firstName && result.student?.lastName) {
+                    updateScanResult({
+                      firstName: result.student.firstName,
+                      lastName: result.student.lastName,
+                      studentIdNumber: result.student.studentIdNumber,
+                      isDuplicate: false, // Explicitly mark as not duplicate
+                    });
+                  }
+                  
+                  // Update attendance stats with data from API response
+                  handleAttendanceRecorded({
+                    studentId: studentId,
+                    firstName: result.student?.firstName || (studentData.firstName as string) || 'Student',
+                    lastName: result.student?.lastName || (studentData.lastName as string) || studentId,
+                    studentIdNumber: result.student?.studentIdNumber || (studentData.studentIdNumber as string) || studentId,
+                  });
+
+                  // Show success toast with actual student name
+                  if (result.student?.firstName && result.student?.lastName) {
+                    toast.success('✅ Attendance Recorded!', {
+                      description: `${result.student.firstName} ${result.student.lastName} - ${result.student.studentIdNumber}`,
+                      duration: 4000,
+                    });
+                  }
+
+                } catch (error) {
+                  console.error('❌ Error recording attendance:', error);
+                  console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+                  const errorMsg = error instanceof Error ? error.message : 'Failed to record attendance';
+                  toast.error('Recording Failed', {
+                    description: errorMsg
+                  });
+                  throw error; // Re-throw so the scanner can handle it
+                }
+              }}
+              onError={(error) => {
+                console.error('Scanner error:', error);
+                toast.error('Scanner Error', { description: error });
+              }}
+            />
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -302,18 +438,16 @@ export function ScanPage({ className }: ScanPageProps) {
   // Session Selection Mode
   return (
     <div className="space-y-6">
-      <Card className="w-full max-w-4xl mx-auto">
+      <Card className="w-full max-w-5xl mx-auto bg-white/5 backdrop-blur-xl border-white/10">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Select a Session to Scan</CardTitle>
-          <CardDescription>
-            Choose an active session to start scanning student QR codes for attendance
+          <CardTitle className="text-2xl sm:text-3xl text-white">Select a Session</CardTitle>
+          <CardDescription className="text-blue-200/70">
+            Choose an active session to start scanning QR codes
           </CardDescription>
         </CardHeader>
         <CardContent>
           <SessionSelector
-            sessions={sessions}
             onSessionSelect={handleSessionSelect}
-            loading={loading}
           />
         </CardContent>
       </Card>

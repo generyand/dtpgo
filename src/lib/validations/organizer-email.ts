@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { prisma } from '@/lib/db/client';
+import { Prisma } from '@prisma/client';
 
 /**
  * Email validation schema with comprehensive rules
@@ -82,8 +83,8 @@ export function validateEmailFormat(email: string): {
     const result = emailValidationSchema.safeParse(email);
     
     if (!result.success) {
-      result.error.errors.forEach((error) => {
-        errors.push(error.message);
+      result.error.issues.forEach((issue) => {
+        errors.push(issue.message);
       });
     }
 
@@ -91,7 +92,7 @@ export function validateEmailFormat(email: string): {
       isValid: errors.length === 0,
       errors,
     };
-  } catch (error) {
+  } catch {
     return {
       isValid: false,
       errors: ['Invalid email format'],
@@ -134,7 +135,7 @@ export async function checkEmailUniqueness(
       : email.trim();
 
     // Build query conditions
-    const whereClause: any = {
+    const whereClause: Prisma.OrganizerWhereInput = {
       email: normalizedEmail,
     };
 
@@ -222,7 +223,7 @@ async function generateEmailSuggestions(
     for (const variation of variations) {
       const testEmail = `${variation}@${domain}`;
       
-      const whereClause: any = {
+      const whereClause: Prisma.OrganizerWhereInput = {
         email: testEmail.toLowerCase(),
       };
 
@@ -395,7 +396,7 @@ export async function validateBulkEmails(
  * Email validation middleware for API routes
  */
 export function createEmailValidationMiddleware(options: EmailValidationOptions = {}) {
-  return async (req: any, res: any, next: any) => {
+  return async (req: { body: { email: string } }, res: { status: (code: number) => { json: (data: unknown) => void } }, next: () => void) => {
     try {
       const { email } = req.body;
 
@@ -426,7 +427,7 @@ export function createEmailValidationMiddleware(options: EmailValidationOptions 
       }
 
       // Add validation result to request for use in route handler
-      req.emailValidation = validation;
+      (req as unknown as { emailValidation: unknown }).emailValidation = validation;
       next();
     } catch (error) {
       console.error('Email validation middleware error:', error);

@@ -38,7 +38,15 @@ interface AccountStatusProps {
     createdAt: Date
     lastLoginAt: Date | null
   }
-  onStatusChange?: (updatedOrganizer: any) => void
+  onStatusChange?: (updatedOrganizer: {
+    id: string
+    email: string
+    fullName: string | null
+    role: string
+    isActive: boolean
+    createdAt: Date
+    lastLoginAt: Date | null
+  }) => void
   className?: string
 }
 

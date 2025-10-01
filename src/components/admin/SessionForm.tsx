@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,7 +30,7 @@ export interface SessionFormData {
   requireRegistration?: boolean;
 }
 
-export function SessionForm({ eventId, onSubmit, onCancel, isSubmitting = false }: SessionFormProps) {
+export function SessionForm({ eventId: _eventId, onSubmit, onCancel, isSubmitting = false }: SessionFormProps) {
   const {
     register,
     handleSubmit,

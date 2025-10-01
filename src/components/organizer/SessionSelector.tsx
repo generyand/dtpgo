@@ -16,7 +16,6 @@ import {
   CheckCircle, 
   AlertCircle, 
   Search, 
-  Filter, 
   RefreshCw,
   Eye,
   BarChart3,
@@ -170,17 +169,17 @@ export function SessionSelector({
   const getSessionStatusBadge = (status: string) => {
     switch (status) {
       case 'upcoming':
-        return <Badge variant="outline" className="text-blue-600 border-blue-200">Upcoming</Badge>;
+        return <Badge variant="outline" className="text-blue-300 border-blue-500/30 bg-blue-500/10">Upcoming</Badge>;
       case 'active_time_in':
-        return <Badge variant="default" className="bg-green-600 hover:bg-green-700">Time-In Active</Badge>;
+        return <Badge variant="default" className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">Time-In Active</Badge>;
       case 'active_time_out':
-        return <Badge variant="default" className="bg-orange-600 hover:bg-orange-700">Time-Out Active</Badge>;
+        return <Badge variant="default" className="bg-orange-500/20 text-orange-300 border-orange-500/30">Time-Out Active</Badge>;
       case 'ended':
-        return <Badge variant="secondary">Ended</Badge>;
+        return <Badge variant="secondary" className="bg-white/10 text-white/60">Ended</Badge>;
       case 'inactive':
-        return <Badge variant="outline" className="text-gray-600 border-gray-200">Inactive</Badge>;
+        return <Badge variant="outline" className="text-white/40 border-white/20 bg-white/5">Inactive</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline" className="text-white/40 border-white/20">Unknown</Badge>;
     }
   };
 
@@ -188,17 +187,17 @@ export function SessionSelector({
   const getSessionStatusIcon = (status: string) => {
     switch (status) {
       case 'upcoming':
-        return <Clock className="h-4 w-4 text-blue-600" />;
+        return <Clock className="h-4 w-4 text-blue-400" />;
       case 'active_time_in':
-        return <Play className="h-4 w-4 text-green-600" />;
+        return <Play className="h-4 w-4 text-emerald-400" />;
       case 'active_time_out':
-        return <Pause className="h-4 w-4 text-orange-600" />;
+        return <Pause className="h-4 w-4 text-orange-400" />;
       case 'ended':
-        return <CheckCircle className="h-4 w-4 text-gray-600" />;
+        return <CheckCircle className="h-4 w-4 text-white/40" />;
       case 'inactive':
-        return <AlertCircle className="h-4 w-4 text-gray-400" />;
+        return <AlertCircle className="h-4 w-4 text-white/30" />;
       default:
-        return <Clock className="h-4 w-4 text-gray-400" />;
+        return <Clock className="h-4 w-4 text-white/30" />;
     }
   };
 
@@ -315,10 +314,10 @@ export function SessionSelector({
       <div className={className}>
         <div className="space-y-4">
           <div className="animate-pulse">
-            <div className="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
+            <div className="h-6 bg-white/10 rounded w-1/4 mb-4"></div>
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-24 bg-gray-200 rounded"></div>
+                <div key={i} className="h-24 bg-white/10 rounded-xl"></div>
               ))}
             </div>
           </div>
@@ -330,12 +329,12 @@ export function SessionSelector({
   if (error) {
     return (
       <div className={className}>
-        <Card>
+        <Card className="bg-white/5 backdrop-blur-xl border-white/10">
           <CardContent className="text-center py-8">
-            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Sessions</h3>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={() => window.location.reload()} variant="outline">
+            <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-white mb-2">Error Loading Sessions</h3>
+            <p className="text-blue-200/70 mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()} variant="outline" className="border-white/20 text-white hover:bg-white/10">
               Try Again
             </Button>
           </CardContent>
@@ -347,11 +346,11 @@ export function SessionSelector({
   if (sessions.length === 0) {
     return (
       <div className={className}>
-        <Card>
+        <Card className="bg-white/5 backdrop-blur-xl border-white/10">
           <CardContent className="text-center py-8">
-            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Sessions Assigned</h3>
-            <p className="text-gray-600 mb-4">
+            <Calendar className="h-12 w-12 text-blue-400/50 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-white mb-2">No Sessions Assigned</h3>
+            <p className="text-blue-200/70 mb-4">
               You don&apos;t have any sessions assigned to you yet. Contact your administrator to get assigned to events.
             </p>
           </CardContent>
@@ -364,22 +363,22 @@ export function SessionSelector({
     <div className={className}>
       <div className="space-y-6">
         {/* Enhanced Header with Controls */}
-        <Card>
+        <Card className="bg-white/5 backdrop-blur-xl border-white/10">
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-blue-600" />
-                  Session Management
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <Calendar className="h-5 w-5 text-blue-400" />
+                  Available Sessions
                 </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-blue-200/70 mt-1">
                   {filteredSessions.length} of {sessions.length} sessions
                   {searchQuery && ` matching "${searchQuery}"`}
                 </p>
               </div>
               
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 text-xs text-blue-300/60">
                   <RefreshCw className="h-3 w-3" />
                   <span>Updated {formatLastRefresh(lastRefresh)}</span>
                 </div>
@@ -388,6 +387,7 @@ export function SessionSelector({
                   size="sm"
                   onClick={() => fetchSessions()}
                   disabled={loading}
+                  className="border-white/20 text-white hover:bg-white/10"
                 >
                   <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
                   Refresh
@@ -399,21 +399,21 @@ export function SessionSelector({
             <div className="flex flex-col sm:flex-row gap-4">
               {/* Search Input */}
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-400/50" />
                 <Input
                   placeholder="Search sessions, events, or locations..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-blue-300/40"
                 />
               </div>
               
               {/* Status Filter */}
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px] bg-white/5 border-white/10 text-white">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-slate-900 border-white/10">
                   <SelectItem value="all">All Sessions</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="upcoming">Upcoming</SelectItem>
@@ -428,9 +428,9 @@ export function SessionSelector({
         {activeSessions.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Play className="h-5 w-5 text-green-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Active Sessions</h2>
-              <Badge variant="default" className="bg-green-100 text-green-800">
+              <Play className="h-5 w-5 text-emerald-400" />
+              <h2 className="text-lg font-semibold text-white">Active Sessions</h2>
+              <Badge variant="default" className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
                 {activeSessions.length}
               </Badge>
             </div>
@@ -440,8 +440,8 @@ export function SessionSelector({
                 return (
                   <Card 
                     key={session.id} 
-                    className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                      selectedSessionId === session.id ? 'ring-2 ring-primary' : ''
+                    className={`cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/20 bg-white/5 backdrop-blur-xl border-white/10 hover:bg-white/10 hover:border-emerald-500/30 ${
+                      selectedSessionId === session.id ? 'ring-2 ring-emerald-500 bg-emerald-500/10' : ''
                     }`}
                     onClick={() => handleSessionSelect(session)}
                   >
@@ -450,11 +450,11 @@ export function SessionSelector({
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             {getSessionStatusIcon(status)}
-                            <h3 className="font-semibold text-gray-900">{session.name}</h3>
+                            <h3 className="font-semibold text-white">{session.name}</h3>
                             {getSessionStatusBadge(status)}
                           </div>
                           
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                          <div className="flex items-center gap-4 text-sm text-blue-200/70 mb-2">
                             <div className="flex items-center gap-1">
                               <Calendar className="h-4 w-4" />
                               {session.event.name}
@@ -468,16 +468,16 @@ export function SessionSelector({
                           </div>
 
                           {session.description && (
-                            <p className="text-sm text-gray-600 mb-3">{session.description}</p>
+                            <p className="text-sm text-blue-200/60 mb-3">{session.description}</p>
                           )}
 
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs text-gray-500">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs text-blue-300/60">
                             <div>
-                              <span className="font-medium">Time-In:</span> {formatTime(session.timeInStart)} - {formatTime(session.timeInEnd)}
+                              <span className="font-medium text-blue-200/80">Time-In:</span> {formatTime(session.timeInStart)} - {formatTime(session.timeInEnd)}
                             </div>
                             {session.timeOutStart && session.timeOutEnd && (
                               <div>
-                                <span className="font-medium">Time-Out:</span> {formatTime(session.timeOutStart)} - {formatTime(session.timeOutEnd)}
+                                <span className="font-medium text-blue-200/80">Time-Out:</span> {formatTime(session.timeOutStart)} - {formatTime(session.timeOutEnd)}
                               </div>
                             )}
                             <div className="flex items-center gap-1">
@@ -490,7 +490,7 @@ export function SessionSelector({
                         <div className="ml-4 flex gap-2">
                           <Button 
                             size="sm" 
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleSessionSelect(session);
@@ -502,6 +502,7 @@ export function SessionSelector({
                           <Button 
                             size="sm" 
                             variant="outline"
+                            className="border-white/20 text-white hover:bg-white/10"
                             onClick={(e) => {
                               e.stopPropagation();
                               router.push(`/organizer/sessions/${session.id}`);
@@ -524,9 +525,9 @@ export function SessionSelector({
         {upcomingSessions.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-blue-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Upcoming Sessions</h2>
-              <Badge variant="outline" className="text-blue-600 border-blue-200">
+              <Clock className="h-5 w-5 text-blue-400" />
+              <h2 className="text-lg font-semibold text-white">Upcoming Sessions</h2>
+              <Badge variant="outline" className="text-blue-300 border-blue-500/30 bg-blue-500/10">
                 {upcomingSessions.length}
               </Badge>
             </div>
@@ -534,17 +535,17 @@ export function SessionSelector({
               {upcomingSessions.map((session) => {
                 const status = getSessionStatus(session);
                 return (
-                  <Card key={session.id} className="opacity-75">
+                  <Card key={session.id} className="opacity-75 bg-white/5 backdrop-blur-xl border-white/10 hover:bg-white/10 hover:border-blue-500/30 transition-all">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             {getSessionStatusIcon(status)}
-                            <h3 className="font-semibold text-gray-900">{session.name}</h3>
+                            <h3 className="font-semibold text-white">{session.name}</h3>
                             {getSessionStatusBadge(status)}
                           </div>
                           
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                          <div className="flex items-center gap-4 text-sm text-blue-200/70 mb-2">
                             <div className="flex items-center gap-1">
                               <Calendar className="h-4 w-4" />
                               {session.event.name}
@@ -557,8 +558,8 @@ export function SessionSelector({
                             )}
                           </div>
 
-                          <div className="text-sm text-gray-500">
-                            <span className="font-medium">Starts:</span> {formatDate(session.timeInStart)} at {formatTime(session.timeInStart)}
+                          <div className="text-sm text-blue-300/60">
+                            <span className="font-medium text-blue-200/80">Starts:</span> {formatDate(session.timeInStart)} at {formatTime(session.timeInStart)}
                           </div>
                         </div>
                         
@@ -566,6 +567,7 @@ export function SessionSelector({
                           <Button 
                             size="sm" 
                             variant="outline"
+                            className="border-white/20 text-white hover:bg-white/10"
                             onClick={(e) => {
                               e.stopPropagation();
                               router.push(`/organizer/sessions/${session.id}`);
@@ -588,9 +590,9 @@ export function SessionSelector({
         {endedSessions.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-gray-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Recent Sessions</h2>
-              <Badge variant="secondary">
+              <CheckCircle className="h-5 w-5 text-white/40" />
+              <h2 className="text-lg font-semibold text-white">Recent Sessions</h2>
+              <Badge variant="secondary" className="bg-white/10 text-white/60">
                 {endedSessions.length}
               </Badge>
             </div>
@@ -598,17 +600,17 @@ export function SessionSelector({
               {endedSessions.slice(0, 3).map((session) => {
                 const status = getSessionStatus(session);
                 return (
-                  <Card key={session.id} className="opacity-60">
+                  <Card key={session.id} className="opacity-60 bg-white/5 backdrop-blur-xl border-white/10">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             {getSessionStatusIcon(status)}
-                            <h3 className="font-semibold text-gray-900">{session.name}</h3>
+                            <h3 className="font-semibold text-white">{session.name}</h3>
                             {getSessionStatusBadge(status)}
                           </div>
                           
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                          <div className="flex items-center gap-4 text-sm text-blue-200/70 mb-2">
                             <div className="flex items-center gap-1">
                               <Calendar className="h-4 w-4" />
                               {session.event.name}
@@ -624,6 +626,7 @@ export function SessionSelector({
                           <Button 
                             size="sm" 
                             variant="outline"
+                            className="border-white/20 text-white hover:bg-white/10"
                             onClick={(e) => {
                               e.stopPropagation();
                               router.push(`/organizer/sessions/${session.id}`);
@@ -646,9 +649,9 @@ export function SessionSelector({
         {inactiveSessions.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-gray-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Inactive Sessions</h2>
-              <Badge variant="outline" className="text-gray-600 border-gray-200">
+              <AlertCircle className="h-5 w-5 text-white/30" />
+              <h2 className="text-lg font-semibold text-white">Inactive Sessions</h2>
+              <Badge variant="outline" className="text-white/40 border-white/20 bg-white/5">
                 {inactiveSessions.length}
               </Badge>
             </div>
@@ -656,17 +659,17 @@ export function SessionSelector({
               {inactiveSessions.slice(0, 3).map((session) => {
                 const status = getSessionStatus(session);
                 return (
-                  <Card key={session.id} className="opacity-50">
+                  <Card key={session.id} className="opacity-50 bg-white/5 backdrop-blur-xl border-white/10">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             {getSessionStatusIcon(status)}
-                            <h3 className="font-semibold text-gray-900">{session.name}</h3>
+                            <h3 className="font-semibold text-white">{session.name}</h3>
                             {getSessionStatusBadge(status)}
                           </div>
                           
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                          <div className="flex items-center gap-4 text-sm text-blue-200/70 mb-2">
                             <div className="flex items-center gap-1">
                               <Calendar className="h-4 w-4" />
                               {session.event.name}
@@ -679,8 +682,8 @@ export function SessionSelector({
                             )}
                           </div>
 
-                          <div className="text-sm text-gray-500">
-                            <span className="font-medium">Status:</span> Session is currently inactive
+                          <div className="text-sm text-blue-300/60">
+                            <span className="font-medium text-blue-200/80">Status:</span> Session is currently inactive
                           </div>
                         </div>
                         
@@ -688,6 +691,7 @@ export function SessionSelector({
                           <Button 
                             size="sm" 
                             variant="outline"
+                            className="border-white/20 text-white hover:bg-white/10"
                             onClick={(e) => {
                               e.stopPropagation();
                               router.push(`/organizer/sessions/${session.id}`);
@@ -708,15 +712,16 @@ export function SessionSelector({
 
         {/* No Results Message */}
         {filteredSessions.length === 0 && sessions.length > 0 && (
-          <Card>
+          <Card className="bg-white/5 backdrop-blur-xl border-white/10">
             <CardContent className="text-center py-8">
-              <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Sessions Found</h3>
-              <p className="text-gray-600 mb-4">
+              <Search className="h-12 w-12 text-blue-400/50 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2">No Sessions Found</h3>
+              <p className="text-blue-200/70 mb-4">
                 No sessions match your current search and filter criteria.
               </p>
               <Button 
                 variant="outline" 
+                className="border-white/20 text-white hover:bg-white/10"
                 onClick={() => {
                   setSearchQuery('');
                   setStatusFilter('all');

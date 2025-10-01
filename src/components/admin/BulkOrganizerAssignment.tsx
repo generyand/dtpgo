@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@/components/ui/loading'
 import { Progress } from '@/components/ui/progress'
 import { 
   Users, 
@@ -15,7 +15,6 @@ import {
   AlertCircle, 
   CheckCircle, 
   Search,
-  Filter,
   X,
   Mail,
   Shield,
@@ -63,7 +62,7 @@ export function BulkOrganizerAssignment({
   showFilters = true,
   maxHeight = 'max-h-64',
 }: BulkOrganizerAssignmentProps) {
-  const organizerIds = useMemo(() => organizers.map(o => o.id), [organizers])
+  const _organizerIds = useMemo(() => organizers.map(o => o.id), [organizers])
   const { selectedIds, toggle, selectAll, clear, isAllSelected, count } = useMultiSelect<string>()
   
   // Enhanced state management
@@ -236,7 +235,7 @@ export function BulkOrganizerAssignment({
               <Checkbox
                 id="active-only"
                 checked={showActiveOnly}
-                onCheckedChange={setShowActiveOnly}
+                onCheckedChange={(checked) => setShowActiveOnly(checked === true)}
                 disabled={isLoading || isOperating}
               />
               <label htmlFor="active-only" className="text-sm text-muted-foreground">

@@ -5,17 +5,19 @@ import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { LogOut, AlertTriangle } from 'lucide-react';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth, useUser } from '@/hooks/use-auth';
 import { toast } from 'sonner';
 
 interface LogoutDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  redirectTo?: string;
 }
 
-export function LogoutDialog({ open, onOpenChange }: LogoutDialogProps) {
+export function LogoutDialog({ open, onOpenChange, redirectTo }: LogoutDialogProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { signOut } = useAuth();
+  const user = useUser();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -31,8 +33,20 @@ export function LogoutDialog({ open, onOpenChange }: LogoutDialogProps) {
       // Close the dialog
       onOpenChange(false);
       
-      // Redirect to login page
-      router.push('/auth/login');
+      // Determine redirect based on user role or custom redirect
+      let redirect = redirectTo || '/auth/login';
+      
+      if (!redirectTo) {
+        const userRole = user?.user_metadata?.role;
+        if (userRole === 'organizer') {
+          redirect = '/auth/login'; // Organizers can use the same login page
+        } else if (userRole === 'admin') {
+          redirect = '/auth/login';
+        }
+      }
+      
+      // Redirect to appropriate login page
+      router.push(redirect);
     } catch (error) {
       console.error('Error during logout:', error);
       toast.error('Failed to log out. Please try again.');

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
-import { Checkbox } from '@/components/ui/checkbox';
+// import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/loading';
 import { 
@@ -14,7 +14,6 @@ import {
   ChevronDown, 
   RefreshCw, 
   AlertCircle, 
-  CheckCircle,
   Shield,
   ShieldCheck
 } from 'lucide-react';
@@ -170,6 +169,7 @@ export function QuickOrganizerAssignment({
   // Load available organizers on mount
   useEffect(() => {
     fetchAvailableOrganizers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId, assignedOrganizers]);
 
   // Format last login helper

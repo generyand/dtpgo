@@ -10,7 +10,7 @@ const recordAttendanceSchema = z.object({
   sessionId: z.string().min(1, 'Session ID is required'),
   eventId: z.string().min(1, 'Event ID is required'),
   scanType: z.enum(['time_in', 'time_out']).default('time_in'),
-  scannedBy: z.string().min(1, 'Scanner ID is required'),
+  scannedBy: z.string().optional(), // Will be set from authenticated organizer
   ipAddress: z.string().optional(),
   userAgent: z.string().optional(),
 });
@@ -155,9 +155,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Access denied to this event' }, { status: 403 });
     }
 
-    // Verify student exists
+    // Verify student exists (search by student ID number, not database ID)
     const student = await prisma.student.findUnique({
-      where: { id: studentId },
+      where: { studentIdNumber: studentId },
       include: {
         program: {
           select: {
@@ -170,12 +170,12 @@ export async function POST(request: NextRequest) {
     if (!student) {
       await logSystemEvent(
         'attendance_recording_failed',
-        `Attendance recording failed: Student not found (ID: ${studentId})`,
+        `Attendance recording failed: Student not found (Student ID Number: ${studentId})`,
         'warning',
         {
           sessionId,
           eventId: session.event.id,
-          studentId,
+          studentIdNumber: studentId,
           organizerId: organizer.id,
           errorType: 'student_not_found',
           processingDuration: Date.now() - startTime,
@@ -185,13 +185,17 @@ export async function POST(request: NextRequest) {
         }
       );
       
-      return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+      return NextResponse.json({ 
+        error: 'Student not found',
+        message: `No student found with ID number: ${studentId}. Please verify the QR code is valid.`,
+        studentIdNumber: studentId
+      }, { status: 404 });
     }
 
-    // Check for existing attendance record
+    // Check for existing attendance record (use student.id which is the database ID)
     const existingAttendance = await prisma.attendance.findFirst({
       where: {
-        studentId,
+        studentId: student.id,
         sessionId,
         scanType,
       },
@@ -221,10 +225,10 @@ export async function POST(request: NextRequest) {
       }, { status: 409 });
     }
 
-    // Create attendance record
+    // Create attendance record (use student.id which is the database ID)
     const attendance = await prisma.attendance.create({
       data: {
-        studentId,
+        studentId: student.id,
         eventId: session.event.id,
         sessionId,
         timeIn: scanType === 'time_in' ? new Date() : null,

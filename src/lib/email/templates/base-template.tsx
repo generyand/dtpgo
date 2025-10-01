@@ -5,7 +5,7 @@ interface BaseEmailTemplateProps {
   children: React.ReactNode
 }
 
-export function BaseEmailTemplate({ title, children }: BaseEmailTemplateProps) {
+export function BaseEmailTemplate({ title: _title, children }: BaseEmailTemplateProps) {
   return (
     <html>
       <body style={{ margin: 0, padding: 0, backgroundColor: '#f5f6f8' }}>

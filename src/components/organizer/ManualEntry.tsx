@@ -20,8 +20,6 @@ import {
   Clock, 
   QrCode,
   Keyboard,
-  RefreshCw,
-  Eye,
   GraduationCap,
   Calendar
 } from 'lucide-react';
@@ -32,9 +30,7 @@ const manualEntrySchema = z.object({
   studentId: z.string()
     .min(1, 'Student ID is required')
     .regex(/^S\d{3}-\d{4}-\d{3}$/, 'Student ID must be in format S000-0000-000'),
-  scanType: z.enum(['TIME_IN', 'TIME_OUT'], {
-    required_error: 'Please select scan type',
-  }),
+  scanType: z.enum(['TIME_IN', 'TIME_OUT']),
 });
 
 type ManualEntryFormData = z.infer<typeof manualEntrySchema>;
@@ -110,6 +106,7 @@ export function ManualEntry({
         handleStudentIdValidation(studentIdValue);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studentIdValue, clearErrors]);
 
   // Validate student ID format
@@ -500,7 +497,7 @@ export function ManualEntry({
             Search Students
           </CardTitle>
           <CardDescription>
-            Search for students by name or ID if you're unsure of the exact format
+            Search for students by name or ID if you&apos;re unsure of the exact format
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -548,7 +545,7 @@ export function ManualEntry({
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  No students found matching "{searchQuery}"
+                  No students found matching &quot;{searchQuery}&quot;
                 </AlertDescription>
               </Alert>
             )}

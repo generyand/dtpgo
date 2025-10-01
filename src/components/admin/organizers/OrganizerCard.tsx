@@ -4,35 +4,32 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuSeparator,
+//   DropdownMenuTrigger,
+// } from '@/components/ui/dropdown-menu';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  MoreHorizontal,
   Mail,
   Calendar,
   Clock,
   User,
   UserCheck,
   UserX,
-  Edit,
-  RefreshCw,
-  Trash2,
-  Settings,
   Activity,
   Eye,
   Shield,
-  ShieldCheck
+  ShieldCheck,
+  Settings,
+  Edit
 } from 'lucide-react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { type Organizer } from '@/hooks/use-organizers';
 import { OrganizerActions } from './OrganizerActions';
-import Link from 'next/link';
+// import Link from 'next/link';
 
 // Card variants using CVA
 const organizerCardVariants = cva(

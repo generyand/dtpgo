@@ -24,10 +24,8 @@ const organizerFormSchema = z.object({
     .email('Please enter a valid email address')
     .min(5, 'Email must be at least 5 characters')
     .max(255, 'Email must be less than 255 characters'),
-  role: z.enum(['organizer', 'admin'], {
-    required_error: 'Please select a role',
-  }),
-  isActive: z.boolean().default(true),
+  role: z.enum(['organizer', 'admin']),
+  isActive: z.boolean(),
 })
 
 type OrganizerFormData = z.infer<typeof organizerFormSchema>
@@ -42,7 +40,13 @@ interface OrganizerFormProps {
     createdAt: Date
     updatedAt: Date
   }
-  onSuccess?: (updatedOrganizer: any) => void
+  onSuccess?: (updatedOrganizer: {
+    id: string
+    email: string
+    fullName: string | null
+    role: string
+    isActive: boolean
+  }) => void
   onCancel?: () => void
   mode?: 'create' | 'edit'
 }

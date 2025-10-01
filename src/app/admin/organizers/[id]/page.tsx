@@ -16,9 +16,7 @@ import {
   Calendar, 
   Clock, 
   Shield, 
-  ShieldCheck, 
-  UserCheck, 
-  UserX,
+  ShieldCheck,
   Activity,
   Settings,
   Edit,
@@ -68,18 +66,19 @@ interface OrganizerDetails {
 }
 
 interface OrganizerDetailsPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // Placeholder function - would be replaced with actual API call
-async function getOrganizerDetails(id: string): Promise<OrganizerDetails | null> {
+async function getOrganizerDetails(_id: string): Promise<OrganizerDetails | null> {
   // This would make an API call to fetch organizer details
   // For now, return null to trigger notFound()
   return null;
 }
 
 export default async function OrganizerDetailsPage({ params }: OrganizerDetailsPageProps) {
-  const organizer = await getOrganizerDetails(params.id);
+  const { id } = await params;
+  const organizer = await getOrganizerDetails(id);
 
   if (!organizer) {
     notFound();

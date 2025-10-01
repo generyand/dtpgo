@@ -47,13 +47,13 @@ export interface OrganizerSessionState {
 export async function getEnhancedOrganizerSession(): Promise<EnhancedOrganizerSession | null> {
   try {
     const supabase = await createSupabaseServerClient();
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const { data: { user: authUser }, error } = await supabase.auth.getUser();
 
-    if (error || !session?.user) {
+    if (error || !authUser) {
       return null;
     }
 
-    const user = session.user as UserWithRole;
+    const user = authUser as UserWithRole;
     const isOrganizer = user.user_metadata?.role === 'organizer';
     const isAdmin = user.user_metadata?.role === 'admin';
 

@@ -1,34 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/auth/supabase-server';
 import { prisma } from '@/lib/db/client';
+import { authenticateAdminApi, createAuthErrorResponse } from '@/lib/auth/api-auth';
 // import { logActivity } from '@/lib/utils/activity-logger';
 
 /**
  * GET /api/admin/organizers
  * Fetch all organizers for admin management
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Create Supabase client for server-side operations
-    const supabase = await createSupabaseServerClient();
-    
-    // Get the current user session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Check if user is admin
-    const userRole = session.user.user_metadata?.role;
-    if (userRole !== 'admin') {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+    // Authenticate admin user
+    const authResult = await authenticateAdminApi(request);
+    if (!authResult.success) {
+      return createAuthErrorResponse(authResult);
     }
 
     // Fetch organizers from database
@@ -90,26 +74,10 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Create Supabase client for server-side operations
-    const supabase = await createSupabaseServerClient();
-    
-    // Get the current user session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Check if user is admin
-    const userRole = session.user.user_metadata?.role;
-    if (userRole !== 'admin') {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+    // Authenticate admin user
+    const authResult = await authenticateAdminApi(request);
+    if (!authResult.success) {
+      return createAuthErrorResponse(authResult);
     }
 
     const body = await request.json();

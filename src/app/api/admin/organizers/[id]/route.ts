@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/auth/supabase-server';
 import { prisma } from '@/lib/db/client';
 import { logActivity } from '@/lib/db/queries/activity';
+import { authenticateAdminApi, createAuthErrorResponse } from '@/lib/auth/api-auth';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 
 // Validation schema for organizer updates
 const organizerUpdateSchema = z.object({
@@ -26,32 +27,16 @@ const organizerUpdateSchema = z.object({
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Create Supabase client for server-side operations
-    const supabase = await createSupabaseServerClient();
-    
-    // Get the current user session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Authenticate admin user
+    const authResult = await authenticateAdminApi(request);
+    if (!authResult.success) {
+      return createAuthErrorResponse(authResult);
     }
 
-    // Check if user is admin
-    const userRole = session.user.user_metadata?.role;
-    if (userRole !== 'admin') {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
-    }
-
-    const organizerId = params.id;
+    const { id: organizerId } = await params;
 
     // Fetch organizer with related data (explicit select for accurate TS types)
     const organizer = await prisma.organizer.findUnique({
@@ -143,32 +128,17 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Create Supabase client for server-side operations
-    const supabase = await createSupabaseServerClient();
-    
-    // Get the current user session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Authenticate admin user
+    const authResult = await authenticateAdminApi(request);
+    if (!authResult.success) {
+      return createAuthErrorResponse(authResult);
     }
+    const user = authResult.user!;
 
-    // Check if user is admin
-    const userRole = session.user.user_metadata?.role;
-    if (userRole !== 'admin') {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
-    }
-
-    const organizerId = params.id;
+    const { id: organizerId } = await params;
     const body = await request.json();
 
     // Validate input using Zod schema
@@ -177,7 +147,7 @@ export async function PUT(
       return NextResponse.json(
         { 
           error: 'Validation failed',
-          details: validationResult.error.errors.map(err => ({
+          details: validationResult.error.issues.map(err => ({
             field: err.path.join('.'),
             message: err.message
           }))
@@ -210,7 +180,7 @@ export async function PUT(
     }
 
     // Prepare update data
-    const updateData: any = {};
+    const updateData: Prisma.OrganizerUpdateInput = {};
     const changes: string[] = [];
 
     if (fullName !== undefined && fullName !== existingOrganizer.fullName) {
@@ -262,7 +232,7 @@ export async function PUT(
         type: 'admin_action',
         action: 'organizer_update',
         description: `Organizer profile updated: ${changes.join(', ')}`,
-        userId: session.user.id,
+        userId: user.id,
         metadata: {
           organizerId,
           organizerEmail: organizer.email,
@@ -276,7 +246,7 @@ export async function PUT(
         source: 'admin',
         severity: 'info',
         category: 'data_management',
-        ipAddress: request.ip || request.headers.get('x-forwarded-for') || 'unknown',
+        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
         userAgent: request.headers.get('user-agent') || 'unknown',
       });
 
@@ -323,32 +293,16 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Create Supabase client for server-side operations
-    const supabase = await createSupabaseServerClient();
-    
-    // Get the current user session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Authenticate admin user
+    const authResult = await authenticateAdminApi(request);
+    if (!authResult.success) {
+      return createAuthErrorResponse(authResult);
     }
 
-    // Check if user is admin
-    const userRole = session.user.user_metadata?.role;
-    if (userRole !== 'admin') {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
-    }
-
-    const organizerId = params.id;
+    const { id: organizerId } = await params;
 
     // Check if organizer exists
     const existingOrganizer = await prisma.organizer.findUnique({

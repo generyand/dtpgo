@@ -36,17 +36,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     let mounted = true
 
-    // Get initial session
+    // Get initial session - use getUser() for secure authentication
     const getInitialSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession()
+        // Use getUser() to verify user authenticity with Supabase Auth server
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        
+        // Get session data separately if user is authenticated
+        let session = null
+        if (user && !userError) {
+          const { data: { session: sessionData } } = await supabase.auth.getSession()
+          session = sessionData
+        }
         
         if (mounted) {
           setAuthState({
-            user: session?.user as UserWithRole | null,
+            user: user as UserWithRole | null,
             session: session,
             loading: false,
-            error: error?.message || null,
+            error: userError?.message || null,
           })
         }
       } catch (error) {
@@ -55,7 +63,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             user: null,
             session: null,
             loading: false,
-            error: error instanceof Error ? error.message : 'Failed to get session',
+            error: error instanceof Error ? error.message : 'Failed to get user',
           })
         }
       }

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Calendar, Users, Clock, MapPin, Eye, Edit, Trash2 } from 'lucide-react';
+import { Calendar, Clock, MapPin, Eye, Edit, Trash2 } from 'lucide-react';
 import { EventWithDetails } from '@/lib/types/event';
 import { cn } from '@/lib/utils';
 import { EventStatusBadge } from './EventStatusBadge';
@@ -88,7 +88,18 @@ export function EventsList({
                 <QuickOrganizerAssignment
                   eventId={event.id}
                   eventName={event.name}
-                  assignedOrganizers={event.organizerAssignments}
+                  assignedOrganizers={event.organizerAssignments.map(assignment => ({
+                    assignmentId: assignment.id,
+                    organizer: {
+                      id: assignment.organizer.id,
+                      email: assignment.organizer.email,
+                      fullName: assignment.organizer.fullName,
+                      role: assignment.organizer.role as 'admin' | 'organizer',
+                      isActive: assignment.organizer.isActive,
+                      lastLoginAt: null,
+                    },
+                    assignedAt: assignment.assignedAt instanceof Date ? assignment.assignedAt.toISOString() : assignment.assignedAt,
+                  }))}
                   onAssignmentChange={onAssignmentChange}
                   className="ml-auto"
                 />

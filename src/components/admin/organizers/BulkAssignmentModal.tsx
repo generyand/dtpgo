@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/loading';
-import { Separator } from '@/components/ui/separator';
+// import { Separator } from '@/components/ui/separator';
 import {
   Users,
   Calendar,
@@ -22,15 +22,11 @@ import {
   UserMinus,
   RefreshCw,
   AlertCircle,
-  CheckCircle,
   Search,
-  Filter,
   X,
   Mail,
   Shield,
-  ShieldCheck,
-  Clock,
-  Activity
+  ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';

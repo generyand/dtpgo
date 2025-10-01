@@ -30,6 +30,15 @@ interface StudentsTableProps {
   filters?: FilterParams;
 }
 
+// Helper function to get program name
+const getProgramName = (program: string | { name?: string; displayName?: string } | null): string => {
+  if (typeof program === 'string') return program;
+  if (typeof program === 'object' && program !== null) {
+    return program.displayName || program.name || 'Unknown';
+  }
+  return 'Unknown';
+};
+
 export function StudentsTable({ searchQuery = '', filters = {} }: StudentsTableProps) {
   const [students, setStudents] = useState<ScanningStudent[] | undefined>(undefined);
   const [page, setPage] = useState(1);
@@ -129,7 +138,7 @@ export function StudentsTable({ searchQuery = '', filters = {} }: StudentsTableP
                   </div>
                   <p className="text-sm text-gray-600 truncate">{student.email}</p>
                   <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <span>{student.program}</span>
+                    <span>{getProgramName(student.program)}</span>
                     <span>Year {student.year}</span>
                   </div>
                 </div>
@@ -187,7 +196,7 @@ export function StudentsTable({ searchQuery = '', filters = {} }: StudentsTableP
                         {student.fullName}
                       </TableCell>
                       <TableCell className="text-gray-600 max-w-[260px] truncate">{student.email}</TableCell>
-                      <TableCell>{student.program}</TableCell>
+                      <TableCell>{getProgramName(student.program)}</TableCell>
                       <TableCell>{student.year}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>

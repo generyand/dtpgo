@@ -90,7 +90,7 @@ export function OrganizerAssignments({ eventId, className }: OrganizerAssignment
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch event organizers';
       setError(errorMessage);
-      organizerFeedback.assign.error('organizers', eventName, errorMessage);
+      organizerFeedback.assign.error('organizers', 'event', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -99,10 +99,11 @@ export function OrganizerAssignments({ eventId, className }: OrganizerAssignment
   // Assign organizers to event
   const assignOrganizers = async () => {
     if (selectedOrganizers.length === 0) {
-      organizerFeedback.assign.error('organizers', eventName, 'Please select at least one organizer');
+      organizerFeedback.assign.error('organizers', data?.event.name || 'event', 'Please select at least one organizer');
       return;
     }
 
+    const eventName = data?.event.name || 'event';
     const toastId = organizerFeedback.assign.loading(selectedOrganizers.join(', '), eventName);
     setAssigningOrganizers(true);
     
@@ -122,15 +123,15 @@ export function OrganizerAssignments({ eventId, className }: OrganizerAssignment
         throw new Error(errorData.error || 'Failed to assign organizers');
       }
 
-      const result = await response.json();
-      organizerFeedback.assign.success(selectedOrganizers.join(', '), eventName, toastId);
+      const _result = await response.json();
+      organizerFeedback.assign.success(selectedOrganizers.join(', '), eventName, String(toastId));
       
       // Refresh data and clear selection
       await fetchEventOrganizers();
       setSelectedOrganizers([]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to assign organizers';
-      organizerFeedback.assign.error(selectedOrganizers.join(', '), eventName, errorMessage, toastId);
+      organizerFeedback.assign.error(selectedOrganizers.join(', '), eventName, errorMessage, String(toastId));
     } finally {
       setAssigningOrganizers(false);
     }
@@ -139,6 +140,7 @@ export function OrganizerAssignments({ eventId, className }: OrganizerAssignment
   // Remove organizer from event
   const removeOrganizer = async (assignmentId: string, organizerId: string) => {
     const organizerName = data?.assignedOrganizers.find(org => org.organizer.id === organizerId)?.organizer.fullName || 'organizer';
+    const eventName = data?.event.name || 'event';
     const toastId = organizerFeedback.assign.loading(organizerName, eventName);
     
     try {
@@ -160,14 +162,14 @@ export function OrganizerAssignments({ eventId, className }: OrganizerAssignment
         throw new Error(errorData.error || 'Failed to remove organizer');
       }
 
-      const result = await response.json();
-      organizerFeedback.assign.success(`${organizerName} removed from ${eventName}`, '', toastId);
+      const _result = await response.json();
+      organizerFeedback.assign.success(`${organizerName} removed from ${eventName}`, '', String(toastId));
       
       // Refresh data
       await fetchEventOrganizers();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to remove organizer';
-      organizerFeedback.assign.error(organizerName, eventName, errorMessage, toastId);
+      organizerFeedback.assign.error(organizerName, eventName, errorMessage, String(toastId));
     } finally {
       setRemovingOrganizer(null);
     }
@@ -176,6 +178,7 @@ export function OrganizerAssignments({ eventId, className }: OrganizerAssignment
   // Load data on mount
   useEffect(() => {
     fetchEventOrganizers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId]);
 
   // Prepare multi-select options

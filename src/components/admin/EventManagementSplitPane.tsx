@@ -150,12 +150,12 @@ export function EventManagementSplitPane() {
         throw new Error(errorData.error || 'Failed to remove organizer');
       }
 
-      eventFeedback.update.success(`${organizer.fullName} removed from ${selectedEvent.name}`, toastId);
+      eventFeedback.update.success(`${organizer.fullName} removed from ${selectedEvent.name}`, String(toastId));
       
       // Refresh events to update the data
       await fetchEvents();
     } catch (err: unknown) {
-      eventFeedback.update.error(`${organizer.fullName} removal`, err instanceof Error ? err.message : 'Failed to remove organizer', toastId);
+      eventFeedback.update.error(`${organizer.fullName} removal`, err instanceof Error ? err.message : 'Failed to remove organizer', String(toastId));
     }
   };
 
@@ -185,14 +185,14 @@ export function EventManagementSplitPane() {
       const data = await response.json();
 
       if (data.success) {
-        eventFeedback.update.success(selectedEvent.name, toastId);
+        eventFeedback.update.success(selectedEvent.name, String(toastId));
         setIsEditOpen(false);
         await fetchEvents();
       } else {
         throw new Error(data.error || 'Failed to update event');
       }
     } catch (err: unknown) {
-      eventFeedback.update.error(selectedEvent.name, err instanceof Error ? err.message : 'Failed to update event', toastId);
+      eventFeedback.update.error(selectedEvent.name, err instanceof Error ? err.message : 'Failed to update event', String(toastId));
     }
   };
 
@@ -215,7 +215,7 @@ export function EventManagementSplitPane() {
       console.log('Delete response data:', data);
 
       if (data.success) {
-        eventFeedback.delete.success(selectedEvent.name, toastId);
+        eventFeedback.delete.success(selectedEvent.name, String(toastId));
         setIsDeleteOpen(false);
         setSelectedEvent(null);
         await fetchEvents();
@@ -229,7 +229,7 @@ export function EventManagementSplitPane() {
       }
     } catch (err: unknown) {
       console.error('Delete event error:', err);
-      eventFeedback.delete.error(selectedEvent.name, err instanceof Error ? err.message : 'Failed to delete event', toastId);
+      eventFeedback.delete.error(selectedEvent.name, err instanceof Error ? err.message : 'Failed to delete event', String(toastId));
     }
   };
 
@@ -278,11 +278,11 @@ export function EventManagementSplitPane() {
         }
       }
       
-      eventFeedback.create.success(eventName, toastId);
+      eventFeedback.create.success(eventName, String(toastId));
       setIsCreateOpen(false);
       await fetchEvents();
     } catch (err: unknown) {
-      eventFeedback.create.error(eventName, err instanceof Error ? err.message : 'Failed to create event', toastId);
+      eventFeedback.create.error(eventName, err instanceof Error ? err.message : 'Failed to create event', String(toastId));
     }
   };
 
@@ -345,7 +345,7 @@ export function EventManagementSplitPane() {
       }
 
       if (data.success) {
-        sessionFeedback.create.success(sessionName, toastId);
+        sessionFeedback.create.success(sessionName, String(toastId));
         setIsCreateSessionOpen(false);
         await fetchEvents(); // Refresh to get updated session data
       } else {
@@ -353,7 +353,7 @@ export function EventManagementSplitPane() {
         throw new Error(data.error || 'Failed to create session');
       }
     } catch (err: unknown) {
-      sessionFeedback.create.error(sessionName, err instanceof Error ? err.message : 'Failed to create session', toastId);
+      sessionFeedback.create.error(sessionName, err instanceof Error ? err.message : 'Failed to create session', String(toastId));
     }
   };
 

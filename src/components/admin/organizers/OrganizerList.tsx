@@ -18,27 +18,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuTrigger,
+// } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  MoreHorizontal, 
   Search, 
-  Filter, 
   ChevronLeft, 
   ChevronRight,
   Users,
   UserCheck,
   UserX,
-  Clock,
   Mail,
-  Edit,
-  Trash2,
   RefreshCw,
   Grid3X3,
   List,
@@ -49,7 +44,7 @@ import { OrganizerCard } from './OrganizerCard';
 import { OrganizerActions } from './OrganizerActions';
 import { BulkAssignmentModal } from './BulkAssignmentModal';
 import { toast } from 'sonner';
-import Link from 'next/link';
+// import Link from 'next/link';
 
 interface OrganizerListProps {
   searchQuery?: string;
@@ -346,7 +341,7 @@ export function OrganizerList({ searchQuery = '' }: OrganizerListProps) {
                                 } else {
                                   throw new Error('Failed to deactivate organizer');
                                 }
-                              } catch (error) {
+                              } catch (_error) {
                                 toast.error('Failed to deactivate organizer');
                               }
                             }}
@@ -364,7 +359,7 @@ export function OrganizerList({ searchQuery = '' }: OrganizerListProps) {
                                 } else {
                                   throw new Error('Failed to activate organizer');
                                 }
-                              } catch (error) {
+                              } catch (_error) {
                                 toast.error('Failed to activate organizer');
                               }
                             }}
@@ -382,14 +377,14 @@ export function OrganizerList({ searchQuery = '' }: OrganizerListProps) {
                                   description: `Sent to ${org.email}${data.messageId ? ` (messageId: ${data.messageId})` : ''}`,
                                 });
                                 refetch();
-                              } catch (e) {
+                              } catch (_e) {
                                 toast.error('Failed to resend invitation');
                               }
                             }}
                             onViewDetails={(org) => {
                               window.location.href = `/admin/organizers/${org.id}`;
                             }}
-                            onManageAssignments={(org) => {
+                            onManageAssignments={(_org) => {
                               setShowBulkAssignmentModal(true);
                             }}
                             onViewActivity={(org) => {

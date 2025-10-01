@@ -12,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { getAuthErrorMessage, logAuthError } from '@/lib/auth/error-handling';
-import { getRoleDisplayName } from '@/lib/utils/role-utils';
+// import { getRoleDisplayName } from '@/lib/utils/role-utils';
 
 interface LoginFormProps {
   redirectTo?: string;
@@ -23,7 +23,7 @@ export function LoginForm({ redirectTo, showPasswordReset = true }: LoginFormPro
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { signIn, loading: authLoading, user } = useAuth();
+  const { signIn, loading: authLoading } = useAuth();
   const router = useRouter();
 
   const form = useForm<LoginInput>({
