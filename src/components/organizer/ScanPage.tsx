@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { QRScanner } from './QRScanner';
+import { ManualInput } from './ManualInput';
 import { SessionSelector } from './SessionSelector';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,7 +18,9 @@ import {
   Users,
   AlertCircle,
   CheckCircle2,
-  Camera
+  Camera,
+  Scan,
+  Keyboard
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -49,13 +52,13 @@ interface ScanPageProps {
 
 export function ScanPage({ className: _className }: ScanPageProps) {
   const searchParams = useSearchParams();
-  const router = useRouter();
   
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [scanMode, setScanMode] = useState<'select' | 'scan'>('select');
+  const [inputMode, setInputMode] = useState<'qr' | 'manual'>('qr');
   const [attendanceStats, setAttendanceStats] = useState({
     totalScanned: 0,
     lastScanTime: null as Date | null,
@@ -116,8 +119,8 @@ export function ScanPage({ className: _className }: ScanPageProps) {
   // Cleanup scanner when component unmounts
   useEffect(() => {
     return () => {
-      if ((window as any).__qrScannerCleanup) {
-        (window as any).__qrScannerCleanup();
+      if ((window as unknown as { __qrScannerCleanup?: () => void }).__qrScannerCleanup) {
+        (window as unknown as { __qrScannerCleanup: () => void }).__qrScannerCleanup();
       }
     };
   }, []);
@@ -173,8 +176,8 @@ export function ScanPage({ className: _className }: ScanPageProps) {
 
   const handleConfirmLeave = async () => {
     // Clean up scanner
-    if ((window as any).__qrScannerCleanup) {
-      await (window as any).__qrScannerCleanup();
+    if ((window as unknown as { __qrScannerCleanup?: () => Promise<void> }).__qrScannerCleanup) {
+      await (window as unknown as { __qrScannerCleanup: () => Promise<void> }).__qrScannerCleanup();
     }
     
     setIsScanningActive(false);
@@ -211,7 +214,7 @@ export function ScanPage({ className: _className }: ScanPageProps) {
     setIsScanningActive(isScanning);
   };
 
-  const handleAttendanceRecorded = (_attendanceData: Record<string, unknown>) => {
+  const handleAttendanceRecorded = () => {
     setAttendanceStats(prev => ({
       totalScanned: prev.totalScanned + 1,
       lastScanTime: new Date(),
@@ -326,6 +329,34 @@ export function ScanPage({ className: _className }: ScanPageProps) {
               </Badge>
             </div>
             
+            {/* Input Mode Toggle */}
+            <div className="mt-4 flex items-center justify-center">
+              <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+                <button
+                  onClick={() => setInputMode('qr')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    inputMode === 'qr'
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                  }`}
+                >
+                  <Scan className="h-4 w-4" />
+                  QR Scan
+                </button>
+                <button
+                  onClick={() => setInputMode('manual')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    inputMode === 'manual'
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                  }`}
+                >
+                  <Keyboard className="h-4 w-4" />
+                  Manual
+                </button>
+              </div>
+            </div>
+
             {/* Compact Info Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 text-xs sm:text-sm">
               <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
@@ -370,183 +401,311 @@ export function ScanPage({ className: _className }: ScanPageProps) {
           </CardContent>
         </Card>
 
-        {/* QR Scanner - Modern Glassmorphic Design */}
+        {/* Input Method - QR Scanner or Manual Input */}
         <Card className="w-full bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/10 dark:border-gray-700 overflow-hidden">
           <CardContent className="p-4 sm:p-6">
-            <QRScanner
-              sessionId={selectedSession.id}
-              eventId={selectedSession.eventId}
-              onCleanup={handleScannerCleanup}
-              onScanningStateChange={handleScanningStateChange}
-              onScan={async (qrData, updateScanResult) => {
-                console.log('🔍 Processing scanned QR data:', qrData);
-                
-                try {
-                  console.log('📍 Step 1: Parsing QR data...');
-                  let studentId: string;
-                  let studentData: Record<string, unknown> = {};
-
-                  // Parse the QR data - handle both JSON and plain text
+            {inputMode === 'qr' ? (
+              <QRScanner
+                sessionId={selectedSession.id}
+                eventId={selectedSession.eventId}
+                onCleanup={handleScannerCleanup}
+                onScanningStateChange={handleScanningStateChange}
+                onScan={async (qrData, updateScanResult) => {
+                  console.log('🔍 Processing scanned QR data:', qrData);
+                  
                   try {
-                    const parsed = JSON.parse(qrData);
-                    // Check if it's actually a JSON object with studentId property
-                    if (typeof parsed === 'object' && parsed !== null && parsed.studentId) {
-                      studentId = parsed.studentId;
-                      studentData = parsed;
-                      console.log('✅ Parsed as JSON object:', studentData);
-                    } else {
-                      // Parsed successfully but it's not a student object (e.g., just a number)
-                      console.log('📝 Parsed value is not a student object, treating QR as plain student ID');
+                    console.log('📍 Step 1: Parsing QR data...');
+                    let studentId: string;
+                    let studentData: Record<string, unknown> = {};
+
+                    // Parse the QR data - handle both JSON and plain text
+                    try {
+                      const parsed = JSON.parse(qrData);
+                      // Check if it's actually a JSON object with studentId property
+                      if (typeof parsed === 'object' && parsed !== null && parsed.studentId) {
+                        studentId = parsed.studentId;
+                        studentData = parsed;
+                        console.log('✅ Parsed as JSON object:', studentData);
+                      } else {
+                        // Parsed successfully but it's not a student object (e.g., just a number)
+                        console.log('📝 Parsed value is not a student object, treating QR as plain student ID');
+                        studentId = qrData.trim();
+                      }
+                    } catch {
+                      // Plain text QR code (just the student ID)
+                      console.log('📝 JSON parse failed, treating as plain text student ID');
                       studentId = qrData.trim();
                     }
-                  } catch {
-                    // Plain text QR code (just the student ID)
-                    console.log('📝 JSON parse failed, treating as plain text student ID');
-                    studentId = qrData.trim();
-                  }
-                  
-                  console.log('🔍 Final studentId value:', studentId);
-                  console.log('🔍 studentId truthy check:', !!studentId);
-                  
-                  if (!studentId) {
-                    console.error('❌ No student ID found');
-                    console.error('❌ studentId value:', studentId);
-                    console.error('❌ studentId type:', typeof studentId);
-                    toast.error('Invalid QR Code', {
-                      description: 'No student ID found in QR code'
-                    });
-                    throw new Error('No student ID found in QR code');
-                  }
+                    
+                    console.log('🔍 Final studentId value:', studentId);
+                    console.log('🔍 studentId truthy check:', !!studentId);
+                    
+                    if (!studentId) {
+                      console.error('❌ No student ID found');
+                      console.error('❌ studentId value:', studentId);
+                      console.error('❌ studentId type:', typeof studentId);
+                      toast.error('Invalid QR Code', {
+                        description: 'No student ID found in QR code'
+                      });
+                      throw new Error('No student ID found in QR code');
+                    }
 
-                  console.log('📍 Step 2: Student ID validated:', studentId);
+                    console.log('📍 Step 2: Student ID validated:', studentId);
 
-                  // Record attendance via API
-                  console.log('📍 Step 3: Sending attendance request...');
-                  console.log('📤 Request data:', {
-                    sessionId: selectedSession.id,
-                    eventId: selectedSession.eventId,
-                    studentId: studentId,
-                    scanType: 'time_in',
-                  });
-
-                  const response = await fetch('/api/organizer/attendance', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
+                    // Record attendance via API
+                    console.log('📍 Step 3: Sending attendance request...');
+                    console.log('📤 Request data:', {
                       sessionId: selectedSession.id,
                       eventId: selectedSession.eventId,
                       studentId: studentId,
                       scanType: 'time_in',
-                    }),
-                  });
+                    });
 
-                  console.log('📍 Step 4: Fetch completed');
-                  console.log('📥 Response status:', response.status, response.statusText);
-                  console.log('📥 Request details:', {
-                    sessionId: selectedSession.id,
-                    eventId: selectedSession.eventId,
-                    studentId: studentId,
-                    scanType: 'time_in'
-                  });
+                    const response = await fetch('/api/organizer/attendance', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        sessionId: selectedSession.id,
+                        eventId: selectedSession.eventId,
+                        studentId: studentId,
+                        scanType: 'time_in',
+                      }),
+                    });
 
-                  // Handle duplicate attendance (409 Conflict)
-                  if (response.status === 409) {
-                    console.log('⚠️ Duplicate scan detected');
-                    const errorData = await response.json();
-                    console.log('🔍 API Response for duplicate:', errorData);
-                    
-                    // Use student information from API response instead of QR data
-                    const studentInfo = errorData.student || {};
-                    console.log('🔍 Student info from API:', studentInfo);
-                    
-                    // Update scanner display to show the student with duplicate flag
-                    updateScanResult({
-                      firstName: studentInfo.firstName || 'Student',
-                      lastName: studentInfo.lastName || studentId,
-                      studentIdNumber: studentInfo.studentIdNumber || studentId,
-                      isDuplicate: true,
+                    console.log('📍 Step 4: Fetch completed');
+                    console.log('📥 Response status:', response.status, response.statusText);
+                    console.log('📥 Request details:', {
+                      sessionId: selectedSession.id,
+                      eventId: selectedSession.eventId,
+                      studentId: studentId,
+                      scanType: 'time_in'
                     });
-                    console.log('🔍 Updated scan result with:', {
-                      firstName: studentInfo.firstName || 'Student',
-                      lastName: studentInfo.lastName || studentId,
-                      studentIdNumber: studentInfo.studentIdNumber || studentId,
-                      isDuplicate: true,
-                    });
+
+                    // Handle duplicate attendance (409 Conflict)
+                    if (response.status === 409) {
+                      console.log('⚠️ Duplicate scan detected');
+                      const errorData = await response.json();
+                      console.log('🔍 API Response for duplicate:', errorData);
+                      
+                      // Use student information from API response instead of QR data
+                      const studentInfo = errorData.student || {};
+                      console.log('🔍 Student info from API:', studentInfo);
+                      
+                      // Update scanner display to show the student with duplicate flag
+                      updateScanResult({
+                        firstName: studentInfo.firstName || 'Student',
+                        lastName: studentInfo.lastName || studentId,
+                        studentIdNumber: studentInfo.studentIdNumber || studentId,
+                        isDuplicate: true,
+                      });
+                      console.log('🔍 Updated scan result with:', {
+                        firstName: studentInfo.firstName || 'Student',
+                        lastName: studentInfo.lastName || studentId,
+                        studentIdNumber: studentInfo.studentIdNumber || studentId,
+                        isDuplicate: true,
+                      });
+                      
+                      // Show warning toast (not error)
+                      toast.warning('Already Recorded', {
+                        description: errorData.message || 'This student has already been recorded for this session',
+                        duration: 4000,
+                      });
+                      
+                      // Don't throw error - this is expected behavior
+                      console.log('✅ Duplicate scan handled gracefully');
+                      return;
+                    }
+
+                    if (!response.ok) {
+                      console.log('📍 Step 5: Response not OK, parsing error...');
+                      const errorData = await response.json();
+                      console.error('❌ API Error Response:', errorData);
+                      throw new Error(errorData.message || errorData.error || 'Failed to record attendance');
+                    }
+
+                    console.log('📍 Step 5: Parsing success response...');
+                    const result = await response.json();
+                    console.log('📍 Step 6: Response parsed successfully');
+                    console.log('✅ Attendance recorded successfully:', result);
                     
-                    // Show warning toast (not error)
-                    toast.warning('Already Recorded', {
-                      description: errorData.message || 'This student has already been recorded for this session',
-                      duration: 4000,
-                    });
+                    // Update scanner display with real student data
+                    if (result.student) {
+                      updateScanResult({
+                        firstName: result.student.firstName,
+                        lastName: result.student.lastName,
+                        studentIdNumber: result.student.studentIdNumber,
+                        isDuplicate: false, // Explicitly mark as not duplicate
+                      });
+                    } else {
+                      // If no student data in response, use QR data
+                      updateScanResult({
+                        firstName: studentData.firstName as string || 'Student',
+                        lastName: studentData.lastName as string || studentId,
+                        studentIdNumber: studentData.studentIdNumber as string || studentId,
+                        isDuplicate: false,
+                      });
+                    }
                     
-                    // Don't throw error - this is expected behavior
-                    console.log('✅ Duplicate scan handled gracefully');
-                    return;
+                    // Update attendance stats with data from API response
+                    handleAttendanceRecorded();
+
+                    // Show success toast with actual student name
+                    if (result.student?.firstName && result.student?.lastName) {
+                      toast.success('✅ Attendance Recorded!', {
+                        description: `${result.student.firstName} ${result.student.lastName} - ${result.student.studentIdNumber}`,
+                        duration: 4000,
+                      });
+                    }
+
+                  } catch (error) {
+                    console.error('❌ Error recording attendance:', error);
+                    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+                    const errorMsg = error instanceof Error ? error.message : 'Failed to record attendance';
+                    toast.error('Recording Failed', {
+                      description: errorMsg
+                    });
+                    throw error; // Re-throw so the scanner can handle it
                   }
-
-                  if (!response.ok) {
-                    console.log('📍 Step 5: Response not OK, parsing error...');
-                    const errorData = await response.json();
-                    console.error('❌ API Error Response:', errorData);
-                    throw new Error(errorData.message || errorData.error || 'Failed to record attendance');
-                  }
-
-                  console.log('📍 Step 5: Parsing success response...');
-                  const result = await response.json();
-                  console.log('📍 Step 6: Response parsed successfully');
-                  console.log('✅ Attendance recorded successfully:', result);
+                }}
+                onError={(error) => {
+                  console.error('Scanner error:', error);
+                  toast.error('Scanner Error', { description: error });
+                }}
+              />
+            ) : (
+              <ManualInput
+                sessionId={selectedSession.id}
+                eventId={selectedSession.eventId}
+                onScan={async (studentIdNumber, updateScanResult) => {
+                  console.log('🔍 Processing manual input:', studentIdNumber);
                   
-                  // Update scanner display with real student data
-                  if (result.student) {
-                    updateScanResult({
-                      firstName: result.student.firstName,
-                      lastName: result.student.lastName,
-                      studentIdNumber: result.student.studentIdNumber,
-                      isDuplicate: false, // Explicitly mark as not duplicate
-                    });
-                  } else {
-                    // If no student data in response, use QR data
-                    updateScanResult({
-                      firstName: studentData.firstName as string || 'Student',
-                      lastName: studentData.lastName as string || studentId,
-                      studentIdNumber: studentData.studentIdNumber as string || studentId,
-                      isDuplicate: false,
-                    });
-                  }
-                  
-                  // Update attendance stats with data from API response
-                  handleAttendanceRecorded({
-                    studentId: studentId,
-                    firstName: result.student?.firstName || (studentData.firstName as string) || 'Student',
-                    lastName: result.student?.lastName || (studentData.lastName as string) || studentId,
-                    studentIdNumber: result.student?.studentIdNumber || (studentData.studentIdNumber as string) || studentId,
-                  });
+                  try {
+                    console.log('📍 Step 1: Validating student ID number:', studentIdNumber);
+                    
+                    if (!studentIdNumber.trim()) {
+                      console.error('❌ No student ID number provided');
+                      toast.error('Invalid Input', {
+                        description: 'Please enter a student ID number'
+                      });
+                      throw new Error('No student ID number provided');
+                    }
 
-                  // Show success toast with actual student name
-                  if (result.student?.firstName && result.student?.lastName) {
-                    toast.success('✅ Attendance Recorded!', {
-                      description: `${result.student.firstName} ${result.student.lastName} - ${result.student.studentIdNumber}`,
-                      duration: 4000,
-                    });
-                  }
+                    console.log('📍 Step 2: Student ID number validated:', studentIdNumber);
 
-                } catch (error) {
-                  console.error('❌ Error recording attendance:', error);
-                  console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-                  const errorMsg = error instanceof Error ? error.message : 'Failed to record attendance';
-                  toast.error('Recording Failed', {
-                    description: errorMsg
-                  });
-                  throw error; // Re-throw so the scanner can handle it
-                }
-              }}
-              onError={(error) => {
-                console.error('Scanner error:', error);
-                toast.error('Scanner Error', { description: error });
-              }}
-            />
+                    // Record attendance via API
+                    console.log('📍 Step 3: Sending attendance request...');
+                    console.log('📤 Request data:', {
+                      sessionId: selectedSession.id,
+                      eventId: selectedSession.eventId,
+                      studentId: studentIdNumber.trim(),
+                      scanType: 'time_in',
+                    });
+
+                    const response = await fetch('/api/organizer/attendance', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        sessionId: selectedSession.id,
+                        eventId: selectedSession.eventId,
+                        studentId: studentIdNumber.trim(),
+                        scanType: 'time_in',
+                      }),
+                    });
+
+                    console.log('📍 Step 4: Fetch completed');
+                    console.log('📥 Response status:', response.status, response.statusText);
+
+                    // Handle duplicate attendance (409 Conflict)
+                    if (response.status === 409) {
+                      console.log('⚠️ Duplicate manual input detected');
+                      const errorData = await response.json();
+                      console.log('🔍 API Response for duplicate:', errorData);
+                      
+                      // Use student information from API response
+                      const studentInfo = errorData.student || {};
+                      console.log('🔍 Student info from API:', studentInfo);
+                      
+                      // Update display to show the student with duplicate flag
+                      updateScanResult({
+                        firstName: studentInfo.firstName || 'Student',
+                        lastName: studentInfo.lastName || studentIdNumber.trim(),
+                        studentIdNumber: studentInfo.studentIdNumber || studentIdNumber.trim(),
+                        isDuplicate: true,
+                      });
+                      
+                      // Show warning toast (not error)
+                      toast.warning('Already Recorded', {
+                        description: errorData.message || 'This student has already been recorded for this session',
+                        duration: 4000,
+                      });
+                      
+                      // Don't throw error - this is expected behavior
+                      console.log('✅ Duplicate manual input handled gracefully');
+                      return;
+                    }
+
+                    if (!response.ok) {
+                      console.log('📍 Step 5: Response not OK, parsing error...');
+                      const errorData = await response.json();
+                      console.error('❌ API Error Response:', errorData);
+                      throw new Error(errorData.message || errorData.error || 'Failed to record attendance');
+                    }
+
+                    console.log('📍 Step 5: Parsing success response...');
+                    const result = await response.json();
+                    console.log('📍 Step 6: Response parsed successfully');
+                    console.log('✅ Attendance recorded successfully:', result);
+                    
+                    // Update display with real student data
+                    if (result.student) {
+                      updateScanResult({
+                        firstName: result.student.firstName,
+                        lastName: result.student.lastName,
+                        studentIdNumber: result.student.studentIdNumber,
+                        isDuplicate: false, // Explicitly mark as not duplicate
+                      });
+                    } else {
+                      // If no student data in response, use input data
+                      updateScanResult({
+                        firstName: 'Student',
+                        lastName: '',
+                        studentIdNumber: studentIdNumber.trim(),
+                        isDuplicate: false,
+                      });
+                    }
+                    
+                    // Update attendance stats with data from API response
+                    handleAttendanceRecorded();
+
+                    // Show success toast with actual student name
+                    if (result.student?.firstName && result.student?.lastName) {
+                      toast.success('✅ Attendance Recorded!', {
+                        description: `${result.student.firstName} ${result.student.lastName} - ${result.student.studentIdNumber}`,
+                        duration: 4000,
+                      });
+                    }
+
+                  } catch (error) {
+                    console.error('❌ Error recording attendance:', error);
+                    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+                    const errorMsg = error instanceof Error ? error.message : 'Failed to record attendance';
+                    toast.error('Recording Failed', {
+                      description: errorMsg
+                    });
+                    throw error; // Re-throw so the manual input can handle it
+                  }
+                }}
+                onError={(error) => {
+                  console.error('Manual input error:', error);
+                  toast.error('Input Error', { description: error });
+                }}
+                onScanningStateChange={handleScanningStateChange}
+              />
+            )}
           </CardContent>
         </Card>
         </div>
@@ -560,7 +719,7 @@ export function ScanPage({ className: _className }: ScanPageProps) {
                 Stop Scanning?
               </DialogTitle>
               <DialogDescription className="text-gray-600 dark:text-gray-400">
-                You are currently scanning QR codes. If you leave now, the scanner will be stopped and you'll lose your current scanning session.
+                You are currently scanning QR codes. If you leave now, the scanner will be stopped and you&apos;ll lose your current scanning session.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="gap-2">
@@ -612,7 +771,7 @@ export function ScanPage({ className: _className }: ScanPageProps) {
               Stop Scanning?
             </DialogTitle>
             <DialogDescription className="text-gray-600 dark:text-gray-400">
-              You are currently scanning QR codes. If you leave now, the scanner will be stopped and you'll lose your current scanning session.
+              You are currently scanning QR codes. If you leave now, the scanner will be stopped and you&apos;ll lose your current scanning session.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">

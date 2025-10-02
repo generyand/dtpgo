@@ -28,7 +28,7 @@ interface ScanResult {
   errorMessage?: string;
 }
 
-export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, onError, onCleanup, onScanningStateChange }: QRScannerProps) {
+export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }: QRScannerProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [cameraId, setCameraId] = useState<string | null>(null);
   const [lastScanResult, setLastScanResult] = useState<ScanResult | null>(null);
@@ -259,7 +259,7 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
       toast.error(errorMsg);
       onError?.(errorMsg);
     }
-  }, [cameraId, onScan, onError]);
+  }, [cameraId, onScan, onError, onScanningStateChange]);
 
   const stopScanning = useCallback(async () => {
     if (scannerRef.current && isScanning) {
@@ -339,10 +339,10 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
   // Expose cleanup function to parent via ref
   useEffect(() => {
     // Store cleanup function in a way that parent can access it
-    (window as any).__qrScannerCleanup = cleanup;
+    (window as unknown as { __qrScannerCleanup?: () => Promise<void> }).__qrScannerCleanup = cleanup;
     
     return () => {
-      delete (window as any).__qrScannerCleanup;
+      delete (window as unknown as { __qrScannerCleanup?: () => Promise<void> }).__qrScannerCleanup;
     };
   }, [cleanup]);
 
