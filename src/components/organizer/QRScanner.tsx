@@ -13,6 +13,8 @@ interface QRScannerProps {
   eventId: string;
   onScan: (qrData: string, updateResult: (data: Partial<ScanResult>) => void) => Promise<void>;
   onError?: (error: string) => void;
+  onCleanup?: () => void;
+  onScanningStateChange?: (isScanning: boolean) => void;
 }
 
 interface ScanResult {
@@ -26,7 +28,7 @@ interface ScanResult {
   errorMessage?: string;
 }
 
-export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, onError }: QRScannerProps) {
+export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }: QRScannerProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [cameraId, setCameraId] = useState<string | null>(null);
   const [lastScanResult, setLastScanResult] = useState<ScanResult | null>(null);
@@ -38,6 +40,7 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
   const lastScanTimeRef = useRef<number>(0);
   const successAudioRef = useRef<HTMLAudioElement | null>(null);
   const dialogTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isCleaningUpRef = useRef(false);
 
   // Initialize success sound
   useEffect(() => {
@@ -248,6 +251,7 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
       );
 
       setIsScanning(true);
+      onScanningStateChange?.(true);
       console.log('✅ Scanner started successfully');
     } catch (err) {
       console.error('Error starting scanner:', err);
@@ -255,7 +259,7 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
       toast.error(errorMsg);
       onError?.(errorMsg);
     }
-  }, [cameraId, onScan, onError]);
+  }, [cameraId, onScan, onError, onScanningStateChange]);
 
   const stopScanning = useCallback(async () => {
     if (scannerRef.current && isScanning) {
@@ -263,24 +267,113 @@ export function QRScanner({ sessionId: _sessionId, eventId: _eventId, onScan, on
         await scannerRef.current.stop();
         console.log('🛑 Scanner stopped');
         setIsScanning(false);
+        onScanningStateChange?.(false);
       } catch (err) {
         console.error('Error stopping scanner:', err);
       }
     }
-  }, [isScanning]);
+  }, [isScanning, onScanningStateChange]);
+
+  // Expose cleanup function to parent component
+  const cleanup = useCallback(async () => {
+    // Prevent multiple cleanup calls
+    if (isCleaningUpRef.current) {
+      console.log('🧹 Cleanup already in progress, skipping...');
+      return;
+    }
+    
+    isCleaningUpRef.current = true;
+    console.log('🧹 Cleaning up QR scanner...');
+    
+    try {
+      // Clear any pending timers
+      if (dialogTimerRef.current) {
+        clearTimeout(dialogTimerRef.current);
+        dialogTimerRef.current = null;
+      }
+      
+      // Stop scanner if running - this is critical to avoid the "Cannot clear while scan is ongoing" error
+      if (scannerRef.current) {
+        try {
+          // Check if scanner is actually running before trying to stop it
+          if (isScanning) {
+            await scannerRef.current.stop();
+            console.log('🛑 Scanner stopped during cleanup');
+          }
+          
+          // Now clear the scanner instance
+          scannerRef.current.clear();
+          console.log('🧹 Scanner cleared');
+        } catch (err) {
+          console.error('Error during scanner cleanup:', err);
+          // Even if there's an error, we should still try to clear
+          try {
+            if (scannerRef.current) {
+              scannerRef.current.clear();
+            }
+          } catch (clearErr) {
+            console.error('Error clearing scanner after stop failure:', clearErr);
+          }
+        } finally {
+          scannerRef.current = null;
+        }
+      }
+      
+      // Reset state
+      setIsScanning(false);
+      setIsProcessing(false);
+      setScanAnimation(false);
+      setShowResultDialog(false);
+      setLastScanResult(null);
+      
+      // Notify parent component
+      onScanningStateChange?.(false);
+      onCleanup?.();
+      
+      console.log('✅ QR scanner cleanup completed');
+    } finally {
+      isCleaningUpRef.current = false;
+    }
+  }, [isScanning, onCleanup, onScanningStateChange]);
+
+  // Expose cleanup function to parent via ref
+  useEffect(() => {
+    // Store cleanup function in a way that parent can access it
+    (window as unknown as { __qrScannerCleanup?: () => Promise<void> }).__qrScannerCleanup = cleanup;
+    
+    return () => {
+      delete (window as unknown as { __qrScannerCleanup?: () => Promise<void> }).__qrScannerCleanup;
+    };
+  }, [cleanup]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      // Use a more robust cleanup approach for unmount
       if (scannerRef.current) {
-        scannerRef.current.stop().catch(() => {});
-        scannerRef.current.clear();
+        try {
+          // Try to stop first if scanning
+          if (isScanning) {
+            scannerRef.current.stop().catch(() => {
+              // Ignore stop errors during unmount
+            });
+          }
+          // Always try to clear
+          scannerRef.current.clear();
+        } catch (err) {
+          // Ignore cleanup errors during unmount
+          console.warn('Cleanup error during unmount (ignored):', err);
+        } finally {
+          scannerRef.current = null;
+        }
       }
+      
+      // Clear timers
       if (dialogTimerRef.current) {
         clearTimeout(dialogTimerRef.current);
       }
     };
-  }, []);
+  }, [isScanning]);
 
   return (
     <div className="space-y-4">

@@ -1,0 +1,440 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  Hash, 
+  User, 
+  CheckCircle, 
+  AlertCircle, 
+  Loader2,
+  Keyboard,
+  Sparkles
+} from 'lucide-react';
+import { toast } from 'sonner';
+
+interface ManualInputProps {
+  sessionId: string;
+  eventId: string;
+  onScan: (qrData: string, updateResult: (data: Partial<ScanResult>) => void) => Promise<void>;
+  onError?: (error: string) => void;
+  onScanningStateChange?: (isScanning: boolean) => void;
+}
+
+interface ScanResult {
+  studentId: string;
+  studentIdNumber: string;
+  firstName: string;
+  lastName: string;
+  timestamp: string;
+  isDuplicate?: boolean;
+  isError?: boolean;
+  errorMessage?: string;
+}
+
+export function ManualInput({ onScan }: ManualInputProps) {
+  const [studentIdNumber, setStudentIdNumber] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [lastScanResult, setLastScanResult] = useState<ScanResult | null>(null);
+  const [showResultDialog, setShowResultDialog] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dialogTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Focus input on mount
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (dialogTimerRef.current) {
+        clearTimeout(dialogTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!studentIdNumber.trim()) {
+      toast.error('Please enter a student ID number');
+      return;
+    }
+
+    setIsProcessing(true);
+    
+    try {
+      console.log('🔍 Processing manual input:', studentIdNumber.trim());
+      
+      // Show processing state
+      setLastScanResult({
+        studentId: studentIdNumber.trim(),
+        studentIdNumber: studentIdNumber.trim(),
+        firstName: 'Processing',
+        lastName: '...',
+        timestamp: new Date().toISOString()
+      });
+      setShowResultDialog(true);
+
+      // Call the same onScan callback that QR scanner uses
+      let finalResult: Partial<ScanResult> | null = null;
+      
+      await onScan(studentIdNumber.trim(), (updatedData) => {
+        finalResult = updatedData;
+      });
+
+      console.log('✅ Manual input processed successfully');
+      
+      // Update with the final result
+      if (finalResult) {
+        const fr = finalResult as Partial<ScanResult>;
+        const completed: ScanResult = {
+          studentId: fr.studentId ?? studentIdNumber.trim(),
+          studentIdNumber: fr.studentIdNumber ?? studentIdNumber.trim(),
+          firstName: fr.firstName ?? 'Student',
+          lastName: fr.lastName ?? '',
+          timestamp: new Date().toISOString(),
+          isDuplicate: fr.isDuplicate,
+          isError: fr.isError,
+          errorMessage: fr.errorMessage,
+        };
+        
+        if (completed.isDuplicate) {
+          console.log('🟡 Duplicate manual input detected');
+          setLastScanResult({ ...completed, isDuplicate: true });
+        } else {
+          console.log('🟢 Success manual input');
+          setLastScanResult(completed);
+        }
+      }
+
+      // Auto-dismiss dialog after 3 seconds
+      if (dialogTimerRef.current) {
+        clearTimeout(dialogTimerRef.current);
+      }
+      dialogTimerRef.current = setTimeout(() => {
+        setShowResultDialog(false);
+      }, 3000);
+
+      // Clear input for next entry
+      setStudentIdNumber('');
+      
+      // Focus input again for next entry
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, 100);
+
+    } catch (error) {
+      console.error('❌ Error processing manual input:', error);
+      
+      // Show error dialog
+      setLastScanResult({
+        studentId: studentIdNumber.trim(),
+        studentIdNumber: studentIdNumber.trim(),
+        firstName: 'Error',
+        lastName: '',
+        timestamp: new Date().toISOString(),
+        isError: true,
+        errorMessage: error instanceof Error ? error.message : 'Failed to record attendance'
+      });
+      
+      setShowResultDialog(true);
+      
+      // Auto-dismiss error dialog after 4 seconds
+      if (dialogTimerRef.current) {
+        clearTimeout(dialogTimerRef.current);
+      }
+      dialogTimerRef.current = setTimeout(() => {
+        setShowResultDialog(false);
+      }, 4000);
+      
+      toast.error('Recording Failed', {
+        description: error instanceof Error ? error.message : 'Failed to record attendance'
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSubmit(e);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Success Result Dialog - Same as QR Scanner */}
+      <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${
+        showResultDialog ? 'block' : 'hidden'
+      }`}>
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowResultDialog(false)} />
+        <div className={`relative overflow-hidden rounded-3xl backdrop-blur-xl border-2 ${
+          lastScanResult?.isError
+            ? 'bg-gradient-to-br from-red-500/30 to-red-600/30 border-red-500/50'
+            : lastScanResult?.isDuplicate 
+            ? 'bg-gradient-to-br from-amber-500/30 to-orange-500/30 border-amber-500/50' 
+            : 'bg-gradient-to-br from-emerald-500/30 to-green-500/30 border-emerald-500/50'
+        } shadow-2xl ${
+          lastScanResult?.isError 
+            ? 'shadow-red-500/30' 
+            : lastScanResult?.isDuplicate 
+              ? 'shadow-amber-500/30' 
+              : 'shadow-emerald-500/30'
+        } animate-in zoom-in-95 duration-300 max-w-md w-full`}>
+          
+          {/* Animated background sparkles */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className={`absolute top-0 left-1/4 w-2 h-2 ${
+              lastScanResult?.isError 
+                ? 'bg-red-400' 
+                : lastScanResult?.isDuplicate 
+                  ? 'bg-amber-400' 
+                  : 'bg-emerald-400'
+            } rounded-full animate-ping`}></div>
+            <div className={`absolute top-1/4 right-1/4 w-1 h-1 ${
+              lastScanResult?.isError 
+                ? 'bg-red-500' 
+                : lastScanResult?.isDuplicate 
+                  ? 'bg-orange-400' 
+                  : 'bg-green-400'
+            } rounded-full animate-ping delay-75`}></div>
+            <div className={`absolute bottom-1/4 left-1/3 w-1.5 h-1.5 ${
+              lastScanResult?.isError 
+                ? 'bg-red-300' 
+                : lastScanResult?.isDuplicate 
+                  ? 'bg-amber-300' 
+                  : 'bg-emerald-300'
+            } rounded-full animate-ping delay-150`}></div>
+          </div>
+
+          <div className="relative p-8 text-center space-y-6">
+            {/* Icon with glow */}
+            <div className="relative inline-block">
+              <div className={`absolute inset-0 ${
+                lastScanResult?.isError 
+                  ? 'bg-red-500' 
+                  : lastScanResult?.isDuplicate 
+                    ? 'bg-amber-500' 
+                    : 'bg-emerald-500'
+              } rounded-full blur-2xl opacity-50 animate-pulse`}></div>
+              <div className={`relative p-6 rounded-full ${
+                lastScanResult?.isError 
+                  ? 'bg-gradient-to-br from-red-500 to-red-600' 
+                  : lastScanResult?.isDuplicate 
+                  ? 'bg-gradient-to-br from-amber-500 to-orange-500' 
+                  : 'bg-gradient-to-br from-emerald-500 to-green-500'
+              }`}>
+                {lastScanResult?.isError ? (
+                  <AlertCircle className="h-16 w-16 text-white" />
+                ) : lastScanResult?.isDuplicate ? (
+                  <CheckCircle className="h-16 w-16 text-white" />
+                ) : (
+                  <CheckCircle className="h-16 w-16 text-white" />
+                )}
+              </div>
+            </div>
+
+            {/* Title */}
+            <div>
+              <h2 className={`text-3xl font-bold mb-2 ${
+                lastScanResult?.isError 
+                  ? 'text-red-100' 
+                  : lastScanResult?.isDuplicate 
+                    ? 'text-amber-100' 
+                    : 'text-emerald-100'
+              }`}>
+                {lastScanResult?.isError 
+                  ? 'Error!' 
+                  : lastScanResult?.isDuplicate 
+                    ? 'Already Recorded!' 
+                    : 'Success!'}
+              </h2>
+              {lastScanResult?.isError ? (
+                <div className="flex items-center justify-center gap-2 text-red-200/80">
+                  <AlertCircle className="h-4 w-4" />
+                  <span className="text-sm">Input Failed</span>
+                  <AlertCircle className="h-4 w-4" />
+                </div>
+              ) : !lastScanResult?.isDuplicate && (
+                <div className="flex items-center justify-center gap-2 text-emerald-200/80">
+                  <Sparkles className="h-4 w-4" />
+                  <span className="text-sm">Attendance Recorded</span>
+                  <Sparkles className="h-4 w-4" />
+                </div>
+              )}
+            </div>
+
+            {/* Student Info */}
+            <div className="space-y-3">
+              {lastScanResult?.isError ? (
+                <div className="flex items-center justify-center gap-3 text-white">
+                  <AlertCircle className="h-6 w-6 text-white/80" />
+                  <span className="font-bold text-2xl">
+                    {lastScanResult?.errorMessage || 'Input Error'}
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-center gap-3 text-white">
+                    <User className="h-6 w-6 text-white/80" />
+                    <span className="font-bold text-2xl">
+                      {lastScanResult?.firstName} {lastScanResult?.lastName}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-center gap-3 text-white/90">
+                    <Hash className="h-5 w-5 text-white/70" />
+                    <span className="font-mono text-xl">
+                      {lastScanResult?.studentIdNumber}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Timestamp */}
+            <div className={`text-sm ${
+              lastScanResult?.isError 
+                ? 'text-red-200/60' 
+                : lastScanResult?.isDuplicate 
+                  ? 'text-amber-200/60' 
+                  : 'text-emerald-200/60'
+            }`}>
+              {lastScanResult?.isError 
+                ? `Error occurred at ${lastScanResult ? new Date(lastScanResult.timestamp).toLocaleTimeString() : ''}`
+                : lastScanResult?.isDuplicate 
+                ? `Previously recorded at ${lastScanResult ? new Date(lastScanResult.timestamp).toLocaleTimeString() : ''}`
+                : `Recorded at ${lastScanResult ? new Date(lastScanResult.timestamp).toLocaleTimeString() : ''}`
+              }
+            </div>
+
+            {/* Auto-dismiss indicator */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-2 text-white/40 text-xs">
+                <div className="w-1.5 h-1.5 bg-white/40 rounded-full animate-pulse"></div>
+                <span>Auto-closing in 3 seconds</span>
+              </div>
+              <button
+                onClick={() => setShowResultDialog(false)}
+                className="text-white/30 hover:text-white/60 text-xs underline transition-colors"
+              >
+                Tap to close now
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Manual Input Form */}
+      <Card className="w-full bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/10 dark:border-gray-700">
+        <CardHeader className="text-center">
+          <div className="relative inline-block mb-4">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 rounded-full blur-2xl opacity-50 animate-pulse"></div>
+            <div className="relative bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 rounded-full p-4 shadow-2xl">
+              <Keyboard className="h-8 w-8 text-white" />
+            </div>
+          </div>
+          <CardTitle className="text-xl text-gray-900 dark:text-gray-100">Manual Entry</CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-400">
+            Enter student ID number manually when QR code is not available
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="studentIdNumber" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                Student ID Number
+              </label>
+              <Input
+                ref={inputRef}
+                id="studentIdNumber"
+                type="text"
+                value={studentIdNumber}
+                onChange={(e) => setStudentIdNumber(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Enter student ID number..."
+                disabled={isProcessing}
+                className="text-center text-lg font-mono bg-white/10 dark:bg-gray-900/50 border-white/20 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck="false"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={!studentIdNumber.trim() || isProcessing}
+              className="w-full h-12 bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 hover:from-blue-600 hover:to-indigo-600 dark:hover:from-blue-700 dark:hover:to-indigo-700 text-white font-semibold text-base rounded-xl shadow-lg shadow-blue-500/30 dark:shadow-blue-900/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/40 dark:hover:shadow-blue-900/40 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Hash className="mr-2 h-5 w-5" />
+                  Record Attendance
+                </>
+              )}
+            </Button>
+          </form>
+
+          {/* Processing Indicator */}
+          {isProcessing && (
+            <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-blue-500/20 to-indigo-500/20 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-500/40 dark:border-blue-900/40">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-500/10 dark:from-blue-900/10 dark:via-indigo-900/10 dark:to-blue-900/10 animate-pulse"></div>
+              <Alert className="border-0 bg-transparent relative">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-blue-500 dark:bg-blue-600 rounded-full blur-lg opacity-50 animate-ping"></div>
+                    <Loader2 className="h-6 w-6 text-blue-600 dark:text-blue-400 relative animate-spin" />
+                  </div>
+                  <AlertDescription className="text-blue-800 dark:text-blue-300 font-medium text-base">
+                    Processing student ID...
+                  </AlertDescription>
+                </div>
+              </Alert>
+            </div>
+          )}
+
+          {/* Usage Tips */}
+          <div className="mt-6 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <Keyboard className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Manual Entry Tips</h4>
+                <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-2">
+                  <li className="flex items-center gap-3">
+                    <span className="w-1.5 h-1.5 bg-blue-500 dark:bg-blue-400 rounded-full"></span>
+                    Enter the student&apos;s ID number (not the CUID)
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="w-1.5 h-1.5 bg-blue-500 dark:bg-blue-400 rounded-full"></span>
+                    Press Enter or click &quot;Record Attendance&quot; to submit
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="w-1.5 h-1.5 bg-blue-500 dark:bg-blue-400 rounded-full"></span>
+                    Input will clear automatically after successful recording
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
