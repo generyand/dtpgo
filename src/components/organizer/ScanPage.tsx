@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { QRScanner } from './QRScanner';
 import { SessionSelector } from './SessionSelector';
@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   ArrowLeft, 
   Calendar, 
@@ -15,7 +16,8 @@ import {
   MapPin, 
   Users,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Camera
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -47,7 +49,7 @@ interface ScanPageProps {
 
 export function ScanPage({ className: _className }: ScanPageProps) {
   const searchParams = useSearchParams();
-  const _router = useRouter();
+  const router = useRouter();
   
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -58,6 +60,9 @@ export function ScanPage({ className: _className }: ScanPageProps) {
     totalScanned: 0,
     lastScanTime: null as Date | null,
   });
+  const [showLeaveDialog, setShowLeaveDialog] = useState(false);
+  const [isScanningActive, setIsScanningActive] = useState(false);
+  const pendingNavigationRef = useRef<string | null>(null);
 
   // Get sessionId from URL params
   const sessionIdFromUrl = searchParams.get('sessionId');
@@ -77,6 +82,45 @@ export function ScanPage({ className: _className }: ScanPageProps) {
       }
     }
   }, [sessionIdFromUrl, sessions]);
+
+  // Handle page leave warning when scanner is active
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isScanningActive) {
+        e.preventDefault();
+        e.returnValue = 'You are currently scanning QR codes. Are you sure you want to leave?';
+        return 'You are currently scanning QR codes. Are you sure you want to leave?';
+      }
+    };
+
+    const handlePopState = (e: PopStateEvent) => {
+      if (isScanningActive) {
+        e.preventDefault();
+        setShowLeaveDialog(true);
+        // Store the intended navigation
+        pendingNavigationRef.current = 'back';
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [isScanningActive]);
+
+  // Cleanup scanner when component unmounts
+  useEffect(() => {
+    return () => {
+      if ((window as any).__qrScannerCleanup) {
+        (window as any).__qrScannerCleanup();
+      }
+    };
+  }, []);
 
   const loadSessions = async () => {
     try {
@@ -112,6 +156,12 @@ export function ScanPage({ className: _className }: ScanPageProps) {
   };
 
   const handleBackToSessions = () => {
+    if (isScanningActive) {
+      setShowLeaveDialog(true);
+      pendingNavigationRef.current = 'sessions';
+      return;
+    }
+    
     setSelectedSession(null);
     setScanMode('select');
     
@@ -119,6 +169,46 @@ export function ScanPage({ className: _className }: ScanPageProps) {
     const url = new URL(window.location.href);
     url.searchParams.delete('sessionId');
     window.history.replaceState({}, '', url.toString());
+  };
+
+  const handleConfirmLeave = async () => {
+    // Clean up scanner
+    if ((window as any).__qrScannerCleanup) {
+      await (window as any).__qrScannerCleanup();
+    }
+    
+    setIsScanningActive(false);
+    setShowLeaveDialog(false);
+    
+    // Execute pending navigation
+    const navigation = pendingNavigationRef.current;
+    pendingNavigationRef.current = null;
+    
+    if (navigation === 'sessions') {
+      setSelectedSession(null);
+      setScanMode('select');
+      
+      // Remove sessionId from URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('sessionId');
+      window.history.replaceState({}, '', url.toString());
+    } else if (navigation === 'back') {
+      // Go back in history
+      window.history.back();
+    }
+  };
+
+  const handleCancelLeave = () => {
+    setShowLeaveDialog(false);
+    pendingNavigationRef.current = null;
+  };
+
+  const handleScannerCleanup = () => {
+    setIsScanningActive(false);
+  };
+
+  const handleScanningStateChange = (isScanning: boolean) => {
+    setIsScanningActive(isScanning);
   };
 
   const handleAttendanceRecorded = (_attendanceData: Record<string, unknown>) => {
@@ -184,7 +274,8 @@ export function ScanPage({ className: _className }: ScanPageProps) {
 
   if (scanMode === 'scan' && selectedSession) {
     return (
-      <div className="space-y-4 sm:space-y-6">
+      <>
+        <div className="space-y-4 sm:space-y-6">
         {/* Floating Stats Counter */}
         <div className="fixed top-4 right-4 z-50 hidden sm:block">
           <div className="bg-gradient-to-br from-yellow-500 to-amber-500 dark:from-yellow-600 dark:to-amber-600 backdrop-blur-xl border border-white/20 rounded-xl p-3 shadow-lg shadow-yellow-500/30 dark:shadow-yellow-900/30">
@@ -285,6 +376,8 @@ export function ScanPage({ className: _className }: ScanPageProps) {
             <QRScanner
               sessionId={selectedSession.id}
               eventId={selectedSession.eventId}
+              onCleanup={handleScannerCleanup}
+              onScanningStateChange={handleScanningStateChange}
               onScan={async (qrData, updateScanResult) => {
                 console.log('🔍 Processing scanned QR data:', qrData);
                 
@@ -456,27 +549,90 @@ export function ScanPage({ className: _className }: ScanPageProps) {
             />
           </CardContent>
         </Card>
-      </div>
+        </div>
+
+        {/* Leave Confirmation Dialog */}
+        <Dialog open={showLeaveDialog} onOpenChange={setShowLeaveDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                <Camera className="h-5 w-5" />
+                Stop Scanning?
+              </DialogTitle>
+              <DialogDescription className="text-gray-600 dark:text-gray-400">
+                You are currently scanning QR codes. If you leave now, the scanner will be stopped and you'll lose your current scanning session.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                onClick={handleCancelLeave}
+                className="border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                Continue Scanning
+              </Button>
+              <Button
+                onClick={handleConfirmLeave}
+                className="bg-red-500 hover:bg-red-600 text-white"
+              >
+                Stop & Leave
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
     );
   }
 
   // Session Selection Mode
   return (
-    <div className="space-y-6">
-      <Card className="w-full bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/10 dark:border-gray-700">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl sm:text-3xl text-gray-900 dark:text-gray-100">Select a Session</CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-400">
-            Choose an active session to start scanning QR codes
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <SessionSelector
-            onSessionSelect={handleSessionSelect}
-          />
-        </CardContent>
-      </Card>
-    </div>
+    <>
+      <div className="space-y-6">
+        <Card className="w-full bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/10 dark:border-gray-700">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl sm:text-3xl text-gray-900 dark:text-gray-100">Select a Session</CardTitle>
+            <CardDescription className="text-gray-600 dark:text-gray-400">
+              Choose an active session to start scanning QR codes
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SessionSelector
+              onSessionSelect={handleSessionSelect}
+            />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Leave Confirmation Dialog */}
+      <Dialog open={showLeaveDialog} onOpenChange={setShowLeaveDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <Camera className="h-5 w-5" />
+              Stop Scanning?
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
+              You are currently scanning QR codes. If you leave now, the scanner will be stopped and you'll lose your current scanning session.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={handleCancelLeave}
+              className="border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              Continue Scanning
+            </Button>
+            <Button
+              onClick={handleConfirmLeave}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              Stop & Leave
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
