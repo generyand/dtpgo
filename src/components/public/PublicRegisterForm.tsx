@@ -353,11 +353,14 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
                     <SelectValue placeholder="Select year" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[1, 2, 3, 4, 5].map((y) => (
+                    {[1, 2, 3, 4].map((y) => (
                       <SelectItem key={y} value={String(y)} className="hover:bg-yellow-50">
                         <span className="font-medium">{y}{y === 1 ? 'st' : y === 2 ? 'nd' : y === 3 ? 'rd' : 'th'} Year</span>
                       </SelectItem>
                     ))}
+                    <SelectItem value="0" className="hover:bg-yellow-50">
+                      <span className="font-medium">Other</span>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.year && (
