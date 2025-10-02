@@ -106,7 +106,7 @@ SMTP_HOST=
 SMTP_PORT=587
 SMTP_SECURE=false
 SMTP_USER=
-SMTP_PASS=cylqbhnlazehbfxx
+SMTP_PASS=
 EMAIL_FROM=DTP Go <your@gmail.com>
 EMAIL_REPLY_TO=youremail@gmail.com
 
