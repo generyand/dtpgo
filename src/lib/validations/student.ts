@@ -7,7 +7,7 @@ export const studentSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters long.'),
   lastName: z.string().min(2, 'Last name must be at least 2 characters long.'),
   email: z.string().email('Invalid email address.'),
-  year: z.number().min(1, 'Year level is required.').max(5, 'Year level must be between 1 and 5.'),
+  year: z.number().min(0, 'Year level is required.').max(4, 'Year level must be between 1 and 4, or select Other.'),
   programId: z.string().min(1, 'Program is required.'),
 });
 
