@@ -78,8 +78,8 @@ export function AdminNav() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden border-r bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 lg:block dark:bg-gray-900/95 dark:supports-[backdrop-filter]:bg-gray-900/60">
-        <div className="flex h-screen flex-col sticky top-0">
+      <div className="hidden border-r bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 lg:block dark:bg-gray-900/95 dark:supports-[backdrop-filter]:bg-gray-900/60 fixed top-0 left-0 w-[280px] h-screen z-50">
+        <div className="flex h-full flex-col">
           {/* Desktop Header */}
           <div className="flex h-16 items-center border-b px-6 bg-gray-50/50 dark:bg-gray-800/50">
             <Link 
