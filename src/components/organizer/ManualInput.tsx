@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Hash, 
@@ -335,20 +334,20 @@ export function ManualInput({ onScan }: ManualInputProps) {
       </div>
 
       {/* Manual Input Form */}
-      <Card className="w-full bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/10 dark:border-gray-700">
-        <CardHeader className="text-center">
+      <div className="w-full">
+        <div className="text-center p-6">
           <div className="relative inline-block mb-4">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 rounded-full blur-2xl opacity-50 animate-pulse"></div>
-            <div className="relative bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 rounded-full p-4 shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full blur-2xl opacity-50 animate-pulse"></div>
+            <div className="relative bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full p-4 shadow-2xl">
               <Keyboard className="h-8 w-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-xl text-gray-900 dark:text-gray-100">Manual Entry</CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-400">
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Manual Entry</h3>
+          <p className="text-gray-600 dark:text-gray-400">
             Enter student ID number manually when QR code is not available
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </p>
+        </div>
+        <div className="px-6 pb-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="studentIdNumber" className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -363,7 +362,7 @@ export function ManualInput({ onScan }: ManualInputProps) {
                 onKeyPress={handleKeyPress}
                 placeholder="Enter student ID number..."
                 disabled={isProcessing}
-                className="text-center text-lg font-mono bg-white/10 dark:bg-gray-900/50 border-white/20 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                className="text-center text-base sm:text-lg font-mono bg-white border-gray-200 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 h-12 sm:h-14"
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"
@@ -374,7 +373,7 @@ export function ManualInput({ onScan }: ManualInputProps) {
             <Button
               type="submit"
               disabled={!studentIdNumber.trim() || isProcessing}
-              className="w-full h-12 bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 hover:from-blue-600 hover:to-indigo-600 dark:hover:from-blue-700 dark:hover:to-indigo-700 text-white font-semibold text-base rounded-xl shadow-lg shadow-blue-500/30 dark:shadow-blue-900/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/40 dark:hover:shadow-blue-900/40 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-12 sm:h-14 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white font-semibold text-sm sm:text-base rounded-xl shadow-lg shadow-yellow-500/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isProcessing ? (
                 <>
@@ -392,15 +391,15 @@ export function ManualInput({ onScan }: ManualInputProps) {
 
           {/* Processing Indicator */}
           {isProcessing && (
-            <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-blue-500/20 to-indigo-500/20 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-500/40 dark:border-blue-900/40">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-500/10 dark:from-blue-900/10 dark:via-indigo-900/10 dark:to-blue-900/10 animate-pulse"></div>
+            <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border-2 border-yellow-500/40">
+              <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/10 via-amber-500/10 to-yellow-500/10 animate-pulse"></div>
               <Alert className="border-0 bg-transparent relative">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-blue-500 dark:bg-blue-600 rounded-full blur-lg opacity-50 animate-ping"></div>
-                    <Loader2 className="h-6 w-6 text-blue-600 dark:text-blue-400 relative animate-spin" />
+                    <div className="absolute inset-0 bg-yellow-500 rounded-full blur-lg opacity-50 animate-ping"></div>
+                    <Loader2 className="h-6 w-6 text-yellow-600 relative animate-spin" />
                   </div>
-                  <AlertDescription className="text-blue-800 dark:text-blue-300 font-medium text-base">
+                  <AlertDescription className="text-yellow-800 font-medium text-base">
                     Processing student ID...
                   </AlertDescription>
                 </div>
@@ -411,30 +410,30 @@ export function ManualInput({ onScan }: ManualInputProps) {
           {/* Usage Tips */}
           <div className="mt-6 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                <Keyboard className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <Keyboard className="h-5 w-5 text-yellow-600 flex-shrink-0" />
               </div>
               <div className="flex-1">
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Manual Entry Tips</h4>
                 <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-2">
                   <li className="flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-blue-500 dark:bg-blue-400 rounded-full"></span>
+                    <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>
                     Enter the student&apos;s ID number (not the CUID)
                   </li>
                   <li className="flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-blue-500 dark:bg-blue-400 rounded-full"></span>
+                    <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>
                     Press Enter or click &quot;Record Attendance&quot; to submit
                   </li>
                   <li className="flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-blue-500 dark:bg-blue-400 rounded-full"></span>
+                    <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>
                     Input will clear automatically after successful recording
                   </li>
                 </ul>
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

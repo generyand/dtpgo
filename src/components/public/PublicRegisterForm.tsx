@@ -218,7 +218,7 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
                 pattern="[0-9]*"
                 {...register('studentIdNumber')} 
                 placeholder="Input your student ID number"
-                className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-gray-900 placeholder:text-gray-500"
               />
               {errors.studentIdNumber && (
                 <p className="text-sm text-red-600 flex items-center gap-1">
@@ -236,7 +236,7 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
                   id="firstName" 
                   {...register('firstName')} 
                   placeholder="Juan"
-                  className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors"
+                  className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors text-gray-900 placeholder:text-gray-500"
                   onBlur={(e) => handleNameBlur('firstName', e.target.value)}
                 />
                 {errors.firstName && (
@@ -253,7 +253,7 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
                   id="lastName" 
                   {...register('lastName')} 
                   placeholder="Dela Cruz"
-                  className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors"
+                  className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 transition-colors text-gray-900 placeholder:text-gray-500"
                   onBlur={(e) => handleNameBlur('lastName', e.target.value)}
                 />
                 {errors.lastName && (
@@ -319,7 +319,7 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
                   <Label htmlFor="programId" className="font-semibold text-gray-900">Program</Label>
                 </div>
                 <Select onValueChange={(value) => setValue('programId', value, { shouldValidate: true })} {...register('programId')}>
-                  <SelectTrigger className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20">
+                  <SelectTrigger className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 text-gray-900">
                     <SelectValue placeholder="Select your program" className="truncate text-left">
                       {selectedProgramDisplay || "Select your program"}
                     </SelectValue>
@@ -349,7 +349,7 @@ export const PublicRegisterForm = ({ onSubmit, isSubmitting }: PublicRegisterFor
                   <Label htmlFor="year" className="font-semibold text-gray-900">Year Level</Label>
                 </div>
                 <Select onValueChange={(value) => setValue('year', parseInt(value, 10), { shouldValidate: true })} {...register('year')}>
-                  <SelectTrigger className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20">
+                  <SelectTrigger className="h-12 border-gray-200 focus:border-yellow-400 focus:ring-yellow-400/20 text-gray-900">
                     <SelectValue placeholder="Select year" />
                   </SelectTrigger>
                   <SelectContent>

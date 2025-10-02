@@ -11,23 +11,24 @@ export const metadata: Metadata = {
 
 export default function OrganizerSessionsPage() {
   return (
-    <div className="w-full max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 min-w-[800px]">
+    <div className="w-full max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">My Sessions</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">My Sessions</h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
             Manage your assigned attendance sessions
           </p>
         </div>
-        <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex-shrink-0">
           <Calendar className="h-4 w-4" />
-          <span>Organizer Portal</span>
+          <span className="hidden sm:inline">Organizer Portal</span>
+          <span className="sm:hidden">Portal</span>
         </div>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-900 dark:text-gray-100">Active Sessions</CardTitle>

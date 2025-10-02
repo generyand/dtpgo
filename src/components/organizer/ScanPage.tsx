@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { QRScanner } from './QRScanner';
 import { ManualInput } from './ManualInput';
 import { SessionSelector } from './SessionSelector';
@@ -46,11 +46,7 @@ interface Session {
   };
 }
 
-interface ScanPageProps {
-  className?: string;
-}
-
-export function ScanPage({ className: _className }: ScanPageProps) {
+export function ScanPage() {
   const searchParams = useSearchParams();
   
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
@@ -280,14 +276,15 @@ export function ScanPage({ className: _className }: ScanPageProps) {
       <>
         <div className="space-y-4 sm:space-y-6">
         {/* Floating Stats Counter */}
-        <div className="fixed top-4 right-4 z-50 hidden sm:block">
-          <div className="bg-gradient-to-br from-yellow-500 to-amber-500 dark:from-yellow-600 dark:to-amber-600 backdrop-blur-xl border border-white/20 rounded-xl p-3 shadow-lg shadow-yellow-500/30 dark:shadow-yellow-900/30">
+        <div className="fixed top-4 right-4 z-50">
+          <div className="bg-gradient-to-br from-yellow-500 to-amber-500 dark:from-yellow-600 dark:to-amber-600 backdrop-blur-xl border border-white/20 rounded-xl p-2 sm:p-3 shadow-lg shadow-yellow-500/30 dark:shadow-yellow-900/30">
             <div className="text-center">
-              <div className="text-2xl font-bold text-white mb-0.5">
+              <div className="text-lg sm:text-2xl font-bold text-white mb-0.5">
                 {attendanceStats.totalScanned}
               </div>
-              <div className="text-[10px] text-white/90 uppercase tracking-wider">
-                Scanned Today
+              <div className="text-[8px] sm:text-[10px] text-white/90 uppercase tracking-wider">
+                <span className="hidden sm:inline">Scanned Today</span>
+                <span className="sm:hidden">Today</span>
               </div>
             </div>
           </div>
@@ -401,8 +398,8 @@ export function ScanPage({ className: _className }: ScanPageProps) {
           </CardContent>
         </Card>
 
-        {/* Input Method - QR Scanner or Manual Input */}
-        <Card className="w-full bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/10 dark:border-gray-700 overflow-hidden">
+        {/* Unified Scanner Interface */}
+        <Card className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg">
           <CardContent className="p-4 sm:p-6">
             {inputMode === 'qr' ? (
               <QRScanner

@@ -654,12 +654,12 @@ export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }:
         <div
           id="qr-reader"
           className={`w-full rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${
-            isScanning ? 'shadow-blue-500/50 ring-2 ring-blue-500/30' : ''
+            isScanning ? 'shadow-yellow-500/50 ring-2 ring-yellow-500/30' : ''
           } ${scanAnimation ? 'scale-[1.02]' : 'scale-100'}`}
           style={{ 
-            minHeight: '400px',
+            minHeight: '300px',
             maxHeight: '500px',
-            maxWidth: '600px',
+            maxWidth: '100%',
             margin: '0 auto',
             aspectRatio: '4/3'
           }}
