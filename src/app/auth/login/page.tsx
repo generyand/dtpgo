@@ -14,9 +14,12 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <div className="relative fixed inset-0 w-screen h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-white to-amber-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Background Elements - Matching landing page exactly */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/10 dark:bg-yellow-400/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-400/10 dark:bg-amber-400/5 rounded-full blur-3xl" />
+      {/* Background Elements - More subtle for better contrast */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/5 dark:bg-yellow-400/3 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-400/5 dark:bg-amber-400/3 rounded-full blur-3xl" />
+      
+      {/* Subtle overlay to enhance form contrast */}
+      <div className="absolute inset-0 bg-white/20 dark:bg-gray-900/20 pointer-events-none" />
       
       <div className="w-full max-w-md px-4 space-y-6 relative z-10">
         {/* Header */}
@@ -29,7 +32,7 @@ export default function LoginPage() {
         </div>
 
         {/* Login Card */}
-        <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+        <Card className="shadow-2xl hover:shadow-3xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 ring-1 ring-gray-100 dark:ring-gray-700 transition-all duration-300">
           <CardHeader className="text-center pb-4">
             <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">Welcome Back</CardTitle>
             <CardDescription className="text-base text-gray-600 dark:text-gray-300">
