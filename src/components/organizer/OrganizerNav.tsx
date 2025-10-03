@@ -37,16 +37,16 @@ function NavLink({
       onClick={onClick}
       className={cn(
         'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
-        'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-50',
+        'hover:bg-muted hover:text-foreground',
         'focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2',
         isActive 
           ? 'bg-yellow-50 text-yellow-800 border-r-2 border-yellow-500 dark:bg-yellow-900/20 dark:text-yellow-300' 
-          : 'text-gray-600 dark:text-gray-300'
+          : 'text-muted-foreground'
       )}
     >
       <Icon className={cn(
         'h-5 w-5 transition-colors',
-        isActive ? 'text-yellow-700 dark:text-yellow-300' : 'text-gray-500 dark:text-gray-400'
+        isActive ? 'text-yellow-700 dark:text-yellow-300' : 'text-muted-foreground'
       )} />
       <span className="truncate">{label}</span>
     </Link>
@@ -69,13 +69,13 @@ export function OrganizerNav() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden border-r bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 lg:block dark:bg-gray-900/95 dark:supports-[backdrop-filter]:bg-gray-900/60 fixed top-0 left-0 w-[280px] h-screen z-50">
+      <div className="hidden border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:block fixed top-0 left-0 w-[280px] h-screen z-50">
         <div className="flex h-full flex-col">
           {/* Desktop Header */}
-          <div className="flex h-16 items-center border-b px-6 bg-gray-50/50 dark:bg-gray-800/50">
+          <div className="flex h-16 items-center border-b px-6 bg-muted/50">
             <Link 
               href="/organizer/sessions" 
-              className="flex items-center gap-3 font-semibold text-gray-900 dark:text-gray-100 hover:text-yellow-700 dark:hover:text-yellow-300 transition-colors"
+              className="flex items-center gap-3 font-semibold text-foreground hover:text-yellow-700 dark:hover:text-yellow-300 transition-colors"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-400 text-black">
                 <QrCode className="h-4 w-4" />
@@ -94,18 +94,18 @@ export function OrganizerNav() {
           </div>
 
           {/* Desktop Footer */}
-          <div className="border-t bg-gray-50/50 dark:bg-gray-800/50">
+          <div className="border-t bg-muted/50">
             {/* User Info */}
-            <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-3 border-b border-border">
               <div className="flex items-center gap-3 mb-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
                   <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                  <p className="text-sm font-medium text-foreground truncate">
                     {user?.email || 'Organizer'}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-xs text-muted-foreground">
                     {getRoleDisplayName(user?.user_metadata?.role || null)}
                   </p>
                 </div>
@@ -114,14 +114,14 @@ export function OrganizerNav() {
                 onClick={handleLogoutClick}
                 variant="outline"
                 size="sm"
-                className="w-full justify-start gap-2 text-gray-600 hover:text-red-600 hover:border-red-200 dark:text-gray-400 dark:hover:text-red-400"
+                className="w-full justify-start gap-2 text-muted-foreground hover:text-destructive hover:border-destructive"
               >
                 <LogOut className="h-4 w-4" />
                 Sign Out
               </Button>
             </div>
             <div className="p-3 flex items-center justify-between">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
+              <div className="text-xs text-muted-foreground">
                 DTP Attendance System
               </div>
               <ThemeToggle />
@@ -131,11 +131,11 @@ export function OrganizerNav() {
       </div>
       
       {/* Mobile Header */}
-      <header className="flex h-16 items-center justify-between border-b bg-white/95 backdrop-blur px-4 supports-[backdrop-filter]:bg-white/60 lg:hidden dark:bg-gray-900/95 dark:supports-[backdrop-filter]:bg-gray-900/60">
+      <header className="flex h-16 items-center justify-between border-b bg-background/95 backdrop-blur px-4 supports-[backdrop-filter]:bg-background/60 lg:hidden">
         {/* Mobile Logo */}
         <Link 
           href="/organizer/sessions" 
-          className="flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100"
+          className="flex items-center gap-2 font-semibold text-foreground"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-400 text-black">
             <QrCode className="h-4 w-4" />
@@ -149,7 +149,7 @@ export function OrganizerNav() {
             <Button 
               size="icon" 
               variant="ghost" 
-              className="h-10 w-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800"
+              className="h-10 w-10 text-muted-foreground hover:text-foreground hover:bg-muted"
             >
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle navigation menu</span>
@@ -157,16 +157,16 @@ export function OrganizerNav() {
           </SheetTrigger>
           <SheetContent 
             side="left" 
-            className="w-80 p-0 bg-white dark:bg-gray-900 z-50"
+            className="w-80 p-0 bg-background z-50"
           >
             <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
             
             {/* Mobile Sheet Header */}
-            <div className="flex h-16 items-center justify-between border-b px-6 bg-gray-50/50 dark:bg-gray-800/50">
+            <div className="flex h-16 items-center justify-between border-b px-6 bg-muted/50">
               <Link 
                 href="/organizer/sessions" 
                 onClick={handleNavClick}
-                className="flex items-center gap-3 font-semibold text-gray-900 dark:text-gray-100"
+                className="flex items-center gap-3 font-semibold text-foreground"
               >
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-400 text-black">
                   <QrCode className="h-4 w-4" />
@@ -187,18 +187,18 @@ export function OrganizerNav() {
             </nav>
 
             {/* Mobile Sheet Footer */}
-            <div className="border-t bg-gray-50/50 dark:bg-gray-800/50">
+            <div className="border-t bg-muted/50">
               {/* Mobile User Info */}
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="p-4 border-b border-border">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
                     <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                    <p className="text-sm font-medium text-foreground truncate">
                       {user?.email || 'Organizer'}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-muted-foreground">
                       {getRoleDisplayName(user?.user_metadata?.role || null)}
                     </p>
                   </div>
@@ -210,14 +210,14 @@ export function OrganizerNav() {
                   }}
                   variant="outline"
                   size="sm"
-                  className="w-full justify-start gap-2 text-gray-600 hover:text-red-600 hover:border-red-200 dark:text-gray-400 dark:hover:text-red-400"
+                  className="w-full justify-start gap-2 text-muted-foreground hover:text-destructive hover:border-destructive"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign Out
                 </Button>
               </div>
               <div className="p-4 flex items-center justify-between">
-                <div className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="text-xs text-muted-foreground">
                   DTP Attendance System
                 </div>
                 <ThemeToggle />

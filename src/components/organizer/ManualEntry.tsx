@@ -270,9 +270,9 @@ export function ManualEntry({
           <span>Manual Entry</span>
         </div>
         
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">Manual Student Entry</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-2">Manual Student Entry</h2>
         
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Enter student information manually when QR scanning is not available
         </p>
       </div>
@@ -289,11 +289,11 @@ export function ManualEntry({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className="text-sm font-medium text-gray-500">Event</p>
-              <p className="text-lg font-semibold text-gray-900">{eventName}</p>
+              <p className="text-lg font-semibold text-foreground">{eventName}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Session</p>
-              <p className="text-lg font-semibold text-gray-900">{sessionName}</p>
+              <p className="text-lg font-semibold text-foreground">{sessionName}</p>
             </div>
           </div>
         </CardContent>
@@ -318,7 +318,7 @@ export function ManualEntry({
                   <div className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-green-600" />
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-foreground">
                         {entry.student.firstName} {entry.student.lastName}
                       </p>
                       <p className="text-sm text-gray-500 font-mono">
@@ -524,7 +524,7 @@ export function ManualEntry({
                     <div className="flex items-center gap-3">
                       <User className="h-4 w-4 text-gray-500" />
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-foreground">
                           {student.firstName} {student.lastName}
                         </p>
                         <p className="text-sm text-gray-500 font-mono">
@@ -533,7 +533,7 @@ export function ManualEntry({
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-gray-600">{student.program.name}</p>
+                      <p className="text-sm text-muted-foreground">{student.program.name}</p>
                       <p className="text-xs text-gray-500">Year {student.year}</p>
                     </div>
                   </div>

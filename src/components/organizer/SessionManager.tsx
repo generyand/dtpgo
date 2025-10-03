@@ -300,8 +300,8 @@ export function SessionManager({ sessionId, className }: SessionManagerProps) {
         <Card>
           <CardContent className="text-center py-8">
             <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Data</h3>
-            <p className="text-gray-600 mb-4">{error}</p>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Error Loading Data</h3>
+            <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={refreshData} variant="outline">
               Try Again
             </Button>
@@ -317,8 +317,8 @@ export function SessionManager({ sessionId, className }: SessionManagerProps) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Session Management</h1>
-            <p className="text-gray-600">View and manage session attendance data</p>
+            <h1 className="text-3xl font-bold text-foreground">Session Management</h1>
+            <p className="text-muted-foreground">View and manage session attendance data</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -602,8 +602,8 @@ export function SessionManager({ sessionId, className }: SessionManagerProps) {
           <Card>
             <CardContent className="text-center py-8">
               <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Sessions Available</h3>
-              <p className="text-gray-600 mb-4">
+              <h3 className="text-lg font-semibold text-foreground mb-2">No Sessions Available</h3>
+              <p className="text-muted-foreground mb-4">
                 You don&apos;t have any sessions assigned to you yet.
               </p>
             </CardContent>

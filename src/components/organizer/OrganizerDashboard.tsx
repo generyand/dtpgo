@@ -165,9 +165,9 @@ export function OrganizerDashboard({ className }: OrganizerDashboardProps) {
       case 'upcoming':
         return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Upcoming</Badge>;
       case 'ended':
-        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Ended</Badge>;
+        return <Badge className="bg-muted text-muted-foreground border-border">Ended</Badge>;
       default:
-        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Inactive</Badge>;
+        return <Badge className="bg-muted text-muted-foreground border-border">Inactive</Badge>;
     }
   };
 
@@ -225,8 +225,8 @@ export function OrganizerDashboard({ className }: OrganizerDashboardProps) {
           <CardContent className="flex items-center justify-center py-8">
             <div className="text-center">
               <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Dashboard</h3>
-              <p className="text-gray-600 mb-4">{error}</p>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Error Loading Dashboard</h3>
+              <p className="text-muted-foreground mb-4">{error}</p>
               <Button onClick={() => window.location.reload()}>
                 Try Again
               </Button>
@@ -242,8 +242,8 @@ export function OrganizerDashboard({ className }: OrganizerDashboardProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Organizer Dashboard</h1>
-          <p className="text-gray-600">Welcome back! Here&apos;s your session overview</p>
+          <h1 className="text-3xl font-bold text-foreground">Organizer Dashboard</h1>
+          <p className="text-muted-foreground">Welcome back! Here&apos;s your session overview</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => router.push('/organizer/sessions')}>
@@ -339,8 +339,8 @@ export function OrganizerDashboard({ className }: OrganizerDashboardProps) {
                   .map((session) => (
                     <div key={session.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{session.name}</h4>
-                        <p className="text-sm text-gray-600">{session.event.name}</p>
+                        <h4 className="font-medium text-foreground">{session.name}</h4>
+                        <p className="text-sm text-muted-foreground">{session.event.name}</p>
                         <p className="text-xs text-gray-500">
                           {formatDate(session.timeInStart)} at {formatTime(session.timeInStart)}
                         </p>
@@ -393,8 +393,8 @@ export function OrganizerDashboard({ className }: OrganizerDashboardProps) {
                   .map((session) => (
                     <div key={session.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{session.name}</h4>
-                        <p className="text-sm text-gray-600">{session.event.name}</p>
+                        <h4 className="font-medium text-foreground">{session.name}</h4>
+                        <p className="text-sm text-muted-foreground">{session.event.name}</p>
                         <p className="text-xs text-gray-500">
                           {session._count.attendance} students scanned
                         </p>

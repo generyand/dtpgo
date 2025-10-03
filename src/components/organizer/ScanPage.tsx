@@ -231,17 +231,17 @@ export function ScanPage() {
 
   if (loading) {
     return (
-      <Card className="w-full max-w-5xl mx-auto bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/20 dark:border-gray-700">
+      <Card className="w-full max-w-5xl mx-auto bg-card/50 backdrop-blur-xl border-border">
         <CardHeader className="text-center">
-          <CardTitle className="text-gray-900 dark:text-gray-100">Loading Sessions...</CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-400">Please wait while we load your available sessions.</CardDescription>
+          <CardTitle className="text-foreground">Loading Sessions...</CardTitle>
+          <CardDescription className="text-muted-foreground">Please wait while we load your available sessions.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div className="h-4 bg-muted rounded"></div>
+            <div className="h-10 bg-muted rounded"></div>
+            <div className="h-10 bg-muted rounded"></div>
+            <div className="h-10 bg-muted rounded"></div>
           </div>
         </CardContent>
       </Card>
@@ -250,7 +250,7 @@ export function ScanPage() {
 
   if (error) {
     return (
-      <Card className="w-full max-w-5xl mx-auto bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/20 dark:border-gray-700">
+      <Card className="w-full max-w-5xl mx-auto bg-card/50 backdrop-blur-xl border-border">
         <CardHeader>
           <CardTitle className="text-red-600 dark:text-red-400">Error Loading Sessions</CardTitle>
         </CardHeader>
@@ -262,7 +262,7 @@ export function ScanPage() {
             </AlertDescription>
           </Alert>
           <div className="mt-4">
-            <Button onClick={loadSessions} variant="outline" className="border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800">
+            <Button onClick={loadSessions} variant="outline" className="border-border text-foreground hover:bg-muted">
               Try Again
             </Button>
           </div>
@@ -291,7 +291,7 @@ export function ScanPage() {
         </div>
 
         {/* Compact Session Header */}
-        <Card className="w-full bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/10 dark:border-gray-700">
+        <Card className="w-full bg-card/50 backdrop-blur-xl border-border">
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3 flex-1">
@@ -299,13 +299,13 @@ export function ScanPage() {
                   onClick={handleBackToSessions}
                   variant="outline"
                   size="sm"
-                  className="border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 flex-shrink-0"
+                  className="border-border text-foreground hover:bg-muted flex-shrink-0"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <div className="flex-1 min-w-0">
-                  <CardTitle className="text-lg sm:text-xl text-gray-900 dark:text-gray-100 truncate">{selectedSession.event.name}</CardTitle>
-                  <CardDescription className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                  <CardTitle className="text-lg sm:text-xl text-foreground truncate">{selectedSession.event.name}</CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground truncate">
                     {selectedSession.name}
                   </CardDescription>
                 </div>
@@ -328,13 +328,13 @@ export function ScanPage() {
             
             {/* Input Mode Toggle */}
             <div className="mt-4 flex items-center justify-center">
-              <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+              <div className="flex items-center gap-3 bg-muted rounded-xl p-1">
                 <button
                   onClick={() => setInputMode('qr')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     inputMode === 'qr'
-                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                      ? 'bg-background text-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <Scan className="h-4 w-4" />
@@ -344,8 +344,8 @@ export function ScanPage() {
                   onClick={() => setInputMode('manual')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     inputMode === 'manual'
-                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                      ? 'bg-background text-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <Keyboard className="h-4 w-4" />
@@ -356,7 +356,7 @@ export function ScanPage() {
 
             {/* Compact Info Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 text-xs sm:text-sm">
-              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="h-4 w-4 flex-shrink-0" />
                 <span className="truncate">
                   {new Date(selectedSession.timeInStart).toLocaleDateString('en-PH', {
@@ -366,7 +366,7 @@ export function ScanPage() {
                   })}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <Clock className="h-4 w-4 flex-shrink-0" />
                 <span className="truncate">
                   {new Date(selectedSession.timeInStart).toLocaleTimeString('en-PH', {
@@ -378,7 +378,7 @@ export function ScanPage() {
                 </span>
               </div>
               {selectedSession.event.location && (
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-2 text-muted-foreground">
                   <MapPin className="h-4 w-4 flex-shrink-0" />
                   <span className="truncate">{selectedSession.event.location}</span>
                 </div>
@@ -386,20 +386,20 @@ export function ScanPage() {
             </div>
             
             {/* Mobile Stats */}
-            <div className="mt-3 p-2 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg sm:hidden">
+            <div className="mt-3 p-2 bg-muted border border-border rounded-lg sm:hidden">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5 text-gray-600 dark:text-gray-400" />
-                  <span className="text-gray-900 dark:text-gray-100 font-medium">Scanned</span>
+                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-foreground font-medium">Scanned</span>
                 </div>
-                <span className="text-gray-900 dark:text-gray-100 font-semibold">{attendanceStats.totalScanned}</span>
+                <span className="text-foreground font-semibold">{attendanceStats.totalScanned}</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Unified Scanner Interface */}
-        <Card className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg">
+        <Card className="w-full bg-card border-border shadow-lg">
           <CardContent className="p-4 sm:p-6">
             {inputMode === 'qr' ? (
               <QRScanner
@@ -744,7 +744,7 @@ export function ScanPage() {
   return (
     <>
       <div className="space-y-6">
-        <Card className="w-full bg-white/5 dark:bg-gray-800/50 backdrop-blur-xl border-white/10 dark:border-gray-700">
+        <Card className="w-full bg-card/50 backdrop-blur-xl border-border">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl sm:text-3xl text-gray-900 dark:text-gray-100">Select a Session</CardTitle>
             <CardDescription className="text-gray-600 dark:text-gray-400">

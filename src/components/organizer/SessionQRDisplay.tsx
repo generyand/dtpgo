@@ -128,13 +128,13 @@ export function SessionQRDisplay({
               <QrCode className="size-3.5" />
               <span>Session QR Code</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Generating QR Code</h1>
-            <p className="mt-1 text-sm text-gray-600 max-w-prose">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">Generating QR Code</h1>
+            <p className="mt-1 text-sm text-muted-foreground max-w-prose">
               Please wait while we generate the session QR code...
             </p>
           </div>
           
-          <Card className="group relative overflow-hidden rounded-xl border bg-white shadow-sm">
+          <Card className="group relative overflow-hidden rounded-xl border bg-card shadow-sm">
             <div className="p-6 sm:p-8 space-y-6">
               {/* Session Information Skeleton */}
               <div className="text-center space-y-2">
@@ -148,7 +148,7 @@ export function SessionQRDisplay({
 
               {/* QR Code Animation */}
               <div className="text-center space-y-4">
-                <div className="bg-white rounded-lg p-4 shadow-sm inline-block">
+                <div className="bg-background rounded-lg p-4 shadow-sm inline-block">
                   <div className="w-[280px] sm:w-[320px] h-[280px] sm:h-[320px] relative bg-gray-50 rounded-lg overflow-hidden">
                     <div className="grid grid-cols-12 gap-1 w-full h-full p-4">
                       {Array.from({ length: 144 }).map((_, i) => (
@@ -183,19 +183,19 @@ export function SessionQRDisplay({
               <AlertCircle className="size-3.5" />
               <span>QR Code Error</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Failed to Generate QR Code</h1>
-            <p className="mt-1 text-sm text-gray-600 max-w-prose">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">Failed to Generate QR Code</h1>
+            <p className="mt-1 text-sm text-muted-foreground max-w-prose">
               {error}
             </p>
           </div>
           
-          <Card className="group relative overflow-hidden rounded-xl border bg-white shadow-sm">
+          <Card className="group relative overflow-hidden rounded-xl border bg-card shadow-sm">
             <div className="p-6 sm:p-8 text-center">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-6 h-6 text-red-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">QR Code Generation Failed</h3>
-              <p className="text-gray-600 mb-6">
+              <h3 className="text-lg font-semibold text-foreground mb-2">QR Code Generation Failed</h3>
+              <p className="text-muted-foreground mb-6">
                 {error}
               </p>
               <Button

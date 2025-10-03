@@ -35,6 +35,7 @@ export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }:
   const [isProcessing, setIsProcessing] = useState(false);
   const [scanAnimation, setScanAnimation] = useState(false);
   const [showResultDialog, setShowResultDialog] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const isMountedRef = useRef(true);
   const lastScanTimeRef = useRef<number>(0);
@@ -53,6 +54,25 @@ export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }:
         successAudioRef.current = null;
       }
     };
+  }, []);
+
+  // Detect device type for camera mirroring
+  useEffect(() => {
+    const detectDevice = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent) ||
+                            (window.innerWidth <= 768) ||
+                            ('ontouchstart' in window);
+      setIsMobile(isMobileDevice);
+    };
+
+    detectDevice();
+    
+    // Re-detect on resize
+    const handleResize = () => detectDevice();
+    window.addEventListener('resize', handleResize);
+    
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Initialize scanner
@@ -550,8 +570,8 @@ export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }:
       {/* Modern Scanner Styles */}
       <style jsx global>{`
         #qr-reader video {
-          transform: scaleX(-1) !important;
-          -webkit-transform: scaleX(-1) !important;
+          ${!isMobile ? 'transform: scaleX(-1) !important;' : ''}
+          ${!isMobile ? '-webkit-transform: scaleX(-1) !important;' : ''}
           border-radius: 1rem;
           object-fit: cover;
         }
@@ -682,14 +702,14 @@ export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }:
         
         {/* Scanning Tips - Elegant */}
         {isScanning && !lastScanResult && !isProcessing && (
-          <div className="mt-4 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
+          <div className="mt-4 p-4 rounded-xl bg-muted border border-border backdrop-blur-sm">
             <div className="flex items-start gap-3">
               <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
                 <Camera className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
               </div>
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Scanning Tips</h4>
-                <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-2">
+                <h4 className="text-sm font-semibold text-foreground mb-2">Scanning Tips</h4>
+                <ul className="text-xs text-muted-foreground space-y-2">
                   <li className="flex items-center gap-3">
                     <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
                     Position QR code within the highlighted frame

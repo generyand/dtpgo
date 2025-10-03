@@ -342,15 +342,15 @@ export function ManualInput({ onScan }: ManualInputProps) {
               <Keyboard className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Manual Entry</h3>
-          <p className="text-gray-600 dark:text-gray-400">
+          <h3 className="text-xl font-semibold text-foreground mb-2">Manual Entry</h3>
+          <p className="text-muted-foreground">
             Enter student ID number manually when QR code is not available
           </p>
         </div>
         <div className="px-6 pb-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="studentIdNumber" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <label htmlFor="studentIdNumber" className="text-sm font-medium text-foreground">
                 Student ID Number
               </label>
               <Input
@@ -362,7 +362,7 @@ export function ManualInput({ onScan }: ManualInputProps) {
                 onKeyPress={handleKeyPress}
                 placeholder="Enter student ID number..."
                 disabled={isProcessing}
-                className="text-center text-base sm:text-lg font-mono bg-white border-gray-200 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 h-12 sm:h-14"
+                className="text-center text-base sm:text-lg font-mono bg-background border-border text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 h-12 sm:h-14"
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"
@@ -408,14 +408,14 @@ export function ManualInput({ onScan }: ManualInputProps) {
           )}
 
           {/* Usage Tips */}
-          <div className="mt-6 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
+          <div className="mt-6 p-4 rounded-xl bg-muted border border-border backdrop-blur-sm">
             <div className="flex items-start gap-3">
               <div className="p-2 bg-yellow-100 rounded-lg">
                 <Keyboard className="h-5 w-5 text-yellow-600 flex-shrink-0" />
               </div>
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Manual Entry Tips</h4>
-                <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-2">
+                <h4 className="text-sm font-semibold text-foreground mb-2">Manual Entry Tips</h4>
+                <ul className="text-xs text-muted-foreground space-y-2">
                   <li className="flex items-center gap-3">
                     <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>
                     Enter the student&apos;s ID number (not the CUID)
