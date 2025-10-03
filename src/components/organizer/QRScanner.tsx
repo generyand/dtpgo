@@ -36,6 +36,7 @@ export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }:
   const [scanAnimation, setScanAnimation] = useState(false);
   const [showResultDialog, setShowResultDialog] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isStopping, setIsStopping] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const isMountedRef = useRef(true);
   const lastScanTimeRef = useRef<number>(0);
@@ -100,6 +101,30 @@ export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }:
     };
   }, []);
 
+  // Reset scanner state when component mounts (for mode switching)
+  useEffect(() => {
+    // Reset all scanner-related state when component mounts
+    setIsScanning(false);
+    setIsProcessing(false);
+    setScanAnimation(false);
+    setShowResultDialog(false);
+    setLastScanResult(null);
+    setIsStopping(false);
+    lastScanTimeRef.current = 0;
+    
+    // Clear any existing scanner instance
+    if (scannerRef.current) {
+      try {
+        scannerRef.current.clear();
+      } catch (err) {
+        console.warn('Error clearing scanner on mount:', err);
+      }
+      scannerRef.current = null;
+    }
+    
+    console.log('🔄 QR Scanner component mounted - state reset');
+  }, []);
+
   const startScanning = useCallback(async () => {
     if (!cameraId) {
       toast.error('No camera available');
@@ -119,14 +144,73 @@ export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }:
         {
           fps: 10,
           qrbox: function(viewfinderWidth, viewfinderHeight) {
-            const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-            const qrboxSize = Math.floor(minEdge * 0.75);
-            return {
-              width: qrboxSize,
-              height: qrboxSize
-            };
+            console.log('📐 Viewfinder dimensions:', { viewfinderWidth, viewfinderHeight, isMobile });
+            
+            if (isMobile) {
+              // Mobile: Optimize for mobile screen sizes
+              const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+              const maxEdge = Math.max(viewfinderWidth, viewfinderHeight);
+              
+              // Use different sizing based on screen orientation and size
+              let qrboxSize;
+              if (maxEdge > minEdge * 1.5) {
+                // Landscape orientation - use smaller percentage
+                qrboxSize = Math.floor(minEdge * 0.6);
+              } else {
+                // Portrait orientation - use larger percentage
+                qrboxSize = Math.floor(minEdge * 0.75);
+              }
+              
+              // Ensure minimum size for usability
+              qrboxSize = Math.max(qrboxSize, 200);
+              
+              console.log('📱 Mobile qrbox size:', qrboxSize, 'orientation:', maxEdge > minEdge * 1.5 ? 'landscape' : 'portrait');
+              return {
+                width: qrboxSize,
+                height: qrboxSize
+              };
+            } else {
+              // Desktop: Create a much larger scanning area to reduce zoom effect
+              const maxWidth = Math.min(viewfinderWidth * 0.8, 600);
+              const maxHeight = Math.min(viewfinderHeight * 0.8, 800);
+              
+              // Use 1:1 aspect ratio (square) for better QR scanning
+              const scanningAspectRatio = 1.0;
+              let width = maxWidth;
+              let height = width / scanningAspectRatio;
+              
+              // If height exceeds max, adjust
+              if (height > maxHeight) {
+                height = maxHeight;
+                width = height * scanningAspectRatio;
+              }
+              
+              const result = {
+                width: Math.floor(width),
+                height: Math.floor(height)
+              };
+              
+              console.log('🖥️ Desktop qrbox result:', result);
+              console.log('🖥️ Desktop viewfinder usage:', {
+                widthUsage: `${Math.floor((result.width / viewfinderWidth) * 100)}%`,
+                heightUsage: `${Math.floor((result.height / viewfinderHeight) * 100)}%`
+              });
+              
+              return result;
+            }
           },
-          aspectRatio: 1.0,
+          aspectRatio: isMobile ? 1.0 : 1.0, // Square for both, but mobile gets different video constraints
+          videoConstraints: isMobile ? {
+            // Mobile camera constraints - optimized for mobile devices
+            width: { ideal: 640, max: 1280 },
+            height: { ideal: 480, max: 720 },
+            facingMode: "environment" // Use back camera on mobile
+          } : {
+            // Desktop camera constraints to reduce zoom
+            width: { ideal: 1280, max: 1920 },
+            height: { ideal: 720, max: 1080 },
+            // No facingMode for desktop
+          },
         },
         async (decodedText) => {
           // Debounce scans
@@ -282,15 +366,31 @@ export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }:
   }, [cameraId, onScan, onError, onScanningStateChange]);
 
   const stopScanning = useCallback(async () => {
-    if (scannerRef.current && isScanning) {
-      try {
-        await scannerRef.current.stop();
-        console.log('🛑 Scanner stopped');
-        setIsScanning(false);
-        onScanningStateChange?.(false);
-      } catch (err) {
-        console.error('Error stopping scanner:', err);
-      }
+    console.log('🛑 Stop scanner called, isScanning:', isScanning, 'scannerRef exists:', !!scannerRef.current);
+    
+    setIsStopping(true);
+    
+    if (!scannerRef.current) {
+      console.log('⚠️ No scanner instance to stop');
+      setIsScanning(false);
+      onScanningStateChange?.(false);
+      setIsStopping(false);
+      return;
+    }
+
+    try {
+      // Always try to stop the scanner, regardless of isScanning state
+      await scannerRef.current.stop();
+      console.log('✅ Scanner stopped successfully');
+    } catch (err) {
+      console.error('❌ Error stopping scanner:', err);
+      // Even if stop fails, we should still update the state
+    } finally {
+      // Always update state to ensure UI reflects the change
+      setIsScanning(false);
+      onScanningStateChange?.(false);
+      setIsStopping(false);
+      console.log('🔄 Scanner state updated to stopped');
     }
   }, [isScanning, onScanningStateChange]);
 
@@ -580,74 +680,9 @@ export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }:
           display: none !important;
         }
         
-        /* Futuristic scanning box with animated corners */
+        /* Clean scanner without shaded region */
         #qr-shaded-region {
-          border: none !important;
-          box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.7) !important;
-          position: relative !important;
-        }
-        
-        #qr-shaded-region::before,
-        #qr-shaded-region::after {
-          content: '';
-          position: absolute;
-          width: 80px;
-          height: 80px;
-          border: 4px solid #eab308;
-          border-radius: 12px;
-          animation: pulse-border 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        #qr-shaded-region::before {
-          top: -4px;
-          left: -4px;
-          border-right: none;
-          border-bottom: none;
-        }
-        
-        #qr-shaded-region::after {
-          bottom: -4px;
-          right: -4px;
-          border-left: none;
-          border-top: none;
-        }
-        
-        @keyframes pulse-border {
-          0%, 100% {
-            opacity: 1;
-            filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.8));
-          }
-          50% {
-            opacity: 0.6;
-            filter: drop-shadow(0 0 16px rgba(234, 179, 8, 1));
-          }
-        }
-        
-        /* Scanning animation line */
-        #qr-reader__scan_region {
-          position: relative !important;
-        }
-        
-        #qr-reader__scan_region::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 3px;
-          background: linear-gradient(90deg, transparent, #eab308, transparent);
-          animation: scan-line 2s linear infinite;
-          opacity: 0.8;
-          box-shadow: 0 0 10px #eab308;
-        }
-        
-        @keyframes scan-line {
-          0% {
-            top: 0;
-          }
-          100% {
-            top: 100%;
-          }
+          display: none !important;
         }
       `}</style>
 
@@ -673,29 +708,61 @@ export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }:
       <div className="relative group">
         <div
           id="qr-reader"
-          className={`w-full rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${
+          className={`rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${
             isScanning ? 'shadow-yellow-500/50 ring-2 ring-yellow-500/30' : ''
-          } ${scanAnimation ? 'scale-[1.02]' : 'scale-100'}`}
+          } ${scanAnimation ? 'scale-[1.02]' : 'scale-100'} ${
+            !isMobile ? 'bg-gray-50 dark:bg-gray-800' : ''
+          } ${isMobile ? 'w-full' : ''}`}
           style={{ 
-            minHeight: '300px',
-            maxHeight: '500px',
-            maxWidth: '100%',
+            minHeight: isMobile ? '250px' : '300px',
+            maxHeight: isMobile ? '400px' : '400px',
+            width: isMobile ? '100%' : '400px',
+            maxWidth: isMobile ? '100%' : '400px',
             margin: '0 auto',
-            aspectRatio: '4/3'
+            aspectRatio: isMobile ? '1/1' : '1/1'
           }}
         />
         {!isScanning && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900/95 via-gray-900/95 to-gray-900/95 dark:from-gray-950/95 dark:via-gray-950/95 dark:to-gray-950/95 rounded-2xl backdrop-blur-sm">
+          <div className={`absolute inset-0 flex items-center justify-center rounded-2xl backdrop-blur-sm ${
+            isMobile 
+              ? 'bg-gradient-to-br from-gray-900/95 via-gray-900/95 to-gray-900/95 dark:from-gray-950/95 dark:via-gray-950/95 dark:to-gray-950/95'
+              : 'bg-gradient-to-br from-gray-800/90 via-gray-700/90 to-gray-800/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90'
+          }`}>
             <div className="text-center px-4">
               <div className="relative inline-block mb-8">
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 to-amber-500 dark:from-yellow-600 dark:to-amber-600 rounded-full blur-2xl opacity-50 animate-pulse"></div>
-                <div className="relative bg-gradient-to-r from-yellow-500 to-amber-500 dark:from-yellow-600 dark:to-amber-600 rounded-full p-6 shadow-2xl">
+                <div className={`absolute inset-0 rounded-full blur-2xl opacity-50 animate-pulse ${
+                  isMobile 
+                    ? 'bg-gradient-to-r from-yellow-500 to-amber-500 dark:from-yellow-600 dark:to-amber-600'
+                    : 'bg-gradient-to-r from-yellow-400 to-amber-400 dark:from-yellow-500 dark:to-amber-500'
+                }`}></div>
+                <div className={`relative rounded-full p-6 shadow-2xl ${
+                  isMobile 
+                    ? 'bg-gradient-to-r from-yellow-500 to-amber-500 dark:from-yellow-600 dark:to-amber-600'
+                    : 'bg-gradient-to-r from-yellow-400 to-amber-400 dark:from-yellow-500 dark:to-amber-500'
+                }`}>
                   <Camera className="h-12 w-12 text-white" />
                 </div>
               </div>
-              <h2 className="text-xl font-bold text-gray-100 dark:text-gray-100 mb-2">Ready to Scan</h2>
-              <p className="text-sm text-gray-400 dark:text-gray-400">Position QR code within the frame</p>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Click start to begin scanning</p>
+              <h2 className={`text-xl font-bold mb-2 ${
+                isMobile 
+                  ? 'text-gray-100 dark:text-gray-100' 
+                  : 'text-gray-50 dark:text-gray-50'
+              }`}>Ready to Scan</h2>
+              <p className={`text-sm ${
+                isMobile 
+                  ? 'text-gray-400 dark:text-gray-400' 
+                  : 'text-gray-300 dark:text-gray-300'
+              }`}>
+                {isMobile 
+                  ? 'Position QR code within the frame' 
+                  : 'Position mobile phone screen within the scanning area'
+                }
+              </p>
+              <p className={`text-xs mt-1 ${
+                isMobile 
+                  ? 'text-gray-500 dark:text-gray-500' 
+                  : 'text-gray-400 dark:text-gray-400'
+              }`}>Click start to begin scanning</p>
             </div>
           </div>
         )}
@@ -708,20 +775,45 @@ export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }:
                 <Camera className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
               </div>
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-foreground mb-2">Scanning Tips</h4>
+                <h4 className="text-sm font-semibold text-foreground mb-2">
+                  {isMobile ? 'Scanning Tips' : 'Mobile Phone Scanning Tips'}
+                </h4>
                 <ul className="text-xs text-muted-foreground space-y-2">
-                  <li className="flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
-                    Position QR code within the highlighted frame
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
-                    Hold steady for 1-2 seconds
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
-                    Ensure good lighting for better scanning
-                  </li>
+                  {isMobile ? (
+                    <>
+                      <li className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
+                        Position QR code within the highlighted frame
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
+                        Hold steady for 1-2 seconds
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
+                        Ensure good lighting for better scanning
+                      </li>
+                    </>
+                  ) : (
+                    <>
+                      <li className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
+                        Position the mobile phone screen within the scanning frame
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
+                        Hold the phone steady and ensure QR code is clearly visible
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
+                        Adjust phone brightness if needed for better scanning
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 bg-yellow-500 dark:bg-yellow-400 rounded-full"></span>
+                        The scanning area is optimized for mobile phone screens
+                      </li>
+                    </>
+                  )}
                 </ul>
               </div>
             </div>
@@ -743,11 +835,21 @@ export function QRScanner({ onScan, onError, onCleanup, onScanningStateChange }:
         ) : (
           <Button
             onClick={stopScanning}
+            disabled={isStopping}
             variant="outline"
-            className="flex-1 h-14 border-2 border-red-500/50 bg-red-500/10 text-red-300 hover:bg-red-500/20 hover:border-red-500 font-semibold text-lg rounded-xl transition-all duration-300 hover:scale-[1.02]"
+            className="flex-1 h-14 border-2 border-red-500/50 bg-red-500/10 text-red-300 hover:bg-red-500/20 hover:border-red-500 font-semibold text-lg rounded-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <X className="mr-2 h-5 w-5" />
-            Stop Scanner
+            {isStopping ? (
+              <>
+                <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-red-300 border-t-transparent" />
+                Stopping...
+              </>
+            ) : (
+              <>
+                <X className="mr-2 h-5 w-5" />
+                Stop Scanner
+              </>
+            )}
           </Button>
         )}
       </div>

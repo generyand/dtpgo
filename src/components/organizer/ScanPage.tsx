@@ -210,6 +210,14 @@ export function ScanPage() {
     setIsScanningActive(isScanning);
   };
 
+  // Cleanup scanner when switching input modes
+  useEffect(() => {
+    // When switching away from QR mode, ensure scanner is cleaned up
+    if (inputMode !== 'qr' && (window as unknown as { __qrScannerCleanup?: () => Promise<void> }).__qrScannerCleanup) {
+      (window as unknown as { __qrScannerCleanup: () => Promise<void> }).__qrScannerCleanup();
+    }
+  }, [inputMode]);
+
   const handleAttendanceRecorded = () => {
     setAttendanceStats(prev => ({
       totalScanned: prev.totalScanned + 1,
@@ -276,7 +284,7 @@ export function ScanPage() {
       <>
         <div className="space-y-4 sm:space-y-6">
         {/* Floating Stats Counter */}
-        <div className="fixed top-4 right-4 z-50">
+        <div className="fixed top-4 right-4 z-50 hidden sm:block">
           <div className="bg-gradient-to-br from-yellow-500 to-amber-500 dark:from-yellow-600 dark:to-amber-600 backdrop-blur-xl border border-white/20 rounded-xl p-2 sm:p-3 shadow-lg shadow-yellow-500/30 dark:shadow-yellow-900/30">
             <div className="text-center">
               <div className="text-lg sm:text-2xl font-bold text-white mb-0.5">
@@ -285,6 +293,20 @@ export function ScanPage() {
               <div className="text-[8px] sm:text-[10px] text-white/90 uppercase tracking-wider">
                 <span className="hidden sm:inline">Scanned Today</span>
                 <span className="sm:hidden">Today</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile counter - bottom right */}
+        <div className="fixed bottom-4 right-4 z-50 sm:hidden">
+          <div className="bg-gradient-to-br from-yellow-500 to-amber-500 dark:from-yellow-600 dark:to-amber-600 backdrop-blur-xl border border-white/20 rounded-xl p-2 shadow-lg shadow-yellow-500/30 dark:shadow-yellow-900/30">
+            <div className="text-center">
+              <div className="text-lg font-bold text-white mb-0.5">
+                {attendanceStats.totalScanned}
+              </div>
+              <div className="text-[8px] text-white/90 uppercase tracking-wider">
+                Today
               </div>
             </div>
           </div>
