@@ -9,7 +9,7 @@ const getResend = () => {
 }
 
 const getFromEmail = () => {
-  return process.env.EMAIL_FROM || 'DNSC Attendance <onboarding@resend.dev>'
+  return process.env.EMAIL_FROM || 'DTP Attendance <onboarding@resend.dev>'
 }
 
 export interface SendEmailOptions {
