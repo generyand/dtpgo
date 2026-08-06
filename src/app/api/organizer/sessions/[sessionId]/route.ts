@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const session = await auth();
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -56,7 +56,7 @@ export async function GET(
       // Check if within time windows
       const timeInStart = eventSession.timeInStart;
       const timeOutEnd = eventSession.timeOutEnd;
-      
+
       if (timeInStart && timeOutEnd) {
         if (now >= timeInStart && now <= timeOutEnd) {
           status = 'active';

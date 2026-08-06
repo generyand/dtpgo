@@ -5,11 +5,11 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  ArrowLeft, 
-  Calendar, 
-  Clock, 
-  Users, 
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  Users,
   QrCode,
   CheckCircle2,
   XCircle,
@@ -40,7 +40,7 @@ export default function SessionDetailPage() {
   const params = useParams();
   const router = useRouter();
   const sessionId = params.sessionId as string;
-  
+
   const [session, setSession] = useState<SessionDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +50,7 @@ export default function SessionDetailPage() {
       try {
         setLoading(true);
         const res = await fetch(`/api/organizer/sessions/${sessionId}`);
-        
+
         if (!res.ok) {
           if (res.status === 404) {
             setError('Session not found');
@@ -59,7 +59,7 @@ export default function SessionDetailPage() {
           }
           return;
         }
-        
+
         const data = await res.json();
         setSession(data.session);
       } catch (err) {
@@ -125,10 +125,10 @@ export default function SessionDetailPage() {
 
   const formatTime = (time: string | null) => {
     if (!time) return 'Not set';
-    return new Date(time).toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return new Date(time).toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: true 
+      hour12: true
     });
   };
 
@@ -146,8 +146,8 @@ export default function SessionDetailPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
             onClick={() => router.push('/organizer/sessions')}
           >
@@ -165,7 +165,7 @@ export default function SessionDetailPage() {
             </p>
           </div>
         </div>
-        
+
         {session.status === 'active' && (
           <Link href={`/organizer/scan?sessionId=${session.id}`}>
             <Button className="bg-primary-600 hover:bg-primary-700 text-white">
@@ -254,7 +254,7 @@ export default function SessionDetailPage() {
                 <p className="text-sm text-green-600 dark:text-green-500">Checked In</p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3 p-4 rounded-lg bg-orange-50 dark:bg-orange-900/20">
               <Clock className="h-8 w-8 text-orange-600" />
               <div>
@@ -264,7 +264,7 @@ export default function SessionDetailPage() {
                 <p className="text-sm text-orange-600 dark:text-orange-500">Checked Out</p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/20">
               <XCircle className="h-8 w-8 text-gray-500" />
               <div>
