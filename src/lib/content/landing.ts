@@ -1,5 +1,5 @@
 export const ORG = {
-  name: "DNSC Attendance",
+  name: "Davao del Norte State College",
   college: "Davao del Norte State College",
   logoSrc: "/logo/dnsc.webp",
 };

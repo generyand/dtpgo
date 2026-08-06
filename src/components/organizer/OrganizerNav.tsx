@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Calendar, QrCode, Menu, LogOut, User } from 'lucide-react';
@@ -39,15 +38,15 @@ function NavLink({
       className={cn(
         'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
         'hover:bg-muted hover:text-foreground',
-        'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+        'focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2',
         isActive 
-          ? 'bg-primary-50 text-primary-800 border-r-2 border-primary-500 dark:bg-primary-900/20 dark:text-primary-300' 
+          ? 'bg-yellow-50 text-yellow-800 border-r-2 border-yellow-500 dark:bg-yellow-900/20 dark:text-yellow-300' 
           : 'text-muted-foreground'
       )}
     >
       <Icon className={cn(
         'h-5 w-5 transition-colors',
-        isActive ? 'text-primary-700 dark:text-primary-300' : 'text-muted-foreground'
+        isActive ? 'text-yellow-700 dark:text-yellow-300' : 'text-muted-foreground'
       )} />
       <span className="truncate">{label}</span>
     </Link>
@@ -74,12 +73,14 @@ export function OrganizerNav() {
         <div className="flex h-full flex-col">
           {/* Desktop Header */}
           <div className="flex h-16 items-center border-b px-6 bg-muted/50">
-            <Link
-              href="/organizer/sessions"
-              className="flex items-center gap-3 font-semibold text-foreground hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+            <Link 
+              href="/organizer/sessions" 
+              className="flex items-center gap-3 font-semibold text-foreground hover:text-yellow-700 dark:hover:text-yellow-300 transition-colors"
             >
-              <Image src="/logo/dnsc.webp" alt="DNSC Logo" width={32} height={32} className="rounded-full" />
-              <span className="text-lg">DNSC Attendance</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-400 text-black">
+                <QrCode className="h-4 w-4" />
+              </div>
+              <span className="text-lg">Organizer Portal</span>
             </Link>
           </div>
           
@@ -121,7 +122,7 @@ export function OrganizerNav() {
             </div>
             <div className="p-3 flex items-center justify-between">
               <div className="text-xs text-muted-foreground">
-                DNSC Attendance
+                DTP Attendance System
               </div>
               <ThemeToggle />
             </div>
@@ -132,12 +133,14 @@ export function OrganizerNav() {
       {/* Mobile Header */}
       <header className="flex h-16 items-center justify-between border-b bg-background/95 backdrop-blur px-4 supports-[backdrop-filter]:bg-background/60 lg:hidden">
         {/* Mobile Logo */}
-        <Link
-          href="/organizer/sessions"
+        <Link 
+          href="/organizer/sessions" 
           className="flex items-center gap-2 font-semibold text-foreground"
         >
-          <Image src="/logo/dnsc.webp" alt="DNSC Logo" width={32} height={32} className="rounded-full" />
-          <span className="text-lg">DNSC Attendance</span>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-400 text-black">
+            <QrCode className="h-4 w-4" />
+          </div>
+          <span className="text-lg">Organizer</span>
         </Link>
 
         {/* Mobile Menu Button */}
@@ -159,13 +162,15 @@ export function OrganizerNav() {
             
             {/* Mobile Sheet Header */}
             <div className="flex h-16 items-center justify-between border-b px-6 bg-muted/50">
-              <Link
-                href="/organizer/sessions"
+              <Link 
+                href="/organizer/sessions" 
                 onClick={handleNavClick}
                 className="flex items-center gap-3 font-semibold text-foreground"
               >
-                <Image src="/logo/dnsc.webp" alt="DNSC Logo" width={32} height={32} className="rounded-full" />
-                <span className="text-lg">DNSC Attendance</span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-400 text-black">
+                  <QrCode className="h-4 w-4" />
+                </div>
+                <span className="text-lg">Organizer Portal</span>
               </Link>
             </div>
 
@@ -212,7 +217,7 @@ export function OrganizerNav() {
               </div>
               <div className="p-4 flex items-center justify-between">
                 <div className="text-xs text-muted-foreground">
-                  DNSC Attendance
+                  DTP Attendance System
                 </div>
                 <ThemeToggle />
               </div>

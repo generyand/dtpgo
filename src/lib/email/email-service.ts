@@ -52,8 +52,8 @@ export async function sendEmail(options: SendEmailOptions): Promise<{ messageId:
 export async function sendTestEmail(recipient: string) {
   return await sendEmail({
     to: recipient,
-    subject: 'DNSC Attendance: Test Email',
-    text: 'This is a test email from DNSC Attendance system.',
-    html: '<p>This is a <strong>test email</strong> from DNSC Attendance system.</p>',
+    subject: 'DTP Attendance: Test Email',
+    text: 'This is a test email from DTP Attendance system.',
+    html: '<p>This is a <strong>test email</strong> from DTP Attendance system.</p>',
   })
 }

@@ -1,5 +1,5 @@
 /**
- * Spacing System for DNSC Attendance
+ * Spacing System for DTP Attendance
  * 
  * This file defines the spacing hierarchy using Tailwind CSS v4 @theme directive
  * and provides utility functions for consistent spacing across components.
