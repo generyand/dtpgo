@@ -17,10 +17,10 @@ export default function LoginPage() {
       {/* Background Elements - More subtle for better contrast */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/5 dark:bg-yellow-400/3 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-400/5 dark:bg-amber-400/3 rounded-full blur-3xl" />
-      
+
       {/* Subtle overlay to enhance form contrast */}
       <div className="absolute inset-0 bg-white/20 dark:bg-gray-900/20 pointer-events-none" />
-      
+
       <div className="w-full max-w-md px-4 space-y-6 relative z-10">
         {/* Header */}
         <div className="text-center">
@@ -48,10 +48,10 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>© 2025 University of Mindanao Digos College - DTP</p>
+          <p>© 2026 University of Mindanao Digos College - DTP</p>
         </div>
       </div>
       <Toaster richColors />
     </div>
   );
-} 
+}

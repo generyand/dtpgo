@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Calendar, QrCode, Menu, LogOut, User, Laptop } from 'lucide-react';
+import { Calendar, QrCode, Menu, LogOut, User } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
@@ -106,7 +106,7 @@ export function OrganizerNav() {
                     {user?.email || 'Organizer'}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {getRoleDisplayName(user?.user_metadata?.role || null)}
+                    {getRoleDisplayName(user?.role || null)}
                   </p>
                 </div>
               </div>
@@ -198,7 +198,7 @@ export function OrganizerNav() {
                       {user?.email || 'Organizer'}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {getRoleDisplayName(user?.user_metadata?.role || null)}
+                      {getRoleDisplayName(user?.role || null)}
                     </p>
                   </div>
                 </div>

@@ -52,7 +52,7 @@ export default function OrganizerResetPasswordPage() {
 
         {/* Footer */}
         <div className="text-center text-xs text-gray-500">
-          <p>© 2025 University of Mindanao Digos College - DTP. All rights reserved.</p>
+          <p>© 2026 University of Mindanao Digos College - DTP. All rights reserved.</p>
         </div>
       </div>
     </div>

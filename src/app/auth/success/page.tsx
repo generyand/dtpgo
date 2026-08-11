@@ -14,7 +14,7 @@ export default function AuthSuccessPage() {
   useEffect(() => {
     if (!loading && user) {
       // Get user role and redirect accordingly
-      const userRole = user.user_metadata?.role;
+      const userRole = user.role;
       
       let redirectPath = '/admin/dashboard'; // Default fallback
       
@@ -31,13 +31,10 @@ export default function AuthSuccessPage() {
       
       // Redirect after a short delay to show the success message
       const timer = setTimeout(() => {
-        router.push(redirectPath);
+        router.replace(redirectPath);
       }, 1500);
-      
+
       return () => clearTimeout(timer);
-    } else if (!loading && !user) {
-      // If no user after loading, redirect to login
-      router.push('/auth/login');
     }
   }, [user, loading, router]);
 
@@ -60,7 +57,7 @@ export default function AuthSuccessPage() {
     return null; // Will redirect to login
   }
 
-  const userRole = user.user_metadata?.role;
+  const userRole = user.role;
   const roleDisplayName = userRole === 'admin' ? 'Administrator' : 
                          userRole === 'organizer' ? 'Organizer' : 'User';
 
